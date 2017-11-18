@@ -21,7 +21,8 @@
     "node-sass": "^4.3.0",
     "react": "^16.1.0",
     "react-dom": "^16.0.0",
-    "sass-loader": "^6.0.6"
+    "sass-loader": "^6.0.6",
+    "three": "^0.88.0"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
