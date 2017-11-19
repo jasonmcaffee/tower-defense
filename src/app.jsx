@@ -6,6 +6,7 @@ import StageOne from 'stages/StageOne';
 import {signal} from "core/core";
 import {eventConfig as ec} from 'core/eventConfig';
 
+
 export default class App extends React.Component {
   render() {
     return (
@@ -32,22 +33,22 @@ export default class App extends React.Component {
     [ec.camera.setLookAt]({x, y, z}){
       this.camera.lookAt(new THREE.Vector3(x, y, z));
     },
-    [ec.camera.moveBackward]({amount=.2}={}){
+    [ec.camera.moveBackward]({amount=0}={}){
       this.camera.translateZ(amount);
     },
-    [ec.camera.moveForward]({amount=.2}={}){
+    [ec.camera.moveForward]({amount=0}={}){
       this.camera.translateZ(- amount);
     },
-    [ec.camera.moveLeft]({amount=.2}={}){
+    [ec.camera.moveLeft]({amount=0}={}){
       this.camera.translateX(- amount);
     },
-    [ec.camera.moveRight]({amount=.2}={}){
+    [ec.camera.moveRight]({amount=0}={}){
       this.camera.translateX(amount);
     },
-    [ec.camera.moveUp]({amount=.2}={}){
+    [ec.camera.moveUp]({amount=0}={}){
       this.camera.translateY(amount);
     },
-    [ec.camera.moveDown]({amount=.2}={}){
+    [ec.camera.moveDown]({amount=0}={}){
       this.camera.translateY(- amount);
     },
     [ec.window.resize]({height, width}){

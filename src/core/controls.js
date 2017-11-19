@@ -12,11 +12,82 @@ let qwertyKeyCodeOrder = [
   90, 88, 67, 86, 66, 78,   77, 188, 190,  191
 ];
 
+//start listening for keyboard, window, mouse movements, etc.
 export function listen(){
   listenKeyboard();
   listenMouse();
   listenWindow();
 }
+
+//control camera position
+let controls = {
+  //how often to trigger camera movement
+  triggersPerSecond: 120,
+  //how far to move the camera in a given direction
+  moveAmount: .025,
+  //storage for keys that are currently pressed, and their associated interval id.
+  //key should only be given one interval (started when key is first pressed, stopped when key is released)
+  keysCurrentlyPressed: {key:undefined, intervalId:undefined},
+
+  mouseMoved({x, y}){
+
+  },
+
+  startInterval(key, f, triggersPerSecond=this.triggersPerSecond){
+    if(this.keysCurrentlyPressed[key]){
+      return;
+    }
+    let intervalMs = 1000 / triggersPerSecond;
+    let intervalId = setInterval(f, intervalMs);
+    this.keysCurrentlyPressed[key] = intervalId;
+  },
+
+  stopInterval(key){
+    let intervalId = this.keysCurrentlyPressed[key];
+    this.keysCurrentlyPressed[key] = undefined;
+    clearInterval(intervalId);
+  },
+
+  //stop controlling camera position
+  keyReleased({keyReleased, keyCode}){
+    let key = keyCode + '';
+    this.stopInterval(key);
+  },
+
+  //control the camera position
+  keyPressed({keyPressed, keyCode}){
+    let key = keyCode + '';
+    let amount = this.moveAmount;
+
+    switch (keyPressed.toLowerCase()){
+      case 'w':
+        this.startInterval(key, ()=>{signal.trigger(ec.camera.moveForward, {amount});}); break;
+      case 's':
+        this.startInterval(key, ()=>{signal.trigger(ec.camera.moveBackward, {amount});}); break;
+      case 'a':
+        this.startInterval(key, ()=>{signal.trigger(ec.camera.moveLeft, {amount});}); break;
+      case 'd':
+        this.startInterval(key, ()=>{signal.trigger(ec.camera.moveRight, {amount});}); break;
+      default:
+        break;
+    }
+
+    switch(keyCode){
+      case 38: //up
+        this.startInterval(key, ()=>{signal.trigger(ec.camera.moveUp, {amount});}); break;
+      case 40: //down
+        this.startInterval(key, ()=>{signal.trigger(ec.camera.moveDown, {amount});}); break;
+      case 39: //right
+        this.startInterval(key, ()=>{signal.trigger(ec.camera.moveRight, {amount});}); break;
+      case 37: //left
+        this.startInterval(key, ()=>{signal.trigger(ec.camera.moveLeft, {amount});}); break;
+      default:
+        break;
+    }
+  }
+};
+
+
 
 function listenWindow(){
   window.addEventListener("resize", (e)=>{
@@ -34,45 +105,16 @@ function listenMouse(){
     controls.mouseMoved({x, y});
   }
 }
+
 function listenKeyboard(){
   document.onkeydown = (e)=>{
     let keyCode = e.which;
     let keyPressed = String.fromCharCode(e.which);
-    //console.log(`keyCode: ${keyCode} keyPressed: ${keyPressed}`);
     controls.keyPressed({keyPressed, keyCode});
   }
-}
-
-let controls = {
-  mouseMoved({x, y}){
-
-  },
-
-  keyPressed({keyPressed, keyCode}){
-    switch (keyPressed.toLowerCase()){
-      case 'w':
-        signal.trigger(ec.camera.moveForward); break;
-      case 's':
-        signal.trigger(ec.camera.moveBackward); break;
-      case 'a':
-        signal.trigger(ec.camera.moveLeft); break;
-      case 'd':
-        signal.trigger(ec.camera.moveRight); break;
-      default:
-        break;
-    }
-
-    switch(keyCode){
-      case 38: //up
-        signal.trigger(ec.camera.moveUp); break;
-      case 40: //down
-        signal.trigger(ec.camera.moveDown); break;
-      case 39: //right
-        signal.trigger(ec.camera.moveRight); break;
-      case 37: //left
-        signal.trigger(ec.camera.moveLeft); break;
-      default:
-        break;
-    }
+  document.onkeyup = (e)=>{
+    let keyCode = e.which;
+    let keyPressed = String.fromCharCode(e.which);
+    controls.keyReleased({keyPressed, keyCode});
   }
-};
+}
