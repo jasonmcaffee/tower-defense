@@ -32,14 +32,24 @@ export default class App extends React.Component {
     [ec.camera.setLookAt]({x, y, z}){
       this.camera.lookAt(new THREE.Vector3(x, y, z));
     },
-    [ec.camera.zoomOut]({amount=.2}={}){
+    [ec.camera.moveBackward]({amount=.2}={}){
       let {x, y, z} = this.camera.position;
       z += amount;
       signal.trigger(ec.camera.setPosition, {x, y, z});
     },
-    [ec.camera.zoomIn]({amount=.2}={}){
+    [ec.camera.moveForward]({amount=.2}={}){
       let {x, y, z} = this.camera.position;
       z -= amount;
+      signal.trigger(ec.camera.setPosition, {x, y, z});
+    },
+    [ec.camera.moveLeft]({amount=.2}={}){
+      let {x, y, z} = this.camera.position;
+      x -= amount;
+      signal.trigger(ec.camera.setPosition, {x, y, z});
+    },
+    [ec.camera.moveRight]({amount=.2}={}){
+      let {x, y, z} = this.camera.position;
+      x += amount;
       signal.trigger(ec.camera.setPosition, {x, y, z});
     }
   }

@@ -5,7 +5,11 @@ export const eventConfig = {
   camera:{
     setPosition: "camera.setPosition",
     setLookAt: "camera.setLookAtVector",
-    zoomOut:"camera.zoomOut",
-    zoomIn:"camera.zoomIn",
+    moveBackward:"camera.moveBackward",
+    moveForward:"camera.moveForward",
+    moveLeft:"camera.moveLeft",
+    moveRight:"camera.moveRight",
+    moveUp:"camera.moveUp",
+    moveDown:"camera.moveDown",
   }
 }
