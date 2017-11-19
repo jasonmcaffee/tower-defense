@@ -11,5 +11,8 @@ export const eventConfig = {
     moveRight:"camera.moveRight",
     moveUp:"camera.moveUp",
     moveDown:"camera.moveDown",
+  },
+  window:{
+    resize:"window.resize",
   }
 }

@@ -33,24 +33,29 @@ export default class App extends React.Component {
       this.camera.lookAt(new THREE.Vector3(x, y, z));
     },
     [ec.camera.moveBackward]({amount=.2}={}){
-      let {x, y, z} = this.camera.position;
-      z += amount;
-      signal.trigger(ec.camera.setPosition, {x, y, z});
+      this.camera.translateZ(amount);
     },
     [ec.camera.moveForward]({amount=.2}={}){
-      let {x, y, z} = this.camera.position;
-      z -= amount;
-      signal.trigger(ec.camera.setPosition, {x, y, z});
+      this.camera.translateZ(- amount);
     },
     [ec.camera.moveLeft]({amount=.2}={}){
-      let {x, y, z} = this.camera.position;
-      x -= amount;
-      signal.trigger(ec.camera.setPosition, {x, y, z});
+      this.camera.translateX(- amount);
     },
     [ec.camera.moveRight]({amount=.2}={}){
-      let {x, y, z} = this.camera.position;
-      x += amount;
-      signal.trigger(ec.camera.setPosition, {x, y, z});
+      this.camera.translateX(amount);
+    },
+    [ec.camera.moveUp]({amount=.2}={}){
+      this.camera.translateY(amount);
+    },
+    [ec.camera.moveDown]({amount=.2}={}){
+      this.camera.translateY(- amount);
+    },
+    [ec.window.resize]({height, width}){
+      let {camera, renderer} = this;
+      let aspect = width / height;
+      camera.aspect = aspect;
+      camera.updateProjectionMatrix();
+      renderer.setSize(width, height);
     }
   }
 
@@ -60,15 +65,15 @@ export default class App extends React.Component {
     signal.trigger(ec.camera.setLookAt, {x:0, y:0, z:0});
 
     let scene = new THREE.Scene();
-
     let stage = new StageOne();
     stage.addToScene({scene});
 
-    let renderer = new THREE.WebGLRenderer( { antialias: true } );
-    renderer.setSize( window.innerWidth, window.innerHeight );
+    let {innerWidth: width, innerHeight: height} = window;
+    this.renderer = new THREE.WebGLRenderer( { antialias: true } );
+    this.renderer.setSize(width, height);
     let threeJsRenderDiv = document.getElementById("threeJsRenderDiv");
-    threeJsRenderDiv.appendChild( renderer.domElement );
-    animate({camera, scene, renderer, stage});
+    threeJsRenderDiv.appendChild( this.renderer.domElement );
+    animate({camera, scene, renderer:this.renderer, stage});
   }
 }
 
