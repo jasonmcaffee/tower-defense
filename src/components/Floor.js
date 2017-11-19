@@ -30,10 +30,9 @@ export default class Floor {
   }
 
   createFloorLines({numberOfLines=10, lineLength, distanceBetweenLines=.5}={}){
-    lineLength = lineLength === undefined ? numberOfLines * distanceBetweenLines : lineLength;
     let lines = [
       ...this.createVerticalLines({numberOfVerticalLines:numberOfLines, lineLength, distanceBetweenLines}),
-      ...this.createHorizontallLines({numberOfHorizontalLines:numberOfLines, lineLength, distanceBetweenLines}),
+      ...this.createHorizontalLines({numberOfHorizontalLines:numberOfLines, lineLength, distanceBetweenLines}),
     ];
     return lines;
   }
@@ -51,7 +50,7 @@ export default class Floor {
     }
     return lines;
   }
-  createHorizontallLines({numberOfHorizontalLines = 10, lineLength, distanceBetweenLines=.5}={}){
+  createHorizontalLines({numberOfHorizontalLines = 10, lineLength, distanceBetweenLines=.5}={}){
     lineLength = lineLength === undefined ? numberOfHorizontalLines * distanceBetweenLines : lineLength;
     let lines = [];
     let xEnd = lineLength / 2;
