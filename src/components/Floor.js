@@ -6,17 +6,10 @@ import {LineBasicMaterial, Vector3, Geometry, Line} from 'three';
 export default class Floor {
   constructor({children = []} = {}) {
     this._children = children;
-
-    // let material = new LineBasicMaterial({ color: 0x4286f4 });
-    // let geometry = new Geometry();
-    // geometry.vertices.push(new Vector3(-10, 1, 0));
-    // geometry.vertices.push(new Vector3(10, 1, 0));
-    // this.line = new Line(geometry, material);
-    this.lines = this.createLines();
+    this.lines = this.createFloorLines({numberOfLines:30});
   }
 
   render() {
-    //console.log('rendering floor');
     this.renderChildren();
   }
 
@@ -24,11 +17,9 @@ export default class Floor {
     //children.forEach(c => c.render());
   }
 
-  addToScene({scene}) {
-    //scene.add(this.line);
+  addToScene({scene}){
     this.addChildrenToScene({scene});
     this.addLinesToScene({scene});
-
   }
 
   addChildrenToScene({children = this._children, scene} = {}) {
@@ -38,20 +29,41 @@ export default class Floor {
     lines.forEach(l => scene.add(l));
   }
 
-  createLines({numberOfVerticalLines=10, numberOfHorizontalLines=10, lineLength=10, distanceBetweenLines=1}={}){
-    let lines = [];
-    //vertical lines
-    let yEnd = lineLength / 2;
-    let yStart = yEnd * -1;
-    let xStart = (numberOfVerticalLines / 2) * -1;
-    for(let x=xStart; x < (numberOfVerticalLines + xStart); x+=distanceBetweenLines){
-      console.log('drawing line x ', x);
-      lines.push(this.createLine({x:x, x2:x, y:yStart, y2:yEnd}));
-    }
-
+  createFloorLines({numberOfLines=10, lineLength, distanceBetweenLines=.5}={}){
+    lineLength = lineLength === undefined ? numberOfLines * distanceBetweenLines : lineLength;
+    let lines = [
+      ...this.createVerticalLines({numberOfVerticalLines:numberOfLines, lineLength, distanceBetweenLines}),
+      ...this.createHorizontallLines({numberOfHorizontalLines:numberOfLines, lineLength, distanceBetweenLines}),
+    ];
     return lines;
   }
 
+  createVerticalLines({numberOfVerticalLines=10, lineLength, distanceBetweenLines=.5}={}){
+    lineLength = lineLength === undefined ? numberOfVerticalLines * distanceBetweenLines : lineLength;
+    let lines = [];
+    let yEnd = lineLength / 2;
+    let yStart = yEnd * -1;
+    let xStart = (numberOfVerticalLines * distanceBetweenLines / 2) * -1  ;
+    xStart += distanceBetweenLines / 2;
+    let countXTo = numberOfVerticalLines * distanceBetweenLines + xStart;
+    for(let x=xStart; x < countXTo; x+=distanceBetweenLines){
+      lines.push(this.createLine({x:x, x2:x, y:yStart, y2:yEnd}));
+    }
+    return lines;
+  }
+  createHorizontallLines({numberOfHorizontalLines = 10, lineLength, distanceBetweenLines=.5}={}){
+    lineLength = lineLength === undefined ? numberOfHorizontalLines * distanceBetweenLines : lineLength;
+    let lines = [];
+    let xEnd = lineLength / 2;
+    let xStart = xEnd * -1;
+    let yStart = (numberOfHorizontalLines * distanceBetweenLines / 2) * -1  ;
+    yStart += distanceBetweenLines / 2;
+    let countXTo = numberOfHorizontalLines * distanceBetweenLines + yStart;
+    for(let y=yStart; y < countXTo; y+=distanceBetweenLines){
+      lines.push(this.createLine({x:xStart, x2:xEnd, y:y, y2:y}));
+    }
+    return lines;
+  }
   createLine({x=0, y=0, z=0, x2=0, y2=0, z2=0}={}){
     let material = new LineBasicMaterial({ color: 0x4286f4 });
     let geometry = new Geometry();
