@@ -33,6 +33,12 @@ export default class App extends React.Component {
     [ec.camera.setLookAt]({x, y, z}){
       this.camera.lookAt(new THREE.Vector3(x, y, z));
     },
+    [ec.camera.setLookAtFromMouseMovement]({x, y, z}){
+      x += this.camera.position.x;
+      y += this.camera.position.y;
+      z += this.camera.position.z;
+      signal.trigger(ec.camera.setLookAt, {x,y,z});
+    },
     [ec.camera.moveBackward]({amount=0}={}){
       this.camera.translateZ(amount);
     },
@@ -61,7 +67,7 @@ export default class App extends React.Component {
   }
 
   initThreeJs(){
-    let camera = this.camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.01, 10 );
+    let camera = this.camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.01, 10000 );
     signal.trigger(ec.camera.setPosition, {x:0, y:0, z:10});
     signal.trigger(ec.camera.setLookAt, {x:0, y:0, z:0});
 

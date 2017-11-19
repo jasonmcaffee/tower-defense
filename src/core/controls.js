@@ -1,5 +1,8 @@
 import {eventConfig as ec} from "core/eventConfig";
 import {signal} from "core/core";
+import {Clock, Math as threeMath} from "three";
+
+let clock = new Clock();
 
 let qwertyKeyCodeOrder = [
   // 1   2   3   4   5   6   7   8   9   0  -    =    delete
@@ -12,25 +15,72 @@ let qwertyKeyCodeOrder = [
   90, 88, 67, 86, 66, 78,   77, 188, 190,  191
 ];
 
+let {moveForward, moveBackward, moveLeft, moveRight, moveUp, moveDown} = ec.camera;
+
 //start listening for keyboard, window, mouse movements, etc.
 export function listen(){
   listenKeyboard();
   listenMouse();
   listenWindow();
+  controls.startMouseInterval();
 }
 
 //control camera position
 let controls = {
   //how often to trigger camera movement
   triggersPerSecond: 120,
+  mouseTriggersPerSecond: 120,
   //how far to move the camera in a given direction
   moveAmount: .025,
   //storage for keys that are currently pressed, and their associated interval id.
   //key should only be given one interval (started when key is first pressed, stopped when key is released)
   keysCurrentlyPressed: {key:undefined, intervalId:undefined},
 
-  mouseMoved({x, y}){
+  mouseMoved({pageX, pageY, height=window.innerHeight, width=window.innerWidth}){
+    this.x = pageX - (width/2);
+    this.y = pageY - (height/2);
+  },
 
+  //debounce calcs done for camera position based on mouse event.
+  startMouseInterval({intervalMs=1000/this.mouseTriggersPerSecond, lookSpeed=0.1,}={}){
+    if(this.startedMouse){return;}
+    this.startedMouse = true;
+
+    setInterval(function interval(){
+      let {x,y}=this;
+      let delta = clock.getDelta();
+      //console.log('delta is ', delta);
+      //look
+      var actualLookSpeed = delta * lookSpeed;
+      var verticalLookRatio = 1;
+      if(isNaN(this.lon)){
+        console.log('lon is null')
+        this.lon = 0;
+      }
+      if(isNaN(this.lat)){
+        console.log('lat is null')
+        this.lat = 0;
+      }
+      this.lon += x * actualLookSpeed;
+      //if( this.lookVertical )
+      this.lat -= y * actualLookSpeed * verticalLookRatio;
+
+      this.lat = Math.max( - 85, Math.min( 85, this.lat ) );
+      this.phi = threeMath.degToRad( 90 - this.lat );
+
+      this.theta = threeMath.degToRad( this.lon );
+
+      this.xyz = {
+        x: 100 * Math.sin( this.phi ) * Math.cos(this.theta),
+        y: 100 * Math.cos( this.phi ),
+        z: 100 * Math.sin( this.phi ) * Math.sin( this.theta )
+      };
+      if(isNaN(this.xyz.x)){
+        console.log('x is NAN');
+        return;
+      }
+      signal.trigger(ec.camera.setLookAtFromMouseMovement, this.xyz);
+    }.bind(this), intervalMs);
   },
 
   startInterval(key, f, triggersPerSecond=this.triggersPerSecond){
@@ -57,33 +107,41 @@ let controls = {
   //control the camera position
   keyPressed({keyPressed, keyCode}){
     let key = keyCode + '';
+    console.log('keycode: ' + key);
     let amount = this.moveAmount;
+    let event;
 
     switch (keyPressed.toLowerCase()){
       case 'w':
-        this.startInterval(key, ()=>{signal.trigger(ec.camera.moveForward, {amount});}); break;
+        event = moveForward; break;
       case 's':
-        this.startInterval(key, ()=>{signal.trigger(ec.camera.moveBackward, {amount});}); break;
+        event = moveBackward; break;
       case 'a':
-        this.startInterval(key, ()=>{signal.trigger(ec.camera.moveLeft, {amount});}); break;
+        event = moveLeft; break;
       case 'd':
-        this.startInterval(key, ()=>{signal.trigger(ec.camera.moveRight, {amount});}); break;
+        event = moveRight; break;
       default:
         break;
     }
 
     switch(keyCode){
+      case 32: //up via spacebar
+        event = moveUp;  break;
       case 38: //up
-        this.startInterval(key, ()=>{signal.trigger(ec.camera.moveUp, {amount});}); break;
+        event = moveUp; break;
+      case 16: //down via left shift
+        event = moveDown; break;
       case 40: //down
-        this.startInterval(key, ()=>{signal.trigger(ec.camera.moveDown, {amount});}); break;
+        event = moveDown; break;
       case 39: //right
-        this.startInterval(key, ()=>{signal.trigger(ec.camera.moveRight, {amount});}); break;
+        event = moveRight; break;
       case 37: //left
-        this.startInterval(key, ()=>{signal.trigger(ec.camera.moveLeft, {amount});}); break;
+        event = moveLeft;  break;
       default:
         break;
     }
+    if(!event){return;}
+    this.startInterval(key, ()=>{signal.trigger(event, {amount});});
   }
 };
 
@@ -99,10 +157,9 @@ function listenWindow(){
 
 function listenMouse(){
   document.onmousemove = (e)=>{
-    let x = e.clientX;
-    let y = e.clientY;
+    let {clientX, clientY, pageX, pageY} = e;
     //console.log(`mouse move x:${x} y:${y}`);
-    controls.mouseMoved({x, y});
+    controls.mouseMoved({clientX, clientY, pageX, pageY});
   }
 }
 

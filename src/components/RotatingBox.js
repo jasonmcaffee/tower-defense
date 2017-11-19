@@ -20,12 +20,6 @@ export default class RotatingBox{
   addToScene({scene}) {
     this._threeObject.position.set(0, 0, 0);
     scene.add(this._threeObject);
-    this.addChildrenToScene({scene});
-
   }
 
-
-  addChildrenToScene({children=this._children, scene}={}){
-    this._children.forEach(c=>scene.add(c.threeObject));
-  }
 }

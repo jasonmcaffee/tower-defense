@@ -5,6 +5,7 @@ export const eventConfig = {
   camera:{
     setPosition: "camera.setPosition",
     setLookAt: "camera.setLookAtVector",
+    setLookAtFromMouseMovement: "camera.setLookAtFromMouseMovent",
     moveBackward:"camera.moveBackward",
     moveForward:"camera.moveForward",
     moveLeft:"camera.moveLeft",
