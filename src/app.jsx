@@ -10,8 +10,15 @@ import {eventConfig as ec} from 'core/eventConfig';
 export default class App extends React.Component {
   render() {
     return (
-      <div id="threeJsRenderDiv">
+      <div>
+        <div id="follower">
+          <div id="circle1"></div>
+          <div id="circle2"></div>
+        </div>
+        <div id="threeJsRenderDiv">
+        </div>
       </div>
+
     )
   }
 
@@ -19,7 +26,7 @@ export default class App extends React.Component {
     signal.registerSignals(this);
     console.log('mounted main app.jsx');
     this.initThreeJs();
-
+    this.initCursor();
   }
 
   componentWillUnmount(){
@@ -81,6 +88,22 @@ export default class App extends React.Component {
     let threeJsRenderDiv = document.getElementById("threeJsRenderDiv");
     threeJsRenderDiv.appendChild( this.renderer.domElement );
     animate({camera, scene, renderer:this.renderer, stage});
+  }
+
+  initCursor({movementsPerSecond=120}={}){
+    let cursorElement = document.getElementById('follower');
+    let x, y;
+    let intervalMs = 1000/movementsPerSecond;
+    window.onmousemove = (e)=>{
+      x = e.clientX;
+      y = e.clientY;
+
+    }
+
+    setInterval(function(){
+      cursorElement.style.top = y + 'px';
+      cursorElement.style.left = x + 'px';
+    }, intervalMs)
   }
 }
 

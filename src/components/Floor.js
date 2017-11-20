@@ -1,14 +1,25 @@
 import {LineBasicMaterial, Vector3, Geometry, Line} from 'three';
 
+const style ={
+  color:{
+    neonBlue: 0x4286f4,
+    purple: 0x7b42af,
+  },
+  floor:{
+    numberOfLines: 200
+  }
+}
+
 /**
  * Floor
  */
 export default class Floor {
   constructor({children = []} = {}) {
     this._children = children;
+    let {numberOfLines} = style.floor;
     this.lines = [
-      ...this.createFloorLines({numberOfLines:30}),
-      ...this.createWallLines({numberOfLines:30}),
+      ...this.createFloorLines({numberOfLines, color: style.color.neonBlue}),
+      ...this.createWallLines({numberOfLines, color: style.color.purple}),
     ];
   }
 
@@ -32,23 +43,23 @@ export default class Floor {
     lines.forEach(l => scene.add(l));
   }
 
-  createFloorLines({numberOfLines=10, lineLength, distanceBetweenLines=.5}={}){
+  createFloorLines({numberOfLines=10, lineLength, distanceBetweenLines=.5, color}={}){
     let lines = [
-      ...this.createVerticalFloorLines({numberOfVerticalLines:numberOfLines, lineLength, distanceBetweenLines}),
-      ...this.createHorizontalFloorLines({numberOfHorizontalLines:numberOfLines, lineLength, distanceBetweenLines}),
+      ...this.createVerticalFloorLines({numberOfVerticalLines:numberOfLines, lineLength, distanceBetweenLines, color}),
+      ...this.createHorizontalFloorLines({numberOfHorizontalLines:numberOfLines, lineLength, distanceBetweenLines, color}),
     ];
     return lines;
   }
 
-  createWallLines({numberOfLines=10, lineLength, distanceBetweenLines=.5}={}){
+  createWallLines({numberOfLines=10, lineLength, distanceBetweenLines=.5, color}={}){
     let lines = [
-      ...this.createVerticalWallLines({numberOfVerticalLines:numberOfLines, lineLength, distanceBetweenLines}),
-      ...this.createHorizontalWallLines({numberOfHorizontalLines:numberOfLines, lineLength, distanceBetweenLines}),
+      ...this.createVerticalWallLines({numberOfVerticalLines:numberOfLines, lineLength, distanceBetweenLines, color}),
+      ...this.createHorizontalWallLines({numberOfHorizontalLines:numberOfLines, lineLength, distanceBetweenLines, color}),
     ];
     return lines;
   }
 
-  createVerticalWallLines({numberOfVerticalLines=10, lineLength, distanceBetweenLines=.5}={}){
+  createVerticalWallLines({numberOfVerticalLines=10, lineLength, distanceBetweenLines=.5, color}={}){
     lineLength = lineLength === undefined ? numberOfVerticalLines * distanceBetweenLines : lineLength;
     let lines = [];
     let yEnd = lineLength / 2;
@@ -57,11 +68,11 @@ export default class Floor {
     xStart += distanceBetweenLines / 2;
     let countXTo = numberOfVerticalLines * distanceBetweenLines + xStart;
     for(let x=xStart; x < countXTo; x+=distanceBetweenLines){
-      lines.push(this.createLine({x:x, x2:x, y:yStart, y2:yEnd}));
+      lines.push(this.createLine({x:x, x2:x, y:yStart, y2:yEnd, color}));
     }
     return lines;
   }
-  createHorizontalWallLines({numberOfHorizontalLines = 10, lineLength, distanceBetweenLines=.5}={}){
+  createHorizontalWallLines({numberOfHorizontalLines = 10, lineLength, distanceBetweenLines=.5, color}={}){
     lineLength = lineLength === undefined ? numberOfHorizontalLines * distanceBetweenLines : lineLength;
     let lines = [];
     let xEnd = lineLength / 2;
@@ -70,12 +81,12 @@ export default class Floor {
     yStart += distanceBetweenLines / 2;
     let countXTo = numberOfHorizontalLines * distanceBetweenLines + yStart;
     for(let y=yStart; y < countXTo; y+=distanceBetweenLines){
-      lines.push(this.createLine({x:xStart, x2:xEnd, y:y, y2:y}));
+      lines.push(this.createLine({x:xStart, x2:xEnd, y:y, y2:y, color}));
     }
     return lines;
   }
 
-  createVerticalFloorLines({numberOfVerticalLines=10, lineLength, distanceBetweenLines=.5}={}){
+  createVerticalFloorLines({numberOfVerticalLines=10, lineLength, distanceBetweenLines=.5, color}={}){
     lineLength = lineLength === undefined ? numberOfVerticalLines * distanceBetweenLines : lineLength;
     let lines = [];
     let zEnd = lineLength / 2;
@@ -84,11 +95,11 @@ export default class Floor {
     xStart += distanceBetweenLines / 2;
     let countXTo = numberOfVerticalLines * distanceBetweenLines + xStart;
     for(let x=xStart; x < countXTo; x+=distanceBetweenLines){
-      lines.push(this.createLine({x:x, x2:x, z:zStart, z2:zEnd}));
+      lines.push(this.createLine({x:x, x2:x, z:zStart, z2:zEnd, color}));
     }
     return lines;
   }
-  createHorizontalFloorLines({numberOfHorizontalLines = 10, lineLength, distanceBetweenLines=.5}={}){
+  createHorizontalFloorLines({numberOfHorizontalLines = 10, lineLength, distanceBetweenLines=.5, color}={}){
     lineLength = lineLength === undefined ? numberOfHorizontalLines * distanceBetweenLines : lineLength;
     let lines = [];
     let xEnd = lineLength / 2;
@@ -97,13 +108,13 @@ export default class Floor {
     zStart += distanceBetweenLines / 2;
     let countZTo = numberOfHorizontalLines * distanceBetweenLines + zStart;
     for(let z=zStart; z < countZTo; z+=distanceBetweenLines){
-      lines.push(this.createLine({x:xStart, x2:xEnd,  z:z, z2:z}));
+      lines.push(this.createLine({x:xStart, x2:xEnd,  z:z, z2:z, color}));
     }
     return lines;
   }
 
-  createLine({x=0, y=0, z=0, x2=0, y2=0, z2=0}={}){
-    let material = new LineBasicMaterial({ color: 0x4286f4 });
+  createLine({x=0, y=0, z=0, x2=0, y2=0, z2=0, color=style.color.neonBlue}={}){
+    let material = new LineBasicMaterial({color});
     let geometry = new Geometry();
     geometry.vertices.push(new Vector3(x, y, z));
     geometry.vertices.push(new Vector3(x2, y2, z2));
