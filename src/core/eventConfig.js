@@ -15,5 +15,8 @@ export const eventConfig = {
   },
   window:{
     resize:"window.resize",
+  },
+  webworker:{
+    message: 'webworker.message',
   }
 }

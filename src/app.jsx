@@ -91,6 +91,7 @@ export default class App extends React.Component {
     animate({camera, scene, renderer:this.renderer, stage});
   }
 
+  //todo: pointer lock https://developer.mozilla.org/en-US/docs/Web/API/Pointer_Lock_API
   initCursor({movementsPerSecond=120}={}){
     let cursorElement = document.getElementById('follower');
     let x, y;
@@ -108,9 +109,7 @@ export default class App extends React.Component {
   }
 
   requestFullScreen(){
-    let fullScreenRequestMade = false;
     function handleInitialFullScreenRequestBegin(){
-      if(fullScreenRequestMade){return;}
       var el = document.documentElement,
         rfs = el.requestFullscreen
           || el.webkitRequestFullScreen
@@ -119,9 +118,9 @@ export default class App extends React.Component {
       ;
 
       rfs.call(el);
-      fullScreenRequestMade
+      document.body.removeEventListener('mousedown', handleInitialFullScreenRequestBegin);
     }
-    document.body.addEventListener('keydown', handleInitialFullScreenRequestBegin, false);
+    document.body.addEventListener('mousedown', handleInitialFullScreenRequestBegin, false);
   }
 }
 
