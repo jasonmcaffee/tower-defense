@@ -127,6 +127,7 @@ export default class App extends React.Component {
 
 function animate({camera, scene, renderer, stage}){
   let animationFrameFunc = ()=>{
+    signal.trigger(ec.webgl.performFrameCalculations);
     stage.render();
     renderer.render(scene, camera);
     requestAnimationFrame(animationFrameFunc)

@@ -18,5 +18,8 @@ export const eventConfig = {
   },
   webworker:{
     message: 'webworker.message',
+  },
+  webgl:{
+    performFrameCalculations: 'webgl.performFrameCalculations', //let all objects know to recalculate for upcoming render.
   }
 }
