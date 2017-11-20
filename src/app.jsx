@@ -27,6 +27,7 @@ export default class App extends React.Component {
     console.log('mounted main app.jsx');
     this.initThreeJs();
     this.initCursor();
+    this.requestFullScreen();
   }
 
   componentWillUnmount(){
@@ -104,6 +105,23 @@ export default class App extends React.Component {
       cursorElement.style.top = y + 'px';
       cursorElement.style.left = x + 'px';
     }, intervalMs)
+  }
+
+  requestFullScreen(){
+    let fullScreenRequestMade = false;
+    function handleInitialFullScreenRequestBegin(){
+      if(fullScreenRequestMade){return;}
+      var el = document.documentElement,
+        rfs = el.requestFullscreen
+          || el.webkitRequestFullScreen
+          || el.mozRequestFullScreen
+          || el.msRequestFullscreen
+      ;
+
+      rfs.call(el);
+      fullScreenRequestMade
+    }
+    document.body.addEventListener('keydown', handleInitialFullScreenRequestBegin, false);
   }
 }
 
