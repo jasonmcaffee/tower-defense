@@ -104,7 +104,7 @@ export default class App extends React.Component {
       let firstIntersect = intersects[0]; //[ { distance, point, face, faceIndex, indices, object }, ... ]
       let {distance, point, face, faceIndex, indices, object} = firstIntersect;
       let {componentId} = hitComponent;
-      signal.trigger(ec.hitTest.hitComponent, {componentId, distance, point, face, faceIndex, indices, object});
+      signal.trigger(ec.hitTest.hitComponent, {componentId, distance, point, face, faceIndex, indices, object, scene:this.scene});
 
     },
     //anything that wants to be hittable (e.g. by a bullet) should register via this signal
@@ -118,8 +118,8 @@ export default class App extends React.Component {
       if(hitIndex < 0){return;}
       this.hittableComponents.splice(hitIndex, 1);//remove hittable component from array
     },
-    [ec.stage.removeComponentFromScene]({componentId}){
-
+    [ec.stage.componentDestroyed]({componentId, threejsObject}){
+      signal.trigger(ec.hitTest.unregisterHittableComponent, {componentId});
     }
   }
 
@@ -130,7 +130,7 @@ export default class App extends React.Component {
     signal.trigger(ec.camera.setPosition, {x:0, y:0, z:10});
     signal.trigger(ec.camera.setLookAt, {x:0, y:0, z:0});
 
-    this.scene = new Scene();
+    let scene = this.scene = new Scene();
     let stage = new StageOne();
     stage.addToScene({scene});
 
@@ -170,7 +170,7 @@ export default class App extends React.Component {
       rfs.call(el);
       document.body.removeEventListener('mousedown', handleInitialFullScreenRequestBegin);
     }
-    document.body.addEventListener('mousedown', handleInitialFullScreenRequestBegin, false);
+    //document.body.addEventListener('mousedown', handleInitialFullScreenRequestBegin, false);
   }
 
   getScreenDimensions(){

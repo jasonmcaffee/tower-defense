@@ -9,13 +9,15 @@ export default class RotatingBox{
     let material = new MeshNormalMaterial();
 
     this.threejsObject = new Mesh(geometry, material);
+    this.threejsObject.name = this.componentId;//needed for removing from scene
+
     this.children = children;
     signal.registerSignals(this);
   }
   signals = {
-    [ec.hitTest.hitComponent]({componentId, distance, point, face, faceIndex, indices, object}){
+    [ec.hitTest.hitComponent]({componentId, distance, point, face, faceIndex, indices, object, scene}){
       if(this.componentId !== componentId){return;}
-      alert('im hit! ' + this.componentId);
+      this.destroy({scene});
     }
   }
   render() {
@@ -34,8 +36,11 @@ export default class RotatingBox{
     signal.trigger(ec.hitTest.registerHittableComponent, {componentId, threejsObject});
   }
 
-  destroy(){
-
+  destroy({scene, name=this.threejsObject.name, componentId=this.componentId}){
+    console.log(`destroy called for: ${name}`);
+    let object3d = scene.getObjectByName(name);
+    scene.remove(object3d);
+    signal.trigger(ec.stage.componentDestroyed, {componentId});
   }
 
 }

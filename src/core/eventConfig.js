@@ -29,7 +29,6 @@ export const eventConfig = {
     hitComponent: 'hitTest.hitComponent', //{hitComponentId: 'box123', hitByComponentId: 'bullet12359'}
   },
   stage:{
-    removeComponentFromScene:'stage.removeComponentFromScene',// {componentId, threejsObject}
     destroyComponent:'stage.destroyComponent', //{componentId}
     componentDestroyed: 'stage.componentDestroyed', //{componentId}
   }
