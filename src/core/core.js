@@ -10,3 +10,11 @@ export let worker = NewWorker(()=>{
 });
 
 listen();
+
+export function generateUniqueId({name='component'}={}){
+  let min = 1;
+  let max = 1000000000;
+  let randomId = Math.round(Math.random() * (max - min)) + min;
+  let id =  `${name}-${randomId}-${Date.now()}`;  //'t: ' + type + ' d: ' + Date.now() + 'randomId: ' +randomId;
+  return id;
+}

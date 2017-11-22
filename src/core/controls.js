@@ -161,6 +161,11 @@ function listenMouse(){
     //console.log(`mouse move x:${x} y:${y}`);
     controls.mouseMoved({clientX, clientY, pageX, pageY});
   }
+
+  document.onmousedown = (e)=>{
+    let {clientX, clientY, pageX, pageY} = e;
+    signal.trigger(ec.mouse.mousedown, {clientX, clientY, pageX, pageY});
+  }
 }
 
 function listenKeyboard(){

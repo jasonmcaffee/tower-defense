@@ -1,25 +1,41 @@
-import * as THREE from 'three';
+import {BoxGeometry, MeshNormalMaterial, Mesh} from 'three';
+import {signal, eventConfig as ec, generateUniqueId} from "core/core";
 
 export default class RotatingBox{
-  constructor({children=[]}={}){
-    let geometry = new THREE.BoxGeometry(0.2, 0.2, 0.2);
-    let material = new THREE.MeshNormalMaterial();
+  componentId = generateUniqueId({name:'RotatingBox'})
 
-    this._threeObject = new THREE.Mesh( geometry, material);
-    this._children = children;
+  constructor({children=[]}={}){
+    let geometry = new BoxGeometry(0.2, 0.2, 0.2);
+    let material = new MeshNormalMaterial();
+
+    this.threejsObject = new Mesh(geometry, material);
+    this.children = children;
+    signal.registerSignals(this);
+  }
+  signals = {
+    [ec.hitTest.hitComponent]({componentId, distance, point, face, faceIndex, indices, object}){
+      if(this.componentId !== componentId){return;}
+      alert('im hit! ' + this.componentId);
+    }
   }
   render() {
-    this._threeObject.rotation.x += 0.01;
-    this._threeObject.rotation.y += 0.02;
+    this.threejsObject.rotation.x += 0.01;
+    this.threejsObject.rotation.y += 0.02;
   }
 
-  renderChildren({children=this._children}={}){
+  renderChildren({children=this.children}={}){
     children.forEach(c=>c.render());
   }
 
   addToScene({scene}) {
-    this._threeObject.position.set(0, 0, 0);
-    scene.add(this._threeObject);
+    this.threejsObject.position.set(0, 0, 0);
+    scene.add(this.threejsObject);
+    let {componentId, threejsObject} = this;
+    signal.trigger(ec.hitTest.registerHittableComponent, {componentId, threejsObject});
+  }
+
+  destroy(){
+
   }
 
 }

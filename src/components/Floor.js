@@ -15,7 +15,7 @@ const style ={
  */
 export default class Floor {
   constructor({children = []} = {}) {
-    this._children = children;
+    this.children = children;
     let {numberOfLines} = style.floor;
     this.lines = [
       ...this.createFloorLines({numberOfLines, color: style.color.neonBlue}),
@@ -27,7 +27,7 @@ export default class Floor {
     this.renderChildren();
   }
 
-  renderChildren({children = this._children} = {}) {
+  renderChildren({children = this.children} = {}) {
     //children.forEach(c => c.render());
   }
 
@@ -36,7 +36,7 @@ export default class Floor {
     this.addLinesToScene({scene});
   }
 
-  addChildrenToScene({children = this._children, scene} = {}) {
+  addChildrenToScene({children = this.children, scene} = {}) {
     children.forEach(c => c.addToScene({scene}));
   }
   addLinesToScene({lines = this.lines, scene}){
