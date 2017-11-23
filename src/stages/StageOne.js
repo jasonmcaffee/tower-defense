@@ -25,7 +25,7 @@ export default class StageOne {
     let min = -20;
     let max = 20;
     let grn = generateRandomNumber;
-    for(let i=0; i < 100; ++i){
+    for(let i=0; i < 1000; ++i){
       this.addRotatingBox({rotatingBox: new RotatingBox({x:grn({min, max}), y:grn({min, max}), z:grn({min, max})}) });
     }
     this.addFloor();
@@ -140,7 +140,10 @@ export default class StageOne {
   }
 
   renderChildren({children=this.children}={}){
-    children.forEach(c=>c.render());
+    let length = children.length - 1;
+    while(length >= 0){
+      children[length--].render();
+    }
   }
 
   addToScene({scene}) {
@@ -164,16 +167,17 @@ export default class StageOne {
     return {width, height};
   }
 
-  destroy({children=this.children}={}){
+  destroy({children=this.children, scene=this.scene}={}){
     signal.unregisterSignals(this);
-    children.forEach(c=>c.destroy && c.destroy());
+    children.forEach(c=>c.destroy && c.destroy({scene}));
   }
 }
 
 
 function animate({camera, scene, renderer, stage}){
+
   let animationFrameFunc = ()=>{
-    signal.trigger(ec.webgl.performFrameCalculations);
+    //signal.trigger(ec.webgl.performFrameCalculations);
     stage.render();
     renderer.render(scene, camera);
     requestAnimationFrame(animationFrameFunc)

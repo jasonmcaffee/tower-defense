@@ -1,12 +1,15 @@
 import {BoxGeometry, MeshNormalMaterial, Mesh} from 'three';
 import {signal, eventConfig as ec, generateUniqueId} from "core/core";
 
+let material = new MeshNormalMaterial();
+let standardGeomatry = new BoxGeometry(.2, .2, .2);
+
 export default class RotatingBox{
   componentId = generateUniqueId({name:'RotatingBox'})
 
-  constructor({width=.2, height=.2, depth=.2, x=0, y=0, z=0}={}){
-    let geometry = new BoxGeometry(width, height, depth);
-    let material = new MeshNormalMaterial();
+  constructor({x=0, y=0, z=0}={}){
+    let geometry = standardGeomatry;
+
 
     this.threejsObject = new Mesh(geometry, material);
     this.threejsObject.position.set(x, y, z);

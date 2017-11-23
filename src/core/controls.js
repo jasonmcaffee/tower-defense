@@ -31,7 +31,7 @@ let controls = {
   triggersPerSecond: 120,
   mouseTriggersPerSecond: 120,
   //how far to move the camera in a given direction
-  moveAmount: .025,
+  moveAmount: .5,
   //storage for keys that are currently pressed, and their associated interval id.
   //key should only be given one interval (started when key is first pressed, stopped when key is released)
   keysCurrentlyPressed: {key:undefined, intervalId:undefined},
