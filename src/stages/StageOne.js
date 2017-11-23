@@ -10,25 +10,16 @@ export default class StageOne {
   renderer
   hittableComponents = [] //{componentId:'box123', threejsObject: new THREE.Mesh( geometry, material)}
   rendererDomElement //created during initThreejs and used by react component to append to appropriate div
-  constructor({children=[]}={}) {
+  children = []
+  constructor({children=[], stageConfig}={}) {
+    this.children = children;
     signal.registerSignals(this);
-    this.setupChildren({children});
+    //this.setupChildren({children});
+    stageConfig.createChildren({children: this.children});
 
+    console.log(`this.children: ${this.children.length}`);
     //begin animation after instantiating scene, camera, and renderer.
     this.initThreeJs();
-  }
-
-  setupChildren({children=[]}={}){
-    this.children = children;
-    this.addRotatingBox();
-
-    let min = -90;
-    let max = 90;
-    let grn = generateRandomNumber;
-    for(let i=0; i < 10000; ++i){
-      this.addRotatingBox({ rotatingBox: new RotatingBox({x:grn({min, max}), y:grn({min, max}), z:grn({min, max})}) });
-    }
-    this.addFloor();
   }
 
   initThreeJs(){
@@ -153,14 +144,6 @@ export default class StageOne {
 
   addChildrenToScene({children=this.children, scene}={}){
     this.children.forEach(c=>c.addToScene({scene}));
-  }
-
-  addRotatingBox({rotatingBox = new RotatingBox()}={}){
-    this.children.push(rotatingBox);
-  }
-
-  addFloor({floor = new Floor()}={}){
-    this.children.push(floor);
   }
 
   getScreenDimensions(){

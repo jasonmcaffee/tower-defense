@@ -3,7 +3,7 @@ import 'styles/index.scss';
 import StageOne from 'stages/StageOne';
 import {signal} from "core/core";
 import {eventConfig as ec} from 'core/eventConfig';
-
+import {stageOneConfig} from "stages/stageOneConfig";
 
 export default class App extends React.Component {
   render() {
@@ -24,7 +24,7 @@ export default class App extends React.Component {
     console.log('mounted main app.jsx');
     // this.initCursor();
     this.requestFullScreen();
-    this.stage = new StageOne();
+    this.stage = new StageOne({stageConfig:stageOneConfig});
     let threeJsRenderDiv = document.getElementById("threeJsRenderDiv");
     threeJsRenderDiv.appendChild( this.stage.rendererDomElement);
   }
