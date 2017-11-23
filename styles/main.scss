@@ -5,10 +5,10 @@ html, body, .container, #app {
   overflow: hidden;
   margin:0;
   padding:0;
-  cursor: none;
+  //cursor: none;
 }
 html:fullscreen {
-  cursor:none;
+  //cursor:none;
 }
 
 .render-canvas{

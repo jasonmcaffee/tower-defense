@@ -9,10 +9,10 @@ export default class App extends React.Component {
   render() {
     return (
       <div>
-        <div id="follower">
-          <div id="circle1"></div>
-          <div id="circle2"></div>
-        </div>
+        {/*<div id="follower">*/}
+          {/*<div id="circle1"></div>*/}
+          {/*<div id="circle2"></div>*/}
+        {/*</div>*/}
         <div id="threeJsRenderDiv">
         </div>
       </div>
@@ -22,7 +22,7 @@ export default class App extends React.Component {
 
   componentDidMount(){
     console.log('mounted main app.jsx');
-    this.initCursor();
+    // this.initCursor();
     this.requestFullScreen();
     this.stage = new StageOne();
     let threeJsRenderDiv = document.getElementById("threeJsRenderDiv");

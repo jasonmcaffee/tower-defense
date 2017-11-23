@@ -1,6 +1,6 @@
 import {Scene, Camera, WebGLRenderer, Raycaster, PerspectiveCamera, Vector3, Vector2} from 'three';
 import {eventConfig as ec} from 'core/eventConfig';
-import {signal} from "core/core";
+import {signal, generateRandomNumber} from "core/core";
 import RotatingBox from 'components/RotatingBox';
 import Floor from 'components/Floor';
 
@@ -11,11 +11,24 @@ export default class StageOne {
   hittableComponents = [] //{componentId:'box123', threejsObject: new THREE.Mesh( geometry, material)}
   rendererDomElement //created during initThreejs and used by react component to append to appropriate div
   constructor({children=[]}={}) {
-    this.children = children;
     signal.registerSignals(this);
-    this.addRotatingBox();
-    this.addFloor();
+    this.setupChildren({children});
+
+    //begin animation after instantiating scene, camera, and renderer.
     this.initThreeJs();
+  }
+
+  setupChildren({children=[]}={}){
+    this.children = children;
+    this.addRotatingBox();
+
+    let min = -20;
+    let max = 20;
+    let grn = generateRandomNumber;
+    for(let i=0; i < 100; ++i){
+      this.addRotatingBox({rotatingBox: new RotatingBox({x:grn({min, max}), y:grn({min, max}), z:grn({min, max})}) });
+    }
+    this.addFloor();
   }
 
   initThreeJs(){
@@ -151,7 +164,7 @@ export default class StageOne {
     return {width, height};
   }
 
-  destroy(){
+  destroy({children=this.children}={}){
     signal.unregisterSignals(this);
     children.forEach(c=>c.destroy && c.destroy());
   }
