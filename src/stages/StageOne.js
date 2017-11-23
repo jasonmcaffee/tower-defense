@@ -22,11 +22,11 @@ export default class StageOne {
     this.children = children;
     this.addRotatingBox();
 
-    let min = -20;
-    let max = 20;
+    let min = -90;
+    let max = 90;
     let grn = generateRandomNumber;
-    for(let i=0; i < 3000; ++i){
-      this.addRotatingBox({rotatingBox: new RotatingBox({x:grn({min, max}), y:grn({min, max}), z:grn({min, max})}) });
+    for(let i=0; i < 10000; ++i){
+      this.addRotatingBox({ rotatingBox: new RotatingBox({x:grn({min, max}), y:grn({min, max}), z:grn({min, max})}) });
     }
     this.addFloor();
   }
@@ -55,6 +55,7 @@ export default class StageOne {
       this.camera.lookAt(new Vector3(x, y, z));
     },
     [ec.camera.setLookAtFromMouseMovement]({x, y, z}){
+      //console.log(`setLookAtFromMouseMovement ${x}, ${y}, ${z}`);
       x += this.camera.position.x;
       y += this.camera.position.y;
       z += this.camera.position.z;
@@ -177,7 +178,7 @@ export default class StageOne {
 function animate({camera, scene, renderer, stage}){
 
   let animationFrameFunc = ()=>{
-    //signal.trigger(ec.webgl.performFrameCalculations);
+    signal.trigger(ec.webgl.performFrameCalculations);
     stage.render();
     renderer.render(scene, camera);
     requestAnimationFrame(animationFrameFunc)

@@ -22,7 +22,8 @@ export function listen(){
   listenKeyboard();
   listenMouse();
   listenWindow();
-  controls.startMouseInterval();
+  //controls.startMouseInterval();
+  signal.registerSignals(controls);
 }
 
 //control camera position
@@ -35,82 +36,79 @@ let controls = {
   //storage for keys that are currently pressed, and their associated interval id.
   //key should only be given one interval (started when key is first pressed, stopped when key is released)
   keysCurrentlyPressed: {key:undefined, intervalId:undefined},
+  stopLookingWithMouse: false, //when mouse leaves window, this will be set to true
 
   mouseMoved({pageX, pageY, height=window.innerHeight, width=window.innerWidth}){
     this.x = pageX - (width/2);
     this.y = pageY - (height/2);
   },
-
-  //debounce calcs done for camera position based on mouse event.
-  startMouseInterval({intervalMs=1000/this.mouseTriggersPerSecond, lookSpeed=0.1,}={}){
-    if(this.startedMouse){return;}
-    this.startedMouse = true;
-
-    setInterval(function interval(){
-      let {x,y}=this;
-      let delta = clock.getDelta();
-      //console.log('delta is ', delta);
-      //look
-      var actualLookSpeed = delta * lookSpeed;
-      var verticalLookRatio = 1;
-      if(isNaN(this.lon)){
-        console.log('lon is null')
-        this.lon = 0;
-      }
-      if(isNaN(this.lat)){
-        console.log('lat is null')
-        this.lat = 0;
-      }
-      this.lon += x * actualLookSpeed;
-      //if( this.lookVertical )
-      this.lat -= y * actualLookSpeed * verticalLookRatio;
-
-      this.lat = Math.max( - 85, Math.min( 85, this.lat ) );
-      this.phi = threeMath.degToRad( 90 - this.lat );
-
-      this.theta = threeMath.degToRad( this.lon );
-
-      this.xyz = {
-        x: 100 * Math.sin( this.phi ) * Math.cos(this.theta),
-        y: 100 * Math.cos( this.phi ),
-        z: 100 * Math.sin( this.phi ) * Math.sin( this.theta )
-      };
-      if(isNaN(this.xyz.x)){
-        console.log('x is NAN');
-        return;
-      }
-      signal.trigger(ec.camera.setLookAtFromMouseMovement, this.xyz);
-    }.bind(this), intervalMs);
+  signals:{
+    [ec.webgl.performFrameCalculations](){
+      this.performLookAtBasedOnMouseMovement();
+      this.performMovementBasedOnKeysPressed();
+    }
   },
+  performLookAtBasedOnMouseMovement({lookSpeed=0.1}={}){
+    if(this.stopLookingWithMouse){return;}
+    let {x,y}=this;
+    let delta = clock.getDelta();
+    //console.log('delta is ', delta);
+    //look
+    var actualLookSpeed = delta * lookSpeed;
+    var verticalLookRatio = 1;
+    if(isNaN(this.lon)){
+      console.log('lon is null')
+      this.lon = 0;
+    }
+    if(isNaN(this.lat)){
+      console.log('lat is null')
+      this.lat = 0;
+    }
+    this.lon += x * actualLookSpeed;
+    //if( this.lookVertical )
+    this.lat -= y * actualLookSpeed * verticalLookRatio;
 
-  startInterval(key, f, triggersPerSecond=this.triggersPerSecond){
-    if(this.keysCurrentlyPressed[key]){
+    this.lat = Math.max( - 85, Math.min( 85, this.lat ) );
+    this.phi = threeMath.degToRad( 90 - this.lat );
+
+    this.theta = threeMath.degToRad( this.lon );
+
+    this.xyz = {
+      x: 100 * Math.sin( this.phi ) * Math.cos(this.theta),
+      y: 100 * Math.cos( this.phi ),
+      z: 100 * Math.sin( this.phi ) * Math.sin( this.theta )
+    };
+    if(isNaN(this.xyz.x)){
+      console.log('x is NAN');
       return;
     }
-    let intervalMs = 1000 / triggersPerSecond;
-    let intervalId = setInterval(f, intervalMs);
-    this.keysCurrentlyPressed[key] = intervalId;
-  },
-
-  stopInterval(key){
-    let intervalId = this.keysCurrentlyPressed[key];
-    this.keysCurrentlyPressed[key] = undefined;
-    clearInterval(intervalId);
+    signal.trigger(ec.camera.setLookAtFromMouseMovement, this.xyz);
   },
 
   //stop controlling camera position
   keyReleased({keyReleased, keyCode}){
     let key = keyCode + '';
-    this.stopInterval(key);
+    delete this.keysCurrentlyPressed[key];
   },
 
   //control the camera position
   keyPressed({keyPressed, keyCode}){
     let key = keyCode + '';
     console.log('keycode: ' + key);
-    let amount = this.moveAmount;
-    let event;
+    this.keysCurrentlyPressed[key] = {keyPressed, keyCode};
+  },
 
+  performMovementBasedOnKeysPressed({amount=this.moveAmount}={}){
+    for(let key in this.keysCurrentlyPressed){
+      let keyInfo = this.keysCurrentlyPressed[key];
+      if(keyInfo == undefined){continue;}
+      let {keyPressed, keyCode} = keyInfo;
+      this.performMovementBasedOnKeyPressed({keyPressed, keyCode});
+    }
+  },
+
+  performMovementBasedOnKeyPressed({amount=this.moveAmount, keyPressed, keyCode}){
+    let event;
     switch (keyPressed.toLowerCase()){
       case 'w':
         event = moveForward; break;
@@ -141,8 +139,9 @@ let controls = {
         break;
     }
     if(!event){return;}
-    this.startInterval(key, ()=>{signal.trigger(event, {amount});});
+    signal.trigger(event, {amount});
   }
+
 };
 
 
@@ -157,6 +156,7 @@ function listenWindow(){
 
 function listenMouse(){
   document.onmousemove = (e)=>{
+    if(controls.stopLookingWithMouse){return;}
     let {clientX, clientY, pageX, pageY} = e;
     //console.log(`mouse move x:${x} y:${y}`);
     controls.mouseMoved({clientX, clientY, pageX, pageY});
@@ -165,6 +165,22 @@ function listenMouse(){
   document.onmousedown = (e)=>{
     let {clientX, clientY, pageX, pageY} = e;
     signal.trigger(ec.mouse.mousedown, {clientX, clientY, pageX, pageY});
+  }
+
+  document.onmouseout = (e)=>{
+    let from = e.relatedTarget || e.toElement;
+    if(!from || from.nodeName == "HTML"){
+      controls.stopLookingWithMouse = true;
+      // controls.x = 0;
+      // controls.y = 0;
+      // controls.lon = 0;
+      // controls.lat = 0;
+      clock = new Clock();
+    }
+  }
+
+  document.onmouseover = (e)=>{
+    controls.stopLookingWithMouse = false;
   }
 }
 
