@@ -28,9 +28,6 @@ export function listen(){
 
 //control camera position
 let controls = {
-  //how often to trigger camera movement
-  triggersPerSecond: 60,
-  mouseTriggersPerSecond: 120,
   //how far to move the camera in a given direction
   moveAmount: .5,
   //storage for keys that are currently pressed, and their associated interval id.
@@ -39,8 +36,8 @@ let controls = {
   stopLookingWithMouse: false, //when mouse leaves window, this will be set to true
 
   mouseMoved({pageX, pageY, height=window.innerHeight, width=window.innerWidth}){
-    this.x = pageX - (width/2);
-    this.y = pageY - (height/2);
+    this.mouseX = pageX - (width/2);
+    this.mouseY = pageY - (height/2);
   },
   signals:{
     [ec.webgl.performFrameCalculations](){
@@ -48,25 +45,22 @@ let controls = {
       this.performMovementBasedOnKeysPressed();
     }
   },
-  performLookAtBasedOnMouseMovement({lookSpeed=0.1}={}){
+  performLookAtBasedOnMouseMovement({lookSpeed=0.1, mouseX=this.mouseX, mouseY=this.mouseY}={}){
     if(this.stopLookingWithMouse){return;}
-    let {x,y}=this;
     let delta = clock.getDelta();
     //console.log('delta is ', delta);
     //look
     var actualLookSpeed = delta * lookSpeed;
     var verticalLookRatio = 1;
     if(isNaN(this.lon)){
-      console.log('lon is null')
       this.lon = 0;
     }
     if(isNaN(this.lat)){
-      console.log('lat is null')
       this.lat = 0;
     }
-    this.lon += x * actualLookSpeed;
+    this.lon += mouseX * actualLookSpeed;
     //if( this.lookVertical )
-    this.lat -= y * actualLookSpeed * verticalLookRatio;
+    this.lat -= mouseY * actualLookSpeed * verticalLookRatio;
 
     this.lat = Math.max( - 85, Math.min( 85, this.lat ) );
     this.phi = threeMath.degToRad( 90 - this.lat );
@@ -79,7 +73,6 @@ let controls = {
       z: 100 * Math.sin( this.phi ) * Math.sin( this.theta )
     };
     if(isNaN(this.xyz.x)){
-      console.log('x is NAN');
       return;
     }
     signal.trigger(ec.camera.setLookAtFromMouseMovement, this.xyz);
@@ -94,7 +87,6 @@ let controls = {
   //control the camera position
   keyPressed({keyPressed, keyCode}){
     let key = keyCode + '';
-    console.log('keycode: ' + key);
     this.keysCurrentlyPressed[key] = {keyPressed, keyCode};
   },
 
@@ -107,44 +99,25 @@ let controls = {
     }
   },
 
-  performMovementBasedOnKeyPressed({amount=this.moveAmount, keyPressed, keyCode}){
-    let event;
-    switch (keyPressed.toLowerCase()){
-      case 'w':
-        event = moveForward; break;
-      case 's':
-        event = moveBackward; break;
-      case 'a':
-        event = moveLeft; break;
-      case 'd':
-        event = moveRight; break;
-      default:
-        break;
-    }
-
-    switch(keyCode){
-      case 32: //up via spacebar
-        event = moveUp;  break;
-      case 38: //up
-        event = moveUp; break;
-      case 16: //down via left shift
-        event = moveDown; break;
-      case 40: //down
-        event = moveDown; break;
-      case 39: //right
-        event = moveRight; break;
-      case 37: //left
-        event = moveLeft;  break;
-      default:
-        break;
-    }
+  keyCodeToCameraMovementMap:{
+    'w': moveForward,
+    's': moveBackward,
+    'a':moveLeft,
+    'd':moveRight,
+    [32]:moveUp,//spacebar
+    [38]:moveUp, //up arrow
+    [16]:moveDown, //left shift
+    [40]:moveDown, //down arrow
+    [39]:moveRight, //right arrow
+    [37]:moveLeft, //left arrow
+  },
+  performMovementBasedOnKeyPressed({amount=this.moveAmount, keyCodeToCameraMovementMap=this.keyCodeToCameraMovementMap, keyPressed, keyCode}){
+    let event = keyCodeToCameraMovementMap[keyPressed.toLowerCase()] || keyCodeToCameraMovementMap[keyCode];
     if(!event){return;}
     signal.trigger(event, {amount});
   }
 
 };
-
-
 
 function listenWindow(){
   window.addEventListener("resize", (e)=>{
@@ -171,11 +144,7 @@ function listenMouse(){
     let from = e.relatedTarget || e.toElement;
     if(!from || from.nodeName == "HTML"){
       controls.stopLookingWithMouse = true;
-      // controls.x = 0;
-      // controls.y = 0;
-      // controls.lon = 0;
-      // controls.lat = 0;
-      clock = new Clock();
+      clock = new Clock();//reset the time so cursor movement doesn't jump to somewhere other than where we left the screen.
     }
   }
 
