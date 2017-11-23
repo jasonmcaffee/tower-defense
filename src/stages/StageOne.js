@@ -25,7 +25,7 @@ export default class StageOne {
     let min = -20;
     let max = 20;
     let grn = generateRandomNumber;
-    for(let i=0; i < 1000; ++i){
+    for(let i=0; i < 3000; ++i){
       this.addRotatingBox({rotatingBox: new RotatingBox({x:grn({min, max}), y:grn({min, max}), z:grn({min, max})}) });
     }
     this.addFloor();

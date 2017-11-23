@@ -28,7 +28,7 @@ export function listen(){
 //control camera position
 let controls = {
   //how often to trigger camera movement
-  triggersPerSecond: 120,
+  triggersPerSecond: 60,
   mouseTriggersPerSecond: 120,
   //how far to move the camera in a given direction
   moveAmount: .5,
