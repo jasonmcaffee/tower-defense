@@ -26,7 +26,7 @@ export const eventConfig = {
   hitTest:{
     registerHittableComponent: 'hitTest.registerHittableComponent',//{componentId:'box123', threejsObject: new THREE.Mesh( geometry, material)}
     unregisterHittableComponent:'hitTest.unregisterHittableComponent',//{componentId:'box123'}
-    hitComponent: 'hitTest.hitComponent', //{hitComponentId: 'box123', hitByComponentId: 'bullet12359'}
+    hitComponent: 'hitTest.hitComponent', //{hitComponent: 'box123', hitByComponent: 'bullet12359'}
   },
   stage:{
     destroyComponent:'stage.destroyComponent', //{componentId}

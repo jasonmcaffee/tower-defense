@@ -17,10 +17,10 @@ const style ={
 
 export default class Bullet{
   componentId = generateUniqueId({name:'Bullet'})
-  distancePerSecond = 1
+  distancePerSecond
   totalDistanceTraveled = 0
   distance = 0
-  constructor({direction, distance=1000, distancePerSecond=100 , startPosition, sphereGeometry=style.geometry.sphere, sphereMaterial=style.material.sphereMaterial}={}){
+  constructor({direction, distance=1000, distancePerSecond=1 , startPosition, sphereGeometry=style.geometry.sphere, sphereMaterial=style.material.sphereMaterial}={}){
     this.distancePerSecond = distancePerSecond;
     this.direction = direction;
     this.distance = distance;
@@ -34,7 +34,7 @@ export default class Bullet{
 
     this.threejsObject = this.createLine({x, y, z, x2, y2, z2});
 
-    this.hitBox = new Box3().setFromObject(this.threejsObject);
+    this.hitBox = new Box3().setFromObject(this.sphere);
 
     this.clock = new Clock();
   }
@@ -43,6 +43,7 @@ export default class Bullet{
     let distance = this.distancePerSecond * delta;
     let newPosition = new Vector3().copy(this.direction).normalize().multiplyScalar(distance);
     this.sphere.position.add(newPosition);
+    this.hitBox = new Box3().setFromObject(this.sphere);
 
     this.totalDistanceTraveled += distance;
     if(this.totalDistanceTraveled >= this.distance){
@@ -60,8 +61,10 @@ export default class Bullet{
       let hittableComponent = hittableComponents[length--];
       let otherHitBox = hittableComponent.hitBox;
       if(!otherHitBox){continue;}
-      if(this.hitBox.isIntersectionBox(otherHitBox)){
+      if(this.hitBox.intersectsBox(otherHitBox)){
         console.log('BULLET HIT SOMETHING ' + hittableComponent.componentId);
+        signal.trigger(ec.hitTest.hitComponent, {hitComponent:hittableComponent, hitByComponent:this});
+        signal.trigger(ec.stage.destroyComponent, {componentId:this.componentId});
         return
       }
 
