@@ -1,8 +1,9 @@
-import {BoxGeometry, MeshNormalMaterial, Mesh} from 'three';
+import {BoxGeometry, CubeGeometry, MeshNormalMaterial, MeshLambertMaterial, Mesh} from 'three';
 import {signal, eventConfig as ec, generateUniqueId} from "core/core";
 
 let material = new MeshNormalMaterial();
-let standardGeomatry = new BoxGeometry(.2, .2, .2);
+let standardGeomatry = new CubeGeometry(.2, .2, .2);
+standardGeomatry.computeBoundingBox();
 
 export default class RotatingBox{
   componentId = generateUniqueId({name:'RotatingBox'})

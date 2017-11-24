@@ -3,6 +3,7 @@ import {eventConfig as ec} from 'core/eventConfig';
 import {signal, generateRandomNumber} from "core/core";
 import RotatingBox from 'components/RotatingBox';
 import Floor from 'components/Floor';
+import Bullet from 'components/Bullet';
 
 export default class StageOne {
   camera
@@ -37,31 +38,10 @@ export default class StageOne {
     animate({camera, scene, renderer:this.renderer, stage:this});
   }
 
-  hitTest({hittableComponents=this.hittableComponents, raycaster=this.raycaster, camera=this.camera, clientX, clientY}){
+  hitTestV3({hittableComponents=this.hittableComponents, camera=this.camera, projector=this.projector, clientX, clientY}){
     let {width, height} = this.getScreenDimensions();
     let mouseX = (clientX / width) * 2 - 1;
-    let mouseY = (clientY / height) * 2 - 1;
-    let mouseVector = new Vector2(mouseX, mouseY);
-    raycaster.setFromCamera(mouseVector, camera);
-
-    let hitComponent;//first object hit by ray
-    let intersects;//raycaster intersectObject result
-    for (let hittableComponent of hittableComponents){
-      let {componentId, threejsObject} = hittableComponent;
-      intersects = raycaster.intersectObject(threejsObject);
-      if(intersects && intersects.length > 0){
-        hitComponent = hittableComponent;
-        break;
-      }
-    }
-    if(hitComponent == undefined){return;}
-    return {hitComponent, intersects};
-  }
-
-  hitTestV2({hittableComponents=this.hittableComponents, camera=this.camera, projector=this.projector, clientX, clientY}){
-    let {width, height} = this.getScreenDimensions();
-    let mouseX = (clientX / width) * 2 - 1;
-    let mouseY = (clientY / height) * 2 - 1;
+    let mouseY = - (clientY / height) * 2 + 1;
     let mouseVector = new Vector3(mouseX, mouseY, 1);
 
     projector.unprojectVector(mouseVector, camera);
@@ -71,16 +51,51 @@ export default class StageOne {
 
     let hitComponent;//first object hit by ray
     let intersects;//raycaster intersectObject result
-    for (let hittableComponent of hittableComponents){
-      let {componentId, threejsObject} = hittableComponent;
-      intersects = ray.intersectObject(threejsObject);
-      if(intersects && intersects.length > 0){
-        hitComponent = hittableComponent;
+    let threejsObjects = hittableComponents.map(h=>h.threejsObject);
+    let allIntersects = ray.intersectObjects(threejsObjects, true);
+
+    for(let i of allIntersects){
+      let clickedThreejsObject = i.object;
+      for(let h of hittableComponents){
+        if(h.threejsObject.name == clickedThreejsObject.name){
+          hitComponent = h;
+          intersects = [i];
+          break;
+        }
+      }
+      if(hitComponent){
         break;
       }
     }
+
     if(hitComponent == undefined){return;}
     return {hitComponent, intersects};
+  }
+
+  fireBullet({camera=this.camera, scene=this.scene, clientX, clientY}){
+    let {x, y, z} = camera.position;
+    let {width, height} = this.getScreenDimensions();
+    let mouseX = (clientX / width) * 2 - 1;
+    //let mouseY = - (clientY / height) * 2 + 1;
+    let mouseY = (clientY / height) * 2 - 1;
+    let mouseVector = new Vector3();
+    mouseVector.set(mouseX, mouseY, .5);
+
+    // let {x:x2, y:y2, z:z2} = mouseVector;
+    mouseVector.unproject(camera);
+    let dir = mouseVector.sub(camera.position).normalize();
+    console.log('dir: ', dir);
+    //let distance = - camera.position.z / dir.z;
+    //console.log('distance: ', distance);
+    let distance = 1000;
+    let pos = camera.position.clone().add(dir.multiplyScalar(distance));
+    let {x:x2, y:y2, z:z2} = pos;
+
+    console.log(`firbullet ${x} ${y} ${z} ${x2} ${y2} ${z2}`);
+    console.log(`pos ${JSON.stringify(pos)}`);
+    let bullet = new Bullet({x, y, z, x2, y2, z2});
+    bullet.addToScene({scene});
+    this.children.push(bullet);
   }
 
   signals = {
@@ -128,7 +143,9 @@ export default class StageOne {
     //https://threejs.org/docs/#api/core/Raycaster
     [ec.mouse.mousedown]({clientX, clientY, raycaster=this.raycaster}){
       console.log('checking for hit components...');
-      let {hitComponent, intersects} = this.hitTestV2({clientX, clientY}) || {};
+      this.fireBullet({clientX, clientY});
+
+      let {hitComponent, intersects} = this.hitTestV3({clientX, clientY}) || {};
       if(!hitComponent){return;}
 
       console.log(`hit component: ${hitComponent.componentId}`);

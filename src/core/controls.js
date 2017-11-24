@@ -29,7 +29,7 @@ export function listen(){
 //control camera position
 let controls = {
   //how far to move the camera in a given direction
-  moveAmount: .5,
+  moveAmount: .2,
   //storage for keys that are currently pressed, and their associated interval id.
   //key should only be given one interval (started when key is first pressed, stopped when key is released)
   keysCurrentlyPressed: {key:undefined, intervalId:undefined},
