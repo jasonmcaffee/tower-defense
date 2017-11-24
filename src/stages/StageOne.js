@@ -73,27 +73,17 @@ export default class StageOne {
   }
 
   fireBullet({camera=this.camera, scene=this.scene, clientX, clientY}){
-    let {x, y, z} = camera.position;
     let {width, height} = this.getScreenDimensions();
     let mouseX = (clientX / width) * 2 - 1;
-    //let mouseY = - (clientY / height) * 2 + 1;
     let mouseY = (clientY / height) * 2 - 1;
     let mouseVector = new Vector3();
     mouseVector.set(mouseX, mouseY, .5);
-
-    // let {x:x2, y:y2, z:z2} = mouseVector;
     mouseVector.unproject(camera);
-    let dir = mouseVector.sub(camera.position).normalize();
-    console.log('dir: ', dir);
-    //let distance = - camera.position.z / dir.z;
-    //console.log('distance: ', distance);
-    let distance = 1000;
-    let pos = camera.position.clone().add(dir.multiplyScalar(distance));
-    let {x:x2, y:y2, z:z2} = pos;
 
-    console.log(`firbullet ${x} ${y} ${z} ${x2} ${y2} ${z2}`);
-    console.log(`pos ${JSON.stringify(pos)}`);
-    let bullet = new Bullet({x, y, z, x2, y2, z2});
+    let direction = mouseVector.sub(camera.position).normalize();
+    let startPosition = camera.position.clone();
+
+    let bullet = new Bullet({direction, startPosition});
     bullet.addToScene({scene});
     this.children.push(bullet);
   }

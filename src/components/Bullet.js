@@ -1,4 +1,4 @@
-import {Geometry, LineBasicMaterial, Line, Vector3} from 'three';
+import {Geometry, LineBasicMaterial, Line, Vector3, SphereGeometry, MeshBasicMaterial, Mesh} from 'three';
 import {generateUniqueId} from "core/core";
 
 const style ={
@@ -8,19 +8,30 @@ const style ={
   material:{
     blueMaterial: new LineBasicMaterial({color:0x4286f4}),
     purpleMaterial: new LineBasicMaterial({color:0x7b42af}),
+    sphereMaterial: new MeshBasicMaterial({color:0x4286f4}),
+  },
+  geometry:{
+    sphere: new SphereGeometry(1 , 32, 32)
   }
 };
 
 export default class Bullet{
   componentId = generateUniqueId({name:'Bullet'})
 
-  constructor({x=0, y=0, z=0, x2=0, y2=0, z2=0}={}){
+  constructor({direction, distance=1000, startPosition, sphereGeometry=style.geometry.sphere, sphereMaterial=style.material.sphereMaterial}={}){
+
+    let {x, y, z} = startPosition;
+    this.sphere = new Mesh(sphereGeometry, sphereMaterial);
+    this.sphere.name = generateUniqueId({name:'sphere'});
+    this.sphere.position.set(x, y, z);
+    let endPosition = startPosition.clone().add(direction.multiplyScalar(distance));
+    let {x:x2, y:y2, z:z2} = endPosition;
+
     this.threejsObject = this.createLine({x, y, z, x2, y2, z2});
   }
 
   render() {
-    // this.threejsObject.rotation.x += 0.01;
-    // this.threejsObject.rotation.y += 0.02;
+
   }
 
   createLine({x=0, y=0, z=0, x2=0, y2=0, z2=0, material=style.material.blueMaterial}={}){
@@ -33,10 +44,13 @@ export default class Bullet{
   }
   addToScene({scene}) {
     scene.add(this.threejsObject);
+    scene.add(this.sphere);
   }
 
-  destroy({scene, name=this.threejsObject.name, componentId=this.componentId}){
+  destroy({scene, name=this.threejsObject.name}){
     let object3d = scene.getObjectByName(name);
+    scene.remove(object3d);
+    object3d = scene.getObjectByName(this.sphere.name);
     scene.remove(object3d);
   }
 
