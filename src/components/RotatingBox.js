@@ -9,8 +9,6 @@ export default class RotatingBox{
 
   constructor({x=0, y=0, z=0}={}){
     let geometry = standardGeomatry;
-
-
     this.threejsObject = new Mesh(geometry, material);
     this.threejsObject.position.set(x, y, z);
     this.threejsObject.name = this.componentId;//needed for removing from scene
@@ -34,7 +32,7 @@ export default class RotatingBox{
   }
 
   destroy({scene, name=this.threejsObject.name, componentId=this.componentId}){
-    console.log(`destroy called for: ${name}`);
+    //console.log(`destroy called for: ${name}`);
     let object3d = scene.getObjectByName(name);
     scene.remove(object3d);
     signal.trigger(ec.stage.componentDestroyed, {componentId});

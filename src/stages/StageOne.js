@@ -1,4 +1,4 @@
-import {Scene, Camera, WebGLRenderer, Raycaster, PerspectiveCamera, Vector3, Vector2} from 'three';
+import {Scene, Camera, WebGLRenderer, Raycaster, PerspectiveCamera, Vector3, Vector2, Projector} from 'three';
 import {eventConfig as ec} from 'core/eventConfig';
 import {signal, generateRandomNumber} from "core/core";
 import RotatingBox from 'components/RotatingBox';
@@ -11,13 +11,12 @@ export default class StageOne {
   hittableComponents = [] //{componentId:'box123', threejsObject: new THREE.Mesh( geometry, material)}
   rendererDomElement //created during initThreejs and used by react component to append to appropriate div
   children = []
+  raycaster = new Raycaster()//used for hit tests
+  projector = new Projector()//used for hit tests v2
   constructor({children=[], stageConfig}={}) {
     this.children = children;
     signal.registerSignals(this);
-    //this.setupChildren({children});
     stageConfig.createChildren({children: this.children});
-
-    console.log(`this.children: ${this.children.length}`);
     //begin animation after instantiating scene, camera, and renderer.
     this.initThreeJs();
   }
@@ -36,6 +35,52 @@ export default class StageOne {
 
     this.rendererDomElement = this.renderer.domElement;
     animate({camera, scene, renderer:this.renderer, stage:this});
+  }
+
+  hitTest({hittableComponents=this.hittableComponents, raycaster=this.raycaster, camera=this.camera, clientX, clientY}){
+    let {width, height} = this.getScreenDimensions();
+    let mouseX = (clientX / width) * 2 - 1;
+    let mouseY = (clientY / height) * 2 - 1;
+    let mouseVector = new Vector2(mouseX, mouseY);
+    raycaster.setFromCamera(mouseVector, camera);
+
+    let hitComponent;//first object hit by ray
+    let intersects;//raycaster intersectObject result
+    for (let hittableComponent of hittableComponents){
+      let {componentId, threejsObject} = hittableComponent;
+      intersects = raycaster.intersectObject(threejsObject);
+      if(intersects && intersects.length > 0){
+        hitComponent = hittableComponent;
+        break;
+      }
+    }
+    if(hitComponent == undefined){return;}
+    return {hitComponent, intersects};
+  }
+
+  hitTestV2({hittableComponents=this.hittableComponents, camera=this.camera, projector=this.projector, clientX, clientY}){
+    let {width, height} = this.getScreenDimensions();
+    let mouseX = (clientX / width) * 2 - 1;
+    let mouseY = (clientY / height) * 2 - 1;
+    let mouseVector = new Vector3(mouseX, mouseY, 1);
+
+    projector.unprojectVector(mouseVector, camera);
+
+    var direction = mouseVector.sub(camera.position).normalize();
+    var ray = new Raycaster(camera.position, direction);
+
+    let hitComponent;//first object hit by ray
+    let intersects;//raycaster intersectObject result
+    for (let hittableComponent of hittableComponents){
+      let {componentId, threejsObject} = hittableComponent;
+      intersects = ray.intersectObject(threejsObject);
+      if(intersects && intersects.length > 0){
+        hitComponent = hittableComponent;
+        break;
+      }
+    }
+    if(hitComponent == undefined){return;}
+    return {hitComponent, intersects};
   }
 
   signals = {
@@ -81,34 +126,18 @@ export default class StageOne {
     //hit test
     //all registered hittable components will be evaluated to determine if the mouse x, y coordinates intersect/hit.
     //https://threejs.org/docs/#api/core/Raycaster
-    [ec.mouse.mousedown]({clientX, clientY}){
-      //hit test
-      //you'll want each child in scene to return their collidable "box"
-      let {width, height} = this.getScreenDimensions();
-      let mouseX = (clientX / width) * 2 - 1;
-      let mouseY = (clientY / height) * 2 - 1;
-      let mouseVector = new Vector2(mouseX, mouseY);
-
-      let raycaster = new Raycaster();
-      raycaster.setFromCamera(mouseVector, this.camera);
-
+    [ec.mouse.mousedown]({clientX, clientY, raycaster=this.raycaster}){
       console.log('checking for hit components...');
-      let hitComponent;//first object hit by ray
-      let intersects;//raycaster intersectObject result
-      for (let hittableComponent of this.hittableComponents){
-        let {componentId, threejsObject} = hittableComponent;
-        intersects = raycaster.intersectObject(threejsObject);
-        if(intersects && intersects.length > 0){
-          hitComponent = hittableComponent;
-          console.log(`hit component: ${hitComponent.componentId}`);
-          break;
-        }
-      }
-      if(hitComponent == undefined){return;}
-      let firstIntersect = intersects[0]; //[ { distance, point, face, faceIndex, indices, object }, ... ]
-      let {distance, point, face, faceIndex, indices, object} = firstIntersect;
-      let {componentId} = hitComponent;
-      signal.trigger(ec.hitTest.hitComponent, {componentId, distance, point, face, faceIndex, indices, object, scene:this.scene});
+      let {hitComponent, intersects} = this.hitTestV2({clientX, clientY}) || {};
+      if(!hitComponent){return;}
+
+      console.log(`hit component: ${hitComponent.componentId}`);
+      let {scene} = this;
+      intersects.forEach(i=>{
+        let {distance, point, face, faceIndex, indices, object} = i;
+        let {componentId} = hitComponent;
+        signal.trigger(ec.hitTest.hitComponent, {componentId, distance, point, face, faceIndex, indices, object, scene});
+      })
 
     },
     //anything that wants to be hittable (e.g. by a bullet) should register via this signal
@@ -143,7 +172,11 @@ export default class StageOne {
   }
 
   addChildrenToScene({children=this.children, scene}={}){
-    this.children.forEach(c=>c.addToScene({scene}));
+    //this.children.forEach(c=>c.addToScene({scene}));
+    let length = children.length - 1;
+    while(length >= 0){
+      children[length--].addToScene({scene});
+    }
   }
 
   getScreenDimensions(){
@@ -153,7 +186,16 @@ export default class StageOne {
 
   destroy({children=this.children, scene=this.scene}={}){
     signal.unregisterSignals(this);
-    children.forEach(c=>c.destroy && c.destroy({scene}));
+    //children.forEach(c=>c.destroy && c.destroy({scene}));
+    let length = children.length - 1;
+    try{
+      while(length >= 0){
+        children[length--].destroy({scene});
+      }
+    }catch(e){
+      console.error(`child ${JSON.stringify(children[length+1])} no destroy`, e);
+    }
+
   }
 }
 
