@@ -1,4 +1,4 @@
-import {BoxGeometry, CubeGeometry, MeshNormalMaterial, MeshLambertMaterial, Mesh} from 'three';
+import {BoxGeometry, CubeGeometry, MeshNormalMaterial, MeshLambertMaterial, Mesh, Box3} from 'three';
 import {signal, eventConfig as ec, generateUniqueId} from "core/core";
 
 let material = new MeshNormalMaterial();
@@ -7,12 +7,13 @@ standardGeomatry.computeBoundingBox();
 
 export default class RotatingBox{
   componentId = generateUniqueId({name:'RotatingBox'})
-
+  hitBox //used to determine if something hit us
   constructor({x=0, y=0, z=0}={}){
     let geometry = standardGeomatry;
     this.threejsObject = new Mesh(geometry, material);
     this.threejsObject.position.set(x, y, z);
     this.threejsObject.name = this.componentId;//needed for removing from scene
+    this.hitBox = new Box3().setFromObject(this.threejsObject);
     signal.registerSignals(this);
   }
   signals = {
@@ -28,8 +29,7 @@ export default class RotatingBox{
 
   addToScene({scene}) {
     scene.add(this.threejsObject);
-    let {componentId, threejsObject} = this;
-    signal.trigger(ec.hitTest.registerHittableComponent, {componentId, threejsObject});
+    signal.trigger(ec.hitTest.registerHittableComponent, {component:this});
   }
 
   destroy({scene, name=this.threejsObject.name, componentId=this.componentId}){

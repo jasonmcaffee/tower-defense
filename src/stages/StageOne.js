@@ -39,37 +39,37 @@ export default class StageOne {
   }
 
   hitTestV3({hittableComponents=this.hittableComponents, camera=this.camera, projector=this.projector, clientX, clientY}){
-    let {width, height} = this.getScreenDimensions();
-    let mouseX = (clientX / width) * 2 - 1;
-    let mouseY = - (clientY / height) * 2 + 1;
-    let mouseVector = new Vector3(mouseX, mouseY, 1);
-
-    projector.unprojectVector(mouseVector, camera);
-
-    var direction = mouseVector.sub(camera.position).normalize();
-    var ray = new Raycaster(camera.position, direction);
-
-    let hitComponent;//first object hit by ray
-    let intersects;//raycaster intersectObject result
-    let threejsObjects = hittableComponents.map(h=>h.threejsObject);
-    let allIntersects = ray.intersectObjects(threejsObjects, true);
-
-    for(let i of allIntersects){
-      let clickedThreejsObject = i.object;
-      for(let h of hittableComponents){
-        if(h.threejsObject.name == clickedThreejsObject.name){
-          hitComponent = h;
-          intersects = [i];
-          break;
-        }
-      }
-      if(hitComponent){
-        break;
-      }
-    }
-
-    if(hitComponent == undefined){return;}
-    return {hitComponent, intersects};
+    // let {width, height} = this.getScreenDimensions();
+    // let mouseX = (clientX / width) * 2 - 1;
+    // let mouseY = - (clientY / height) * 2 + 1;
+    // let mouseVector = new Vector3(mouseX, mouseY, 1);
+    //
+    // projector.unprojectVector(mouseVector, camera);
+    //
+    // var direction = mouseVector.sub(camera.position).normalize();
+    // var ray = new Raycaster(camera.position, direction);
+    //
+    // let hitComponent;//first object hit by ray
+    // let intersects;//raycaster intersectObject result
+    // let threejsObjects = hittableComponents.map(h=>h.threejsObject);
+    // let allIntersects = ray.intersectObjects(threejsObjects, true);
+    //
+    // for(let i of allIntersects){
+    //   let clickedThreejsObject = i.object;
+    //   for(let h of hittableComponents){
+    //     if(h.threejsObject.name == clickedThreejsObject.name){
+    //       hitComponent = h;
+    //       intersects = [i];
+    //       break;
+    //     }
+    //   }
+    //   if(hitComponent){
+    //     break;
+    //   }
+    // }
+    //
+    // if(hitComponent == undefined){return;}
+    // return {hitComponent, intersects};
   }
 
   fireBullet({camera=this.camera, scene=this.scene, projector=this.projector, clientX, clientY}){
@@ -131,24 +131,24 @@ export default class StageOne {
     //all registered hittable components will be evaluated to determine if the mouse x, y coordinates intersect/hit.
     //https://threejs.org/docs/#api/core/Raycaster
     [ec.mouse.mousedown]({clientX, clientY, raycaster=this.raycaster}){
-      console.log('checking for hit components...');
+      // console.log('checking for hit components...');
       this.fireBullet({clientX, clientY});
-
-      let {hitComponent, intersects} = this.hitTestV3({clientX, clientY}) || {};
-      if(!hitComponent){return;}
-
-      console.log(`hit component: ${hitComponent.componentId}`);
-      let {scene} = this;
-      intersects.forEach(i=>{
-        let {distance, point, face, faceIndex, indices, object} = i;
-        let {componentId} = hitComponent;
-        signal.trigger(ec.hitTest.hitComponent, {componentId, distance, point, face, faceIndex, indices, object, scene});
-      })
+      //
+      // let {hitComponent, intersects} = this.hitTestV3({clientX, clientY}) || {};
+      // if(!hitComponent){return;}
+      //
+      // console.log(`hit component: ${hitComponent.componentId}`);
+      // let {scene} = this;
+      // intersects.forEach(i=>{
+      //   let {distance, point, face, faceIndex, indices, object} = i;
+      //   let {componentId} = hitComponent;
+      //   signal.trigger(ec.hitTest.hitComponent, {componentId, distance, point, face, faceIndex, indices, object, scene});
+      // })
 
     },
     //anything that wants to be hittable (e.g. by a bullet) should register via this signal
-    [ec.hitTest.registerHittableComponent]({componentId, threejsObject}){
-      this.hittableComponents.push({componentId, threejsObject});
+    [ec.hitTest.registerHittableComponent]({component}){
+      this.hittableComponents.push(component);
     },
     [ec.hitTest.unregisterHittableComponent]({componentId}){
       let hitIndex = this.hittableComponents.findIndex((element)=>{
@@ -175,14 +175,14 @@ export default class StageOne {
     let removedChild = children.splice(componentIndex, 1)[0];
     return removedChild;
   }
-  render() {
-    this.renderChildren();
+  render({hittableComponents=this.hittableComponents}={}) {
+    this.renderChildren({hittableComponents});
   }
 
-  renderChildren({children=this.children}={}){
+  renderChildren({children=this.children, hittableComponents=this.hittableComponents}={}){
     let length = children.length - 1;
     while(length >= 0){
-      children[length--].render();
+      children[length--].render({hittableComponents});
     }
   }
 
