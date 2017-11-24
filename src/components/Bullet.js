@@ -1,4 +1,4 @@
-import {Geometry, LineBasicMaterial, Line, Vector3, SphereGeometry, MeshBasicMaterial, Mesh} from 'three';
+import {Geometry, LineBasicMaterial, Line, Vector3, SphereGeometry, MeshBasicMaterial, Mesh, Clock} from 'three';
 import {generateUniqueId} from "core/core";
 
 const style ={
@@ -17,8 +17,10 @@ const style ={
 
 export default class Bullet{
   componentId = generateUniqueId({name:'Bullet'})
-
-  constructor({direction, distance=1000, startPosition, sphereGeometry=style.geometry.sphere, sphereMaterial=style.material.sphereMaterial}={}){
+  distancePerSecond = 1
+  constructor({direction, distance=1000, distancePerSecond=100 , startPosition, sphereGeometry=style.geometry.sphere, sphereMaterial=style.material.sphereMaterial}={}){
+    this.distancePerSecond = distancePerSecond;
+    this.direction = direction;
 
     let {x, y, z} = startPosition;
     this.sphere = new Mesh(sphereGeometry, sphereMaterial);
@@ -28,10 +30,13 @@ export default class Bullet{
     let {x:x2, y:y2, z:z2} = endPosition;
 
     this.threejsObject = this.createLine({x, y, z, x2, y2, z2});
+    this.clock = new Clock();
   }
 
-  render() {
-
+  render({delta=this.clock.getDelta()}={}) {
+    let distance = this.distancePerSecond * delta;
+    let newPosition = new Vector3().copy(this.direction).normalize().multiplyScalar(distance);
+    this.sphere.position.add(newPosition);
   }
 
   createLine({x=0, y=0, z=0, x2=0, y2=0, z2=0, material=style.material.blueMaterial}={}){
