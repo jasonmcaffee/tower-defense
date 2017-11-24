@@ -1,5 +1,5 @@
 import {Geometry, LineBasicMaterial, Line, Vector3, SphereGeometry, MeshBasicMaterial, Mesh, Clock} from 'three';
-import {generateUniqueId} from "core/core";
+import {generateUniqueId, signal, eventConfig as ec} from "core/core";
 
 const style ={
   floor:{
@@ -18,9 +18,12 @@ const style ={
 export default class Bullet{
   componentId = generateUniqueId({name:'Bullet'})
   distancePerSecond = 1
+  totalDistanceTraveled = 0
+  distance = 0
   constructor({direction, distance=1000, distancePerSecond=100 , startPosition, sphereGeometry=style.geometry.sphere, sphereMaterial=style.material.sphereMaterial}={}){
     this.distancePerSecond = distancePerSecond;
     this.direction = direction;
+    this.distance = distance;
 
     let {x, y, z} = startPosition;
     this.sphere = new Mesh(sphereGeometry, sphereMaterial);
@@ -37,6 +40,11 @@ export default class Bullet{
     let distance = this.distancePerSecond * delta;
     let newPosition = new Vector3().copy(this.direction).normalize().multiplyScalar(distance);
     this.sphere.position.add(newPosition);
+
+    this.totalDistanceTraveled += distance;
+    if(this.totalDistanceTraveled >= this.distance){
+      signal.trigger(ec.stage.destroyComponent, {componentId:this.componentId});
+    }
   }
 
   createLine({x=0, y=0, z=0, x2=0, y2=0, z2=0, material=style.material.blueMaterial}={}){

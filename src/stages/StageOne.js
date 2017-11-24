@@ -160,9 +160,22 @@ export default class StageOne {
     },
     [ec.stage.componentDestroyed]({componentId, threejsObject}){
       signal.trigger(ec.hitTest.unregisterHittableComponent, {componentId});
+    },
+    [ec.stage.destroyComponent]({componentId, scene=this.scene}){
+      let component = this.removeChild({componentId});
+      signal.trigger(ec.hitTest.unregisterHittableComponent, {componentId});
+      component.destroy({scene});
     }
   }
 
+  removeChild({componentId, children=this.children}){
+    let componentIndex = children.findIndex((element)=>{
+      return element.componentId === componentId;
+    });
+    if(componentIndex < 0){return;}
+    let removedChild = children.splice(componentIndex, 1)[0];
+    return removedChild;
+  }
   render() {
     this.renderChildren();
   }
