@@ -17,9 +17,10 @@ export default class RotatingBox{
     signal.registerSignals(this);
   }
   signals = {
-    [ec.hitTest.hitComponent]({componentId, distance, point, face, faceIndex, indices, object, scene}){
+    [ec.hitTest.hitComponent]({hitComponent}){
+      let componentId = hitComponent.componentId;
       if(this.componentId !== componentId){return;}
-      this.destroy({scene});
+      signal.trigger(ec.stage.destroyComponent, {componentId});
     }
   }
   render() {
@@ -34,10 +35,10 @@ export default class RotatingBox{
   }
 
   destroy({scene, name=this.threejsObject.name, componentId=this.componentId}){
-    //console.log(`destroy called for: ${name}`);
+    console.log(`destroy called for: ${name}`);
     let object3d = scene.getObjectByName(name);
     scene.remove(object3d);
-    signal.trigger(ec.stage.componentDestroyed, {componentId});
+    signal.trigger(ec.hitTest.unregisterHittableComponent, {componentId});
   }
 
 }
