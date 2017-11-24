@@ -72,13 +72,12 @@ export default class StageOne {
     return {hitComponent, intersects};
   }
 
-  fireBullet({camera=this.camera, scene=this.scene, clientX, clientY}){
+  fireBullet({camera=this.camera, scene=this.scene, projector=this.projector, clientX, clientY}){
     let {width, height} = this.getScreenDimensions();
     let mouseX = (clientX / width) * 2 - 1;
-    let mouseY = (clientY / height) * 2 - 1;
-    let mouseVector = new Vector3();
-    mouseVector.set(mouseX, mouseY, .5);
-    mouseVector.unproject(camera);
+    let mouseY = - (clientY / height) * 2 + 1;
+    let mouseVector = new Vector3(mouseX, mouseY, 1);
+    projector.unprojectVector(mouseVector, camera);
 
     let direction = mouseVector.sub(camera.position).normalize();
     let startPosition = camera.position.clone();
