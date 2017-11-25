@@ -3,7 +3,8 @@ import {signal, eventConfig as ec, generateUniqueId} from "core/core";
 
 let style ={
   color:{
-    material: 0xffffff
+    material: 0xffffff,
+    materialHit: 0xff0000,
   }
 };
 
@@ -13,9 +14,10 @@ standardGeomatry.computeBoundingBox();
 export default class TysonsMom {
   componentId = generateUniqueId({name: 'TysonsMom'})
   hitBox //used to determine if something hit us
-  constructor({x = 0, y = 0, z = 0} = {}) {
+  hitPoints
+  constructor({x = 0, y = 0, z = 0, hitPoints=10} = {}) {
     let geometry = standardGeomatry;
-
+    this.hitPoints = hitPoints;
     this.image = new Image();
     this.image.src = tysonsMomImageBase64;
 
@@ -27,9 +29,9 @@ export default class TysonsMom {
     //texture.repeat.set(3, 3);
     texture.wrapS = texture.wrapT = MirroredRepeatWrapping;
 
-    let material = new MeshLambertMaterial({ color: style.color.material, map: texture });
+    this.material = new MeshLambertMaterial({ color: style.color.material, map: texture });
 
-    this.threejsObject = new Mesh(geometry, material);
+    this.threejsObject = new Mesh(geometry, this.material);
     this.threejsObject.position.set(x, y, z);
     this.threejsObject.name = this.componentId;//needed for removing from scene
     this.hitBox = new Box3().setFromObject(this.threejsObject);
@@ -38,13 +40,38 @@ export default class TysonsMom {
   }
 
   signals = {
-    [ec.hitTest.hitComponent]({hitComponent}) {
+    [ec.hitTest.hitComponent]({hitComponent, damage=0}) {
       let componentId = hitComponent.componentId;
       if (this.componentId !== componentId) {
         return;
       }
-      signal.trigger(ec.stage.destroyComponent, {componentId});
+      this.hitPoints -= damage;
+      this.playHitAnimation();
+
+      if(this.hitPoints <= 0){
+        signal.trigger(ec.stage.destroyComponent, {componentId});
+      }
+
     }
+  }
+
+  playHitAnimation({threejsObject=this.threejsObject, hitColor=style.color.materialHit}={}, intervalMs=100, maxIntervalCount=10){
+    if(this.playingHitAnimation){return;}
+    this.playingHitAnimation = true;
+
+    let originalColor = threejsObject.material.color.getHex();
+    let intervalCount = 0;
+    let intervalId = setInterval(function(){
+      ++intervalCount;
+      if(intervalCount >= maxIntervalCount){
+        clearInterval(intervalId);
+        this.playingHitAnimation = false;
+        intervalCount = 0;
+      }
+      let color = intervalCount % 2 == 0 ? originalColor : hitColor;
+      threejsObject.material.color.setHex(color);
+    }.bind(this), intervalMs);
+
   }
 
   render() {

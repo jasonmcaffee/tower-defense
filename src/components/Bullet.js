@@ -52,6 +52,8 @@ export default class Bullet{
 
   }
 
+  //if we move fast, we jump coordinates in big spaces.
+  //hitResolution allows us to divide up those big spaces into separate points, so we can hit test at each point.
   performHitTestForEachPositionInTime({hittableComponents, delta, hitResolution=10, direction=this.direction, distancePerSecond=this.distancePerSecond, sphere=this.sphere}){
     for (let hr = 1; hr <= hitResolution; ++hr){
       let distance = (distancePerSecond * delta) / hitResolution;
@@ -65,7 +67,9 @@ export default class Bullet{
       }
     }
   }
-  performHitTest({hittableComponents, hitBox=this.hitBox}){
+
+  //expects hitBox in hittableComponents objects
+  performHitTest({hittableComponents, hitBox=this.hitBox, damage=this.damage}){
     // console.log(`bullet performing hit test against ${hittableComponents.length} components`);
     let length = hittableComponents.length - 1;
     while(length >= 0){
@@ -74,7 +78,7 @@ export default class Bullet{
       if(!otherHitBox){continue;}
       if(hitBox.intersectsBox(otherHitBox)){
         console.log('BULLET HIT SOMETHING ' + hittableComponent.componentId);
-        signal.trigger(ec.hitTest.hitComponent, {hitComponent:hittableComponent, hitByComponent:this});
+        signal.trigger(ec.hitTest.hitComponent, {hitComponent:hittableComponent, hitByComponent:this, damage});
         signal.trigger(ec.stage.destroyComponent, {componentId:this.componentId});
         this.stopTravelling = true;
         return true;

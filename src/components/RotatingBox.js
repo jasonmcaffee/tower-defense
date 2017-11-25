@@ -35,7 +35,6 @@ export default class RotatingBox{
   }
 
   destroy({scene, name=this.threejsObject.name, componentId=this.componentId}){
-    console.log(`destroy called for: ${name}`);
     let object3d = scene.getObjectByName(name);
     scene.remove(object3d);
     signal.trigger(ec.hitTest.unregisterHittableComponent, {componentId});
