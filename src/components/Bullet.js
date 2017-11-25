@@ -9,6 +9,7 @@ const style ={
     blueMaterial: new LineBasicMaterial({color:0x4286f4}),
     purpleMaterial: new LineBasicMaterial({color:0x7b42af}),
     sphereMaterial: new MeshBasicMaterial({color:0x4286f4, transparent:true, opacity:0.5}),
+    sphereMaterialRed: new MeshBasicMaterial({color:0xcc001e, transparent:true, opacity:0.75}),
   },
   geometry:{
     sphere: new SphereGeometry(.5 , 16, 16)
@@ -21,13 +22,14 @@ export default class Bullet{
   totalDistanceTraveled = 0
   distance = 0
   damage
-  hitExclusionComponentIds //player bullet shouldn't be able to hit player.
-  constructor({direction, distance=1000, distancePerSecond=300 , startPosition, damage=1,sphereGeometry=style.geometry.sphere, sphereMaterial=style.material.sphereMaterial, hitExclusionComponentIds=[]}={}){
+  hitExclusionComponentId //player bullet shouldn't be able to hit player.
+  static get style() {return style;}
+  constructor({direction, distance=1000, distancePerSecond=300 , startPosition, damage=1,sphereGeometry=style.geometry.sphere, sphereMaterial=style.material.sphereMaterial, hitExclusionComponentId}={}){
     this.distancePerSecond = distancePerSecond;
     this.direction = direction;
     this.distance = distance;
     this.damage = damage;
-    this.hitExclusionComponentIds = hitExclusionComponentIds;
+    this.hitExclusionComponentId = hitExclusionComponentId;
     let {x, y, z} = startPosition;
     this.sphere = new Mesh(sphereGeometry, sphereMaterial);
     this.sphere.name = generateUniqueId({name:'sphere'});
@@ -71,12 +73,12 @@ export default class Bullet{
   }
 
   //expects hitBox in hittableComponents objects
-  performHitTest({hittableComponents, hitBox=this.hitBox, damage=this.damage, hitExclusionComponentIds=this.hitExclusionComponentIds}){
+  performHitTest({hittableComponents, hitBox=this.hitBox, damage=this.damage, hitExclusionComponentId=this.hitExclusionComponentId}){
     // console.log(`bullet performing hit test against ${hittableComponents.length} components`);
     let length = hittableComponents.length - 1;
     while(length >= 0){
       let hittableComponent = hittableComponents[length--];
-      if(hitExclusionComponentIds.includes(hittableComponent.componentId)){continue;}
+      if(hitExclusionComponentId == hittableComponent.componentId){continue;}
 
       let otherHitBox = hittableComponent.hitBox;
       if(!otherHitBox){continue;}

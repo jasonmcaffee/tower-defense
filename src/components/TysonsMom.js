@@ -17,9 +17,11 @@ export default class TysonsMom {
   hitBox //used to determine if something hit us
   hitPoints
   playerPosition //keep track of where player currently is
-  constructor({x = 0, y = 0, z = 0, hitPoints=10} = {}) {
+  bulletDistancePerSecond
+  constructor({x = 0, y = 0, z = 0, hitPoints=10, bulletDistancePerSecond=100} = {}) {
     let geometry = standardGeomatry;
     this.hitPoints = hitPoints;
+    this.bulletDistancePerSecond = bulletDistancePerSecond;
     this.image = new Image();
     this.image.src = tysonsMomImageBase64;
 
@@ -66,7 +68,8 @@ export default class TysonsMom {
     }.bind(this), timeout)
   }
 
-  fireBulletAtPlayer({playerPosition=this.playerPosition, threejsObject=this.threejsObject, componentId=this.componentId}={}){
+  fireBulletAtPlayer({playerPosition=this.playerPosition, threejsObject=this.threejsObject, componentId=this.componentId,
+                       bulletMaterial=Bullet.style.material.sphereMaterialRed, bulletDistancePerSecond=this.bulletDistancePerSecond}={}){
     if(!playerPosition){return;}
     let playerPositionVector = new Vector3(playerPosition.x, playerPosition.y, playerPosition.z);
 
@@ -74,7 +77,7 @@ export default class TysonsMom {
     let direction = new Vector3();
     direction.subVectors(playerPosition, startPosition);
 
-    let bullet = new Bullet({direction, startPosition, hitExclusionComponentIds:[componentId]});
+    let bullet = new Bullet({direction, startPosition, hitExclusionComponentId:componentId, sphereMaterial: bulletMaterial, distancePerSecond:bulletDistancePerSecond});
     signal.trigger(ec.stage.addComponent, {component:bullet});
   }
 
