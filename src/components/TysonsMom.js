@@ -70,7 +70,12 @@ export default class TysonsMom {
 
   fireBulletAtPlayer({playerPosition=this.playerPosition, threejsObject=this.threejsObject, componentId=this.componentId,
                        bulletMaterial=Bullet.style.material.sphereMaterialRed, bulletDistancePerSecond=this.bulletDistancePerSecond}={}){
-    if(!playerPosition){return;}
+    if(!playerPosition){
+      let min = -10000;
+      let max = 10000;
+      let grn = generateRandomNumber;
+      playerPosition = {x:grn({min, max}), y:grn({min, max}), z:grn({min, max})};
+    }
     let playerPositionVector = new Vector3(playerPosition.x, playerPosition.y, playerPosition.z);
 
     let startPosition = threejsObject.position.clone();

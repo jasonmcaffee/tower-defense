@@ -2,7 +2,14 @@ import {eventConfig as ec} from "core/eventConfig";
 import {signal} from "core/core";
 import {Clock, Math as threeMath} from "three";
 
-let clock = new Clock();
+let lookClock = new Clock();
+// let moveRightClock = new Clock();
+// let moveLeftClock = new Clock();
+// let moveUpClock = new Clock();
+// let moveDownClock = new Clock();
+// let moveForwardClock = new Clock();
+// let moveBackwardClock = new Clock();
+let moveClock = new Clock();
 
 let qwertyKeyCodeOrder = [
   // 1   2   3   4   5   6   7   8   9   0  -    =    delete
@@ -30,6 +37,7 @@ export function listen(){
 let controls = {
   //how far to move the camera in a given direction
   moveAmount: .2,
+  moveDistancePerSecond: 10 ,
   //storage for keys that are currently pressed, and their associated interval id.
   //key should only be given one interval (started when key is first pressed, stopped when key is released)
   keysCurrentlyPressed: {key:undefined, intervalId:undefined},
@@ -47,7 +55,7 @@ let controls = {
   },
   performLookAtBasedOnMouseMovement({lookSpeed=0.1, mouseX=this.mouseX, mouseY=this.mouseY}={}){
     if(this.stopLookingWithMouse){return;}
-    let delta = clock.getDelta();
+    let delta = lookClock.getDelta();
     //console.log('delta is ', delta);
     //look
     var actualLookSpeed = delta * lookSpeed;
@@ -87,15 +95,15 @@ let controls = {
   //control the camera position
   keyPressed({keyPressed, keyCode}){
     let key = keyCode + '';
-    this.keysCurrentlyPressed[key] = {keyPressed, keyCode};
+    this.keysCurrentlyPressed[key] = {keyPressed, keyCode, clock:new Clock()};
   },
 
   performMovementBasedOnKeysPressed({amount=this.moveAmount}={}){
     for(let key in this.keysCurrentlyPressed){
       let keyInfo = this.keysCurrentlyPressed[key];
       if(keyInfo == undefined){continue;}
-      let {keyPressed, keyCode} = keyInfo;
-      this.performMovementBasedOnKeyPressed({keyPressed, keyCode});
+      let {keyPressed, keyCode, clock} = keyInfo;
+      this.performMovementBasedOnKeyPressed({keyPressed, keyCode, clock});
     }
   },
 
@@ -111,9 +119,22 @@ let controls = {
     [39]:moveRight, //right arrow
     [37]:moveLeft, //left arrow
   },
-  performMovementBasedOnKeyPressed({amount=this.moveAmount, keyCodeToCameraMovementMap=this.keyCodeToCameraMovementMap, keyPressed, keyCode}){
+  performMovementBasedOnKeyPressed({keyCodeToCameraMovementMap=this.keyCodeToCameraMovementMap, keyPressed, keyCode, moveDistancePerSecond=this.moveDistancePerSecond, clock}){
     let event = keyCodeToCameraMovementMap[keyPressed.toLowerCase()] || keyCodeToCameraMovementMap[keyCode];
     if(!event){return;}
+    let delta = clock.getDelta();
+    // let delta=moveClock.getDelta();
+    // let delta;
+    // switch(event){
+    //   case moveUp: delta = moveLeftClock.getDelta(); break;
+    //   case moveDown: delta = moveDownClock.getDelta(); break;
+    //   case moveLeft: delta = moveLeftClock.getDelta();break;
+    //   case moveRight: delta = moveRightClock.getDelta();break;
+    //   case moveForward: delta = moveForwardClock.getDelta(); break;
+    //   case moveBackward: delta = moveBackwardClock.getDelta(); break;
+    // }
+    // if(delta == undefined){return;}
+    let amount = moveDistancePerSecond * delta;
     signal.trigger(event, {amount});
   }
 
@@ -144,7 +165,7 @@ function listenMouse(){
     let from = e.relatedTarget || e.toElement;
     if(!from || from.nodeName == "HTML"){
       controls.stopLookingWithMouse = true;
-      clock = new Clock();//reset the time so cursor movement doesn't jump to somewhere other than where we left the screen.
+      lookClock = new Clock();//reset the time so cursor movement doesn't jump to somewhere other than where we left the screen.
     }
   }
 
