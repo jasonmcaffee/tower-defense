@@ -2,6 +2,9 @@ import {BoxGeometry, CubeGeometry, MeshNormalMaterial, MeshLambertMaterial, Mesh
 import {signal, eventConfig as ec, generateUniqueId, generateRandomNumber} from "core/core";
 import Bullet from 'components/Bullet';
 import humpbackWhale1 from 'sounds/HumpbackWhale1.mp3';
+import ohyeahfullsong from 'sounds/ohyeahfullsong.mp3';
+import velicoraptorScream from 'sounds/velicoraptorScream.mp3';
+import trexRoar from 'sounds/trexRoar.mp3';
 
 let style ={
   color:{
@@ -14,6 +17,10 @@ let moveClock = new Clock();
 let standardGeomatry = new CubeGeometry(2, 2, 2);
 standardGeomatry.computeBoundingBox();
 
+let min = -100;
+let max = 100;
+let grn = generateRandomNumber;
+
 export default class TysonsMom {
   componentId = generateUniqueId({name: 'TysonsMom'})
   hitBox //used to determine if something hit us
@@ -21,16 +28,15 @@ export default class TysonsMom {
   playerPosition //keep track of where player currently is
   bulletDistancePerSecond
   moveDistancePerSecond
-  constructor({x = 0, y = 0, z = 0, hitPoints=100, bulletDistancePerSecond=100, moveDistancePerSecond=1} = {}) {
+  audioListeners = [] //for positional sounds
+  positionalSounds = []
+  constructor({x = grn({min, max}), y = grn({min, max}), z = grn({min, max}), hitPoints=100, bulletDistancePerSecond=100, moveDistancePerSecond=9} = {}) {
     let geometry = standardGeomatry;
     this.hitPoints = hitPoints;
     this.bulletDistancePerSecond = bulletDistancePerSecond;
     this.moveDistancePerSecond = moveDistancePerSecond;
     this.image = new Image();
     this.image.src = tysonsMomImageBase64;
-
-    this.humpBackAudio = this.createPositionalSound();
-
 
     let texture = new Texture();
     texture.image = this.image;
@@ -47,8 +53,28 @@ export default class TysonsMom {
     this.threejsObject.name = this.componentId;//needed for removing from scene
     this.hitBox = new Box3().setFromObject(this.threejsObject);
 
-    this.threejsObject.add(this.humpBackAudio);
+    this.createSounds();
     signal.registerSignals(this);
+  }
+
+  createSounds({threejsObject=this.threejsObject, positionalSounds=this.positionalSounds, audioListeners=this.audioListeners}={}){
+    var {audio:hbAudio, listener:hbListener} = this.createPositionalSound({src:humpbackWhale1, repeat:true, playWhenReady:true});
+    this.humpBackAudio = hbAudio;
+    this.audioListeners.push(hbListener);
+
+    var {audio:vrAudio, listener:vrListener} = this.createPositionalSound({src:velicoraptorScream});
+    this.velociraptorScreamAudio = vrAudio;
+    this.audioListeners.push(vrListener);
+
+    var {audio:trAudio, listener:trListener} = this.createPositionalSound({src:trexRoar});
+    this.trexRoarAudio = trAudio;
+    this.audioListeners.push(trListener);
+
+    this.ohyeahfullsongAudio = this.createAudio();
+
+    threejsObject.add(this.humpBackAudio);
+    threejsObject.add(this.velociraptorScreamAudio);
+    threejsObject.add(this.trexRoarAudio);
   }
 
   signals = {
@@ -61,6 +87,7 @@ export default class TysonsMom {
       this.playHitAnimation();
 
       if(this.hitPoints <= 0){
+        this.ohyeahfullsongAudio.play();
         signal.trigger(ec.stage.destroyComponent, {componentId});
       }
     },
@@ -107,9 +134,15 @@ export default class TysonsMom {
     signal.trigger(ec.stage.addComponent, {component:bullet});
   }
 
+  hitCount = 0
   playHitAnimation({threejsObject=this.threejsObject, hitColor=style.color.materialHit}={}, intervalMs=100, maxIntervalCount=10){
     if(this.playingHitAnimation){return;}
     this.playingHitAnimation = true;
+
+    //this.velociraptorScreamAudio.pause();
+    // this.velociraptorScreamAudio.startTime = 0;
+    let screamAudio = this.hitCount++ % 2 == 0 ? this.velociraptorScreamAudio : this.trexRoarAudio;
+    screamAudio.play();
 
     let originalColor = threejsObject.material.color.getHex();
     let intervalCount = 0;
@@ -137,23 +170,36 @@ export default class TysonsMom {
     scene.add(this.threejsObject);
     signal.trigger(ec.hitTest.registerHittableComponent, {component: this});
     this.startFiringBullets();
-    signal.trigger(ec.camera.attachAudioListenerToCamera, {listener:this.listener});
+    this.audioListeners.forEach(listener=>{
+      signal.trigger(ec.camera.attachAudioListenerToCamera, {listener});
+    });
+
   }
 
-  createPositionalSound({}={}){
-    //this.humpBackAudio.play();
-    this.listener = new  AudioListener();
-    //camera.add( listener );
+  createPositionalSound({src=humpbackWhale1, repeat=false, playWhenReady=false}={}){
+    let listener = new  AudioListener();
 
-
-    var sound = new PositionalAudio( this.listener );
+    var audio = new PositionalAudio( listener );
     var audioLoader = new AudioLoader();
-    audioLoader.load(humpbackWhale1, function( buffer ) {
-      sound.setBuffer( buffer );
-      sound.setRefDistance( 10);
-      sound.play();
+    audioLoader.load(src, function( buffer ) {
+      audio.setBuffer( buffer );
+      audio.setRefDistance( 10);
+      if(repeat){
+        audio.setLoop(true);
+      }
+      if(playWhenReady){
+        audio.play();
+      }
     });
-    return sound;
+
+    return {audio, listener};
+  }
+
+  createAudio({src=ohyeahfullsong}={}){
+    let audio = new Audio();
+    audio.src = src;
+    //audio.play();
+    return audio;
   }
 
   destroy({scene, name = this.threejsObject.name, componentId = this.componentId}) {
@@ -161,6 +207,7 @@ export default class TysonsMom {
     scene.remove(object3d);
     signal.trigger(ec.hitTest.unregisterHittableComponent, {componentId});
     this.isDestroyed = true;
+    this.humpBackAudio.stop();
   }
 
 }
