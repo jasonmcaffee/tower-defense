@@ -1,4 +1,4 @@
-import {LineBasicMaterial, Vector3, Geometry, Line} from 'three';
+import {LineBasicMaterial, Vector3, Geometry, Line, AmbientLight} from 'three';
 import {generateUniqueId} from "core/core";
 
 const style ={
@@ -8,6 +8,9 @@ const style ={
   material:{
     blueMaterial: new LineBasicMaterial({color:0x4286f4}),
     purpleMaterial: new LineBasicMaterial({color:0x7b42af}),
+  },
+  color:{
+    ambientLightColor:  0xffffff,//0x404040
   }
 };
 
@@ -15,6 +18,9 @@ const style ={
  * Floor
  */
 export default class Floor {
+  lines = []
+  children = []
+  lights = []
   constructor({children = []} = {}) {
     this.children = children;
     let {numberOfLines} = style.floor;
@@ -22,6 +28,7 @@ export default class Floor {
       ...this.createFloorLines({numberOfLines, material:style.material.blueMaterial}),
       ...this.createWallLines({numberOfLines, material:style.material.purpleMaterial}),
     ];
+    this.lights = this.createLights();
   }
 
   render() {
@@ -35,6 +42,7 @@ export default class Floor {
   addToScene({scene}){
     this.addChildrenToScene({scene});
     this.addLinesToScene({scene});
+    this.addLightsToScene({scene});
   }
 
   addChildrenToScene({children = this.children, scene} = {}) {
@@ -42,6 +50,16 @@ export default class Floor {
   }
   addLinesToScene({lines = this.lines, scene}){
     lines.forEach(l => scene.add(l));
+  }
+  addLightsToScene({lights = this.lights, scene}){
+    lights.forEach(l => scene.add(l));
+  }
+
+  createLights(){
+    let lights = [
+      this.createLight({})
+    ];
+    return lights;
   }
 
   createFloorLines({numberOfLines=10, lineLength, distanceBetweenLines=.5, material}={}){
@@ -123,12 +141,22 @@ export default class Floor {
     return line;
   }
 
+  createLight({x=0, y=0, z=0, color=style.color.ambientLightColor, intensity=1}){
+    let thereBeLight = new AmbientLight(color, 1);
+    return thereBeLight;
+  }
+
   destroy({scene}){
     this.lines.forEach(l=>{
       let object3d = scene.getObjectByName(l.name);
       scene.remove(object3d);
     });
+    this.lights.forEach(l=>{
+      let object3d = scene.getObjectByName(l.name);
+      scene.remove(object3d);
+    });
     this.lines = [];
+    this.lights = [];
 
   }
 }

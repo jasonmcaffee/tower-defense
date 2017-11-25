@@ -1,9 +1,11 @@
 import RotatingBox from 'components/RotatingBox';
 import Floor from 'components/Floor';
+import TysonsMom from 'components/TysonsMom';
+
 import {generateRandomNumber} from "core/core";
 
 export const stageOneConfig = {
-  createChildren({children=[]}={}){
+  createChildren({children=[], scene}={}){
     children.push(new RotatingBox());
     let min = -90;
     let max = 90;
@@ -12,6 +14,8 @@ export const stageOneConfig = {
       children.push(new RotatingBox({x:grn({min, max}), y:grn({min, max}), z:grn({min, max})}));
     }
     children.push(new Floor());
+
+    children.push(new TysonsMom());
     return children;
   }
 }
