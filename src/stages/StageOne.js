@@ -70,21 +70,33 @@ export default class StageOne {
     },
     [ec.camera.moveBackward]({amount=0}={}){
       this.camera.translateZ(amount);
+      let {x, y, z} = this.camera.position;
+      signal.trigger(ec.camera.positionChanged, {x, y, z});
     },
     [ec.camera.moveForward]({amount=0}={}){
       this.camera.translateZ(- amount);
+      let {x, y, z} = this.camera.position;
+      signal.trigger(ec.camera.positionChanged, {x, y, z});
     },
     [ec.camera.moveLeft]({amount=0}={}){
       this.camera.translateX(- amount);
+      let {x, y, z} = this.camera.position;
+      signal.trigger(ec.camera.positionChanged, {x, y, z});
     },
     [ec.camera.moveRight]({amount=0}={}){
       this.camera.translateX(amount);
+      let {x, y, z} = this.camera.position;
+      signal.trigger(ec.camera.positionChanged, {x, y, z});
     },
     [ec.camera.moveUp]({amount=0}={}){
       this.camera.translateY(amount);
+      let {x, y, z} = this.camera.position;
+      signal.trigger(ec.camera.positionChanged, {x, y, z});
     },
     [ec.camera.moveDown]({amount=0}={}){
       this.camera.translateY(- amount);
+      let {x, y, z} = this.camera.position;
+      signal.trigger(ec.camera.positionChanged, {x, y, z});
     },
     [ec.window.resize]({height, width}){
       let {camera, renderer} = this;
@@ -110,6 +122,10 @@ export default class StageOne {
       });
       if(hitIndex < 0){return;}
       this.hittableComponents.splice(hitIndex, 1);//remove hittable component from array
+    },
+    [ec.stage.addComponent]({component, scene=this.scene, children=this.children}){
+      children.push(component);
+      component.addToScene({scene});
     },
 
     //bullet calls this when its finished its distance and after it hits something.

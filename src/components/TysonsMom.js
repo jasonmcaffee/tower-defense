@@ -1,5 +1,6 @@
-import {BoxGeometry, CubeGeometry, MeshNormalMaterial, MeshLambertMaterial, Mesh, Box3, Texture, MirroredRepeatWrapping} from 'three';
-import {signal, eventConfig as ec, generateUniqueId} from "core/core";
+import {BoxGeometry, CubeGeometry, MeshNormalMaterial, MeshLambertMaterial, Mesh, Box3, Texture, MirroredRepeatWrapping, Vector3} from 'three';
+import {signal, eventConfig as ec, generateUniqueId, generateRandomNumber} from "core/core";
+import Bullet from 'components/Bullet';
 
 let style ={
   color:{
@@ -15,6 +16,7 @@ export default class TysonsMom {
   componentId = generateUniqueId({name: 'TysonsMom'})
   hitBox //used to determine if something hit us
   hitPoints
+  playerPosition //keep track of where player currently is
   constructor({x = 0, y = 0, z = 0, hitPoints=10} = {}) {
     let geometry = standardGeomatry;
     this.hitPoints = hitPoints;
@@ -51,8 +53,29 @@ export default class TysonsMom {
       if(this.hitPoints <= 0){
         signal.trigger(ec.stage.destroyComponent, {componentId});
       }
-
+    },
+    [ec.player.positionChanged]({x, y, z}){
+      this.playerPosition = {x, y, z};
     }
+  }
+  startFiringBullets(timeout=generateRandomNumber({min:100, max:1000})){
+    if(this.isDestroyed){return;}
+    setTimeout(function(){
+      this.fireBulletAtPlayer();
+      this.startFiringBullets();
+    }.bind(this), timeout)
+  }
+
+  fireBulletAtPlayer({playerPosition=this.playerPosition, threejsObject=this.threejsObject, componentId=this.componentId}={}){
+    if(!playerPosition){return;}
+    let playerPositionVector = new Vector3(playerPosition.x, playerPosition.y, playerPosition.z);
+
+    let startPosition = threejsObject.position.clone();
+    let direction = new Vector3();
+    direction.subVectors(playerPosition, startPosition);
+
+    let bullet = new Bullet({direction, startPosition, hitExclusionComponentIds:[componentId]});
+    signal.trigger(ec.stage.addComponent, {component:bullet});
   }
 
   playHitAnimation({threejsObject=this.threejsObject, hitColor=style.color.materialHit}={}, intervalMs=100, maxIntervalCount=10){
@@ -83,12 +106,14 @@ export default class TysonsMom {
   addToScene({scene}) {
     scene.add(this.threejsObject);
     signal.trigger(ec.hitTest.registerHittableComponent, {component: this});
+    this.startFiringBullets();
   }
 
   destroy({scene, name = this.threejsObject.name, componentId = this.componentId}) {
     let object3d = scene.getObjectByName(name);
     scene.remove(object3d);
     signal.trigger(ec.hitTest.unregisterHittableComponent, {componentId});
+    this.isDestroyed = true;
   }
 
 }

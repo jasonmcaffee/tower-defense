@@ -1,6 +1,7 @@
 import RotatingBox from 'components/RotatingBox';
 import Floor from 'components/Floor';
 import TysonsMom from 'components/TysonsMom';
+import Player from 'components/Player';
 
 import {generateRandomNumber} from "core/core";
 
@@ -16,6 +17,8 @@ export const stageOneConfig = {
     children.push(new Floor());
 
     children.push(new TysonsMom());
+
+    children.push(new Player());
     return children;
   }
 }

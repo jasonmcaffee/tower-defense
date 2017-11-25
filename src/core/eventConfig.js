@@ -13,6 +13,7 @@ export const eventConfig = {
     moveRight:"camera.moveRight",
     moveUp:"camera.moveUp",
     moveDown:"camera.moveDown",
+    positionChanged:"camera.positionChanged", //let player hitbox follow
   },
   window:{
     resize:"window.resize",
@@ -32,5 +33,9 @@ export const eventConfig = {
   },
   stage:{
     destroyComponent:'stage.destroyComponent', //{componentId}
+    addComponent:'stage.addComponent', //for adding dynamic stuff from components. e.g. fire bullet
+  },
+  player:{
+    positionChanged:'player.positionChanged',//let enemies know where you are
   }
 }

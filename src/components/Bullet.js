@@ -21,11 +21,13 @@ export default class Bullet{
   totalDistanceTraveled = 0
   distance = 0
   damage
-  constructor({direction, distance=1000, distancePerSecond=300 , startPosition, damage=1,sphereGeometry=style.geometry.sphere, sphereMaterial=style.material.sphereMaterial}={}){
+  hitExclusionComponentIds //player bullet shouldn't be able to hit player.
+  constructor({direction, distance=1000, distancePerSecond=300 , startPosition, damage=1,sphereGeometry=style.geometry.sphere, sphereMaterial=style.material.sphereMaterial, hitExclusionComponentIds=[]}={}){
     this.distancePerSecond = distancePerSecond;
     this.direction = direction;
     this.distance = distance;
     this.damage = damage;
+    this.hitExclusionComponentIds = hitExclusionComponentIds;
     let {x, y, z} = startPosition;
     this.sphere = new Mesh(sphereGeometry, sphereMaterial);
     this.sphere.name = generateUniqueId({name:'sphere'});
@@ -69,11 +71,13 @@ export default class Bullet{
   }
 
   //expects hitBox in hittableComponents objects
-  performHitTest({hittableComponents, hitBox=this.hitBox, damage=this.damage}){
+  performHitTest({hittableComponents, hitBox=this.hitBox, damage=this.damage, hitExclusionComponentIds=this.hitExclusionComponentIds}){
     // console.log(`bullet performing hit test against ${hittableComponents.length} components`);
     let length = hittableComponents.length - 1;
     while(length >= 0){
       let hittableComponent = hittableComponents[length--];
+      if(hitExclusionComponentIds.includes(hittableComponent.componentId)){continue;}
+
       let otherHitBox = hittableComponent.hitBox;
       if(!otherHitBox){continue;}
       if(hitBox.intersectsBox(otherHitBox)){
