@@ -52,8 +52,6 @@ export default class Bullet{
       signal.trigger(ec.stage.destroyComponent, {componentId:this.componentId});
       return;
     }
-
-
   }
 
   //if we move fast, we jump coordinates in big spaces.

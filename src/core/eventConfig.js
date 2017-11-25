@@ -14,6 +14,7 @@ export const eventConfig = {
     moveUp:"camera.moveUp",
     moveDown:"camera.moveDown",
     positionChanged:"camera.positionChanged", //let player hitbox follow
+    attachAudioListenerToCamera:"camera.attachAudioListenerToCamera"
   },
   window:{
     resize:"window.resize",

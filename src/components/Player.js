@@ -31,9 +31,9 @@ export default class Player {
       }
     },
     [ec.camera.positionChanged]({x, y, z}){
-      // this.threejsObject.position.set(x, y, z);
-      // this.hitBox = new Box3().setFromObject(this.threejsObject);
-      // signal.trigger(ec.player.positionChanged, {x, y, z});//let enemy know where you arez
+      this.threejsObject.position.set(x, y, z);
+      this.hitBox = new Box3().setFromObject(this.threejsObject);
+      signal.trigger(ec.player.positionChanged, {x, y, z});//let enemy know where you arez
     }
   }
 

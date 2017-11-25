@@ -105,6 +105,9 @@ export default class StageOne {
       camera.updateProjectionMatrix();
       renderer.setSize(width, height);
     },
+    [ec.camera.attachAudioListenerToCamera]({listener, camera=this.camera}){
+      camera.add(listener);
+    },
 
     //hit test
     //all registered hittable components will be evaluated to determine if the mouse x, y coordinates intersect/hit.
