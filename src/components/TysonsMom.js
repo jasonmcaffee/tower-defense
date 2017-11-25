@@ -21,7 +21,7 @@ export default class TysonsMom {
   playerPosition //keep track of where player currently is
   bulletDistancePerSecond
   moveDistancePerSecond
-  constructor({x = 0, y = 0, z = 0, hitPoints=100, bulletDistancePerSecond=100, moveDistancePerSecond=10} = {}) {
+  constructor({x = 0, y = 0, z = 0, hitPoints=100, bulletDistancePerSecond=100, moveDistancePerSecond=1} = {}) {
     let geometry = standardGeomatry;
     this.hitPoints = hitPoints;
     this.bulletDistancePerSecond = bulletDistancePerSecond;
@@ -150,7 +150,7 @@ export default class TysonsMom {
     var audioLoader = new AudioLoader();
     audioLoader.load(humpbackWhale1, function( buffer ) {
       sound.setBuffer( buffer );
-      sound.setRefDistance( 100);
+      sound.setRefDistance( 10);
       sound.play();
     });
     return sound;
