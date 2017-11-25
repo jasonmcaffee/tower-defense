@@ -81,7 +81,7 @@ export default class Bullet{
       let otherHitBox = hittableComponent.hitBox;
       if(!otherHitBox){continue;}
       if(hitBox.intersectsBox(otherHitBox)){
-        console.log('BULLET HIT SOMETHING ' + hittableComponent.componentId);
+        console.log('BULLET HIT SOMETHING ' + hittableComponent.componentId + ' exclude: ' + hitExclusionComponentId);
         signal.trigger(ec.hitTest.hitComponent, {hitComponent:hittableComponent, hitByComponent:this, damage});
         signal.trigger(ec.stage.destroyComponent, {componentId:this.componentId});
         this.stopTravelling = true;

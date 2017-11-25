@@ -3,7 +3,6 @@ import {eventConfig as ec} from 'core/eventConfig';
 import {signal, generateRandomNumber} from "core/core";
 import RotatingBox from 'components/RotatingBox';
 import Floor from 'components/Floor';
-import Bullet from 'components/Bullet';
 
 export default class StageOne {
   camera
@@ -39,21 +38,12 @@ export default class StageOne {
     animate({camera, scene, renderer:this.renderer, stage:this});
   }
 
-  fireBullet({camera=this.camera, scene=this.scene, projector=this.projector, clientX, clientY}){
-    let {width, height} = this.getScreenDimensions();
-    let mouseX = (clientX / width) * 2 - 1;
-    let mouseY = - (clientY / height) * 2 + 1;
-    let mouseVector = new Vector3(mouseX, mouseY, 1);
-    projector.unprojectVector(mouseVector, camera);
 
-    let direction = mouseVector.sub(camera.position).normalize();
-    let startPosition = camera.position.clone();
 
-    let bullet = new Bullet({direction, startPosition});
-    bullet.addToScene({scene});
-    this.children.push(bullet);
+  addComponent({component, scene=this.scene, children=this.children}){
+    children.push(component);
+    component.addToScene({scene});
   }
-
   signals = {
     [ec.camera.setPosition]({x, y, z}){
       this.camera.position.set(x, y, z);
@@ -112,8 +102,10 @@ export default class StageOne {
     //hit test
     //all registered hittable components will be evaluated to determine if the mouse x, y coordinates intersect/hit.
     //https://threejs.org/docs/#api/core/Raycaster
-    [ec.mouse.mousedown]({clientX, clientY, raycaster=this.raycaster}){
-      this.fireBullet({clientX, clientY});
+    [ec.mouse.mousedown]({clientX, clientY, cameraPosition=this.camera.position, camera=this.camera, screenDimensions=this.getScreenDimensions(), projector=this.projector}){
+      // this.fireBullet({clientX, clientY});
+      let {width, height} = screenDimensions;
+      signal.trigger(ec.stage.mouseClickedOnStage, {camera, cameraPosition, clientX, clientY, width, height, projector});
     },
     //anything that wants to be hittable (e.g. by a bullet) should register via this signal
     [ec.hitTest.registerHittableComponent]({component}){
@@ -127,8 +119,7 @@ export default class StageOne {
       this.hittableComponents.splice(hitIndex, 1);//remove hittable component from array
     },
     [ec.stage.addComponent]({component, scene=this.scene, children=this.children}){
-      children.push(component);
-      component.addToScene({scene});
+      this.addComponent({component, scene, children});
     },
 
     //bullet calls this when its finished its distance and after it hits something.

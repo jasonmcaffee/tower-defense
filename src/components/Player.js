@@ -1,9 +1,20 @@
-import {BoxGeometry, CubeGeometry, MeshNormalMaterial, MeshLambertMaterial, Mesh, Box3} from 'three';
+import {BoxGeometry, CubeGeometry, MeshBasicMaterial, MeshLambertMaterial, Mesh, Box3, Vector3, DoubleSide} from 'three';
 import {signal, eventConfig as ec, generateUniqueId} from "core/core";
+import Bullet from 'components/Bullet';
 
-let material = new MeshNormalMaterial();
-let standardGeomatry = new CubeGeometry(.2, .2, .2);
+
+let material = new MeshBasicMaterial({color: 0x4286f4, transparent:true, opacity:0});
+material.side = DoubleSide;//view box when in box
+
+let standardGeomatry = new CubeGeometry(2, 2, 2);
 standardGeomatry.computeBoundingBox();
+
+
+let style ={
+  color:{
+    materialHit: 0xff0000,
+  }
+};
 
 export default class Player {
   componentId = generateUniqueId({name: 'Player'})
@@ -12,7 +23,7 @@ export default class Player {
   constructor({x = 0, y = 0, z = 0, hitPoints=100} = {}) {
     let geometry = standardGeomatry;
     this.hitPoints = hitPoints;
-    this.threejsObject = new Mesh(geometry);
+    this.threejsObject = new Mesh(geometry, material);
     this.threejsObject.position.set(x, y, z);
     this.threejsObject.name = this.componentId;//needed for removing from scene
     this.hitBox = new Box3().setFromObject(this.threejsObject);
@@ -26,6 +37,7 @@ export default class Player {
         return;
       }
       this.hitPoints -= damage;
+      this.playHitAnimation();
       if(this.hitPoints <= 0){
         signal.trigger(ec.stage.destroyComponent, {componentId});
       }
@@ -34,7 +46,47 @@ export default class Player {
       this.threejsObject.position.set(x, y, z);
       this.hitBox = new Box3().setFromObject(this.threejsObject);
       signal.trigger(ec.player.positionChanged, {x, y, z});//let enemy know where you arez
+    },
+    [ec.stage.mouseClickedOnStage]({camera, cameraPosition, clientX, clientY, projector, width, height}){
+      this.fireBullet({camera, cameraPosition, projector, clientX, clientY, width, height});
     }
+  }
+
+  playHitAnimation({hitPoints=this.hitPoints, threejsObject=this.threejsObject, intervalMs=100, maxIntervalCount=2, hitColor=style.color.materialHit}={}){
+    if(this.playingHitAnimation){return;}
+    this.playingHitAnimation = true;
+    console.log('player hit animation');
+
+    let originalColor = threejsObject.material.color.getHex();
+    let intervalCount = 0;
+    let intervalId = setInterval(function(){
+      ++intervalCount;
+      if(intervalCount >= maxIntervalCount){
+        clearInterval(intervalId);
+        this.playingHitAnimation = false;
+        intervalCount = 0;
+      }
+      let color = intervalCount % 2 == 0 ? originalColor : hitColor;
+      let transparent = intervalCount % 2 == 0 ? true : false;
+      let opacity = intervalCount % 2 == 0 ? 0: .25;
+      threejsObject.material.color.setHex(color);
+      threejsObject.material.transparent = transparent;
+      threejsObject.material.opacity = opacity;  //doesn't work?
+    }.bind(this), intervalMs);
+  }
+
+  fireBullet({camera, cameraPosition, projector, clientX, clientY, width, height}){
+
+    let mouseX = (clientX / width) * 2 - 1;
+    let mouseY = - (clientY / height) * 2 + 1;
+    let mouseVector = new Vector3(mouseX, mouseY, 1);
+    projector.unprojectVector(mouseVector, camera);
+
+    let direction = mouseVector.sub(cameraPosition).normalize();
+    let startPosition = cameraPosition.clone();
+
+    let bullet = new Bullet({direction, startPosition, hitExclusionComponentId:this.componentId});
+    signal.trigger(ec.stage.addComponent, {component:bullet})
   }
 
   render() {
@@ -43,7 +95,7 @@ export default class Player {
 
   addToScene({scene}) {
     scene.add(this.threejsObject);
-    //signal.trigger(ec.hitTest.registerHittableComponent, {component: this});
+    signal.trigger(ec.hitTest.registerHittableComponent, {component: this});
   }
 
   destroy({scene, name = this.threejsObject.name, componentId = this.componentId}) {

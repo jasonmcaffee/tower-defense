@@ -139,8 +139,6 @@ export default class TysonsMom {
     if(this.playingHitAnimation){return;}
     this.playingHitAnimation = true;
 
-    //this.velociraptorScreamAudio.pause();
-    // this.velociraptorScreamAudio.startTime = 0;
     let screamAudio = this.hitCount++ % 2 == 0 ? this.velociraptorScreamAudio : this.trexRoarAudio;
     screamAudio.play();
 

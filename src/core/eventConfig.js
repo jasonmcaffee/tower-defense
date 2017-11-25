@@ -35,6 +35,7 @@ export const eventConfig = {
   stage:{
     destroyComponent:'stage.destroyComponent', //{componentId}
     addComponent:'stage.addComponent', //for adding dynamic stuff from components. e.g. fire bullet
+    mouseClickedOnStage:'stage.mouseClickedOnStage'//pass camera position and mouse coordinates so player can fire bullet.
   },
   player:{
     positionChanged:'player.positionChanged',//let enemies know where you are
