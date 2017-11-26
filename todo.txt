@@ -4,3 +4,6 @@ bigger world
 
 
 scores
+
+google analytics
+
