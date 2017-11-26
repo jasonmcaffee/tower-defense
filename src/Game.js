@@ -39,6 +39,8 @@ export default class Game{
 
   destroy(){
     signal.unregisterSignals(this);
+    this.ohyeahfullsongAudio.pause();
+    this.ohyeahfullsongAudio.currentTime = 0;
     if(this.stage){
       this.stage.destroy();
     }

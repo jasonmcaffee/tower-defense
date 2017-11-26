@@ -30,6 +30,7 @@ export default class Player {
     signal.registerSignals(this);
 
     signal.trigger(ec.player.hitPointsChanged, {hitPoints});
+    signal.trigger(ec.camera.setPosition, {x, y, z});//move the camera to where the player is. a bit messy right now..
   }
 
   signals = {

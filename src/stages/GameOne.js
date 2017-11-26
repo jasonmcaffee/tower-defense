@@ -1,4 +1,4 @@
-import {signal, eventConfig as ec, generateRandomNumber} from "core/core";
+import {signal, eventConfig as ec, generateRandomNumber as grn} from "core/core";
 import RotatingBox from 'components/RotatingBox';
 import Floor from 'components/Floor';
 import TysonsMom from 'components/TysonsMom';
@@ -20,7 +20,6 @@ export default class GameOne{
       signal.trigger(ec.game.gameEnded, {resultMessage:"You Suck", didPlayerWin:false});
     },
     [ec.enemy.died]({componentId}){
-      console.log('enemy died. determining if game is over');
       this.removeEnemy({componentId});
       if(this.enemies.length <= 0){
         signal.trigger(ec.game.gameEnded, {resultMessage:"YOU WIN!!!!", didPlayerWin:true});
@@ -43,7 +42,6 @@ export default class GameOne{
     // children.push(new RotatingBox());
     let min = -90;
     let max = 90;
-    let grn = generateRandomNumber;
     for(let i=0; i < 1000; ++i){
       let component = new RotatingBox({x:grn({min, max}), y:grn({min, max}), z:grn({min, max})});
       signal.trigger(ec.stage.addComponent, {component});
@@ -51,9 +49,9 @@ export default class GameOne{
     let component = new Floor();
     signal.trigger(ec.stage.addComponent, {component});
 
-    this.addEnemyAndRegisterWithStage(new TysonsMom({hitPoints:1}));
+    this.addEnemyAndRegisterWithStage(new TysonsMom({hitPoints:100}));
 
-    signal.trigger(ec.stage.addComponent, {component: new Player()});
+    signal.trigger(ec.stage.addComponent, {component: new Player({hitPoints:10, y:grn({min, max}), z:grn({min, max})})});
   }
 
 
