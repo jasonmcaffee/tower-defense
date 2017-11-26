@@ -1,6 +1,7 @@
 import {Geometry, LineBasicMaterial, Line, Vector3, SphereGeometry, MeshBasicMaterial, Mesh, Clock, Box3, AudioListener, PositionalAudio, AudioLoader} from 'three';
 import {generateUniqueId, signal, eventConfig as ec} from "core/core";
 import laserSound from 'sounds/lazer1.mp3';
+import bulletExplosionSound from 'sounds/bulletexplosion1.mp3';
 
 const style ={
   floor:{
@@ -27,7 +28,7 @@ export default class Bullet{
   bulletAudio
   static get style() {return style;}
   constructor({direction, distance=1000, distancePerSecond=300 , startPosition, damage=1,sphereGeometry=style.geometry.sphere,
-                sphereMaterial=style.material.sphereMaterial, hitExclusionComponentId, bulletSound=laserSound}={}){
+                sphereMaterial=style.material.sphereMaterial, hitExclusionComponentId, bulletSound=laserSound, explosionSound=bulletExplosionSound}={}){
     this.distancePerSecond = distancePerSecond;
     this.direction = direction;
     this.distance = distance;
@@ -45,13 +46,19 @@ export default class Bullet{
 
     this.hitBox = new Box3().setFromObject(this.sphere);
 
-    this.createSounds({bulletSound, addSoundTo:this.sphere});
+    this.createSounds({bulletSound, explosionSound, addSoundTo:this.sphere});
 
     this.clock = new Clock();
   }
 
-  createSounds({bulletSound, addSoundTo}){
+  createSounds({bulletSound, explosionSound, addSoundTo}){
     let {audio, listener} = this.createPositionalSound({src:bulletSound, playWhenReady:true});
+    addSoundTo.add(audio);
+    signal.trigger(ec.camera.attachAudioListenerToCamera, {listener});
+  }
+
+  createAndRegisterPositionalSound({src, addSoundTo=this.sphere, playWhenReady=false}){
+    let {audio, listener} = this.createPositionalSound({src, playWhenReady});
     addSoundTo.add(audio);
     signal.trigger(ec.camera.attachAudioListenerToCamera, {listener});
   }
@@ -97,6 +104,8 @@ export default class Bullet{
         signal.trigger(ec.hitTest.hitComponent, {hitComponent:hittableComponent, hitByComponent:this, damage});
         signal.trigger(ec.stage.destroyComponent, {componentId:this.componentId});
         this.stopTravelling = true;
+
+        this.createAndRegisterPositionalSound({src:bulletExplosionSound, playWhenReady:true});
         return true;
       }
     }
