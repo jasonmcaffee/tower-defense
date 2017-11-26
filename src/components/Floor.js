@@ -6,7 +6,8 @@ const style ={
     numberOfLines: 200
   },
   material:{
-    blueMaterial: new LineBasicMaterial({color:0x4286f4, transparent:true, opacity:0.3}),
+    // blueMaterial: new LineBasicMaterial({color:0x4286f4, transparent:true, opacity:0.3}),
+    blueMaterial: new LineBasicMaterial({color:0x4286f4}),
     purpleMaterial: new LineBasicMaterial({color:0x7b42af, transparent:true, opacity:0.3}),
   },
   color:{
@@ -21,7 +22,7 @@ export default class Floor {
   lines = []
   children = []
   lights = []
-  constructor({children = [], numberOfLines=200, distanceBetweenLines=100, lineLength} = {}) {
+  constructor({children = [], numberOfLines=200, distanceBetweenLines=25, lineLength, drawWallLines=false} = {}) {
     this.children = children;
     this.numberOfLines = numberOfLines;
     this.distanceBetweenLines = distanceBetweenLines;
@@ -29,8 +30,10 @@ export default class Floor {
 
     this.lines = [
       ...this.createFloorLines({material:style.material.blueMaterial}),
-      ...this.createWallLines({material:style.material.purpleMaterial}),
     ];
+    if(drawWallLines){
+      this.lines.push(...this.createWallLines({material:style.material.purpleMaterial}));
+    }
     this.lights = this.createLights();
   }
 

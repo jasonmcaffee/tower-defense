@@ -36,15 +36,32 @@ export default class GameMenu extends React.Component {
     let {modalIdToDisplay} = this.state;
     let componentToDisplayFunc = this.modalMap[modalIdToDisplay];
     let componentToDisplay = componentToDisplayFunc ? componentToDisplayFunc(): null;
+    let result = null;
+    if(componentToDisplay){
+      result = (
+        <div className="game-menu-component">
+          {componentToDisplay}
+        </div>
+      );
+    }
 
-    return componentToDisplay;
+    return result;
   }
 
   createStartMenuModal(){
     return (
       <Modal>
-        <div>Hello Modal</div>
-        <Button label="start game" onClick={this.handleStartGameClick.bind(this)}/>
+        <div className="game-menu-message">You must save the galaxy from a dystopian future terrorized by Tyson's mom.</div>
+        <br/>
+        <div className="game-menu-message">Defeat her in this 3 dimensional world by shooting lasers and using mines to your advantage.</div>
+        <br/>
+        <div className="game-menu-message">The fate of the galaxy lies in your hands.  Good luck!</div>
+        <br/>
+        <div className="game-menu-message">Pro Tip: you can move faster by moving in 3 directions at once (e.g. press left-shift + w + d at the same time)</div>
+        <br/>
+        <br/>
+        <br/>
+        <Button className="start-game-button" label="start" onClick={this.handleStartGameClick.bind(this)}/>
       </Modal>
     );
   }
@@ -53,8 +70,14 @@ export default class GameMenu extends React.Component {
     let {didPlayerWin, resultMessage} = this.state;
     return (
       <Modal>
-        <div>{resultMessage}</div>
-        <Button label="start game" onClick={this.handleStartGameClick.bind(this)}/>
+        <div className="game-menu-message">{resultMessage}</div>
+        <br/>
+        <br/>
+        <br/>
+        <br/>
+        <br/>
+        <br/>
+        <Button className="start-game-button" label="start" onClick={this.handleStartGameClick.bind(this)}/>
       </Modal>
     );
   }

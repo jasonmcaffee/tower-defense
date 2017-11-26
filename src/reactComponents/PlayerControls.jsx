@@ -24,6 +24,7 @@ export default class PlayerControls extends React.Component {
         <div> <span>up </span> <span>spacebar</span> </div>
         <div> <span>down </span> <span>left shift</span> </div>
         <div> <span>fire bullet </span> <span>left mouse</span> </div>
+        <div> <span>fullscreen </span> <span>f</span> </div>
       </div>
     );
   }

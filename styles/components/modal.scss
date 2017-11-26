@@ -28,16 +28,17 @@
   margin-right:12.5%;
   padding:10px;
   //@extend %round-all-by-7;
-
+  border-radius: 6px;
   .close-button{
     //@extend %button;
-    width:30px;
-    height: 30px;
-    margin-left:95%;
-
-    background-color: transparent;
-    border-radius: 5px;
-    border: none;
-    font-size: 30px;
+    //width:30px;
+    //height: 30px;
+    //margin-left:95%;
+    //
+    //background-color: transparent;
+    //border-radius: 5px;
+    //border: none;
+    //font-size: 30px;
+    display:none;
   }
 }

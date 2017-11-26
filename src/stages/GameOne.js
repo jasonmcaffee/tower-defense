@@ -17,13 +17,13 @@ export default class GameOne{
   signals = {
     [ec.player.died](){
       //let game menu know. let game know so it can destroy the stage.
-      signal.trigger(ec.game.gameEnded, {resultMessage:"You Suck", didPlayerWin:false});
+      signal.trigger(ec.game.gameEnded, {resultMessage:"Oh no! There is no hope for the galaxy now :(", didPlayerWin:false});
       this.enemies = [];
     },
     [ec.enemy.died]({componentId}){
       this.removeEnemy({componentId});
       if(this.enemies.length <= 0){
-        signal.trigger(ec.game.gameEnded, {resultMessage:"YOU WIN!!!!", didPlayerWin:true});
+        signal.trigger(ec.game.gameEnded, {resultMessage:"YOU HAVE DEFEATED HER!!!!.  THE GALAXY IS SAVED!!!!", didPlayerWin:true});
       }
     }
   }

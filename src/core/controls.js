@@ -94,6 +94,11 @@ let controls = {
 
   //control the camera position
   keyPressed({keyPressed, keyCode}){
+    console.log('keypressed, keycode', keyPressed, keyCode);
+    if(keyCode === 70){
+      requestFullScreen();
+      return;
+    }
     let key = keyCode + '';
     this.keysCurrentlyPressed[key] = {keyPressed, keyCode, clock:new Clock()};
   },
@@ -185,4 +190,30 @@ function listenKeyboard(){
     let keyPressed = String.fromCharCode(e.which);
     controls.keyReleased({keyPressed, keyCode});
   }
+}
+
+function setupRequestFullScreen(){
+  function handleInitialFullScreenRequestBegin(){
+    var el = document.documentElement,
+      rfs = el.requestFullscreen
+        || el.webkitRequestFullScreen
+        || el.mozRequestFullScreen
+        || el.msRequestFullscreen
+    ;
+
+    rfs.call(el);
+    document.body.removeEventListener('mousedown', handleInitialFullScreenRequestBegin);
+  }
+  //document.body.addEventListener('mousedown', handleInitialFullScreenRequestBegin, false);
+}
+
+function requestFullScreen(){
+  var el = document.documentElement,
+    rfs = el.requestFullscreen
+      || el.webkitRequestFullScreen
+      || el.mozRequestFullScreen
+      || el.msRequestFullscreen
+  ;
+
+  rfs.call(el);
 }
