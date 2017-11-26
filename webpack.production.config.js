@@ -5,9 +5,15 @@ var HtmlWebpackPlugin = require('html-webpack-plugin');
 var WebpackCleanupPlugin = require('webpack-cleanup-plugin');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
 
+// loaders.push({
+//   test: /\.scss$/,
+//   loader: ExtractTextPlugin.extract({fallback: 'style-loader', use : 'css-loader?sourceMap&localIdentName=[local]___[hash:base64:5]!sass-loader?outputStyle=expanded'}),
+//   exclude: ['node_modules']
+// });
+
 loaders.push({
   test: /\.scss$/,
-  loader: ExtractTextPlugin.extract({fallback: 'style-loader', use : 'css-loader?sourceMap&localIdentName=[local]___[hash:base64:5]!sass-loader?outputStyle=expanded'}),
+  loaders: ['style-loader', 'css-loader?importLoaders=1', 'sass-loader'],
   exclude: ['node_modules']
 });
 
