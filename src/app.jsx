@@ -6,6 +6,8 @@ import {eventConfig as ec} from 'core/eventConfig';
 import {stageOneConfig} from "stages/stageOneConfig";
 import PlayerControls from 'reactComponents/PlayerControls';
 import TopBar from 'reactComponents/TopBar';
+import GameMenu from 'reactComponents/GameMenu';
+import Game from 'Game';
 
 export default class App extends React.Component {
   render() {
@@ -19,6 +21,7 @@ export default class App extends React.Component {
         <div id="threeJsRenderDiv" className="threeJsRenderDiv">
         </div>
         <PlayerControls/>
+        <GameMenu/>
       </div>
 
     )
@@ -28,14 +31,16 @@ export default class App extends React.Component {
     console.log('mounted main app.jsx');
     // this.initCursor();
     this.requestFullScreen();
-    this.stage = new StageOne({stageConfig:stageOneConfig});
+
     let threeJsRenderDiv = document.getElementById("threeJsRenderDiv");
-    threeJsRenderDiv.appendChild( this.stage.rendererDomElement);
+    // this.stage = new StageOne({stageConfig:stageOneConfig});
+    // threeJsRenderDiv.appendChild( this.stage.rendererDomElement);
+    this.game = new Game({threeJsRenderDiv});
   }
 
   componentWillUnmount(){
     signal.unregisterSignals(this);
-    this.stage.destroy();
+    this.game.destroy();
   }
 
   //todo: pointer lock https://developer.mozilla.org/en-US/docs/Web/API/Pointer_Lock_API

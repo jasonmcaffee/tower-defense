@@ -176,12 +176,21 @@ export default class StageOne {
     let length = children.length - 1;
     try{
       while(length >= 0){
-        children[length--].destroy({scene});
+        let child = children[length--];
+        if(child && child.destroy){
+          child.destroy({scene});
+        }else{
+          console.warn(`child did not have a destroy:`, child);
+        }
+
       }
     }catch(e){
       console.error(`child ${JSON.stringify(children[length+1])} no destroy`, e);
     }
 
+    this.children = [];
+    this.hittableComponents = [];
+    this.stopAnimating = true;
   }
 }
 
@@ -189,6 +198,7 @@ export default class StageOne {
 function animate({camera, scene, renderer, stage}){
 
   let animationFrameFunc = ()=>{
+    if(stage.stopAnimating){return;}
     signal.trigger(ec.webgl.performFrameCalculations);
     stage.render();
     renderer.render(scene, camera);

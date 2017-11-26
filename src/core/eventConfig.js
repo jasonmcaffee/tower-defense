@@ -40,5 +40,11 @@ export const eventConfig = {
   player:{
     positionChanged:'player.positionChanged',//let enemies know where you are
     hitPointsChanged: 'player.hitPointsChanged',
+    died: 'player.died',
+  },
+  game:{
+    startGame:'game.startGame',
+    stopGame:'game.stopGame',
+    gameEnded:'game.gameEnded',
   }
 }

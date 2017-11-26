@@ -1,0 +1,11 @@
+%game-menu-component{
+  background-color: white;
+  position:absolute;
+  height: 100%;
+  width:100%;
+  opacity: .5;
+}
+
+.game-menu-component{
+  @extend %game-menu-component;
+}

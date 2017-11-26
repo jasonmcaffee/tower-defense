@@ -20,7 +20,7 @@ export default class Player {
   componentId = generateUniqueId({name: 'Player'})
   hitBox //used to determine if something hit us
   hitPoints
-  constructor({x = 0, y = 0, z = 0, hitPoints=100} = {}) {
+  constructor({x = 0, y = 0, z = 0, hitPoints=10} = {}) {
     let geometry = standardGeomatry;
     this.hitPoints = hitPoints;
     this.threejsObject = new Mesh(geometry, material);
@@ -41,6 +41,7 @@ export default class Player {
       signal.trigger(ec.player.hitPointsChanged, {hitPoints:this.hitPoints});
       if(this.hitPoints <= 0){
         signal.trigger(ec.stage.destroyComponent, {componentId});
+        signal.trigger(ec.player.died);
       }
     },
     [ec.camera.positionChanged]({x, y, z}){
