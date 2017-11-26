@@ -28,6 +28,8 @@ export default class Player {
     this.threejsObject.name = this.componentId;//needed for removing from scene
     this.hitBox = new Box3().setFromObject(this.threejsObject);
     signal.registerSignals(this);
+
+    signal.trigger(ec.player.hitPointsChanged, {hitPoints});
   }
 
   signals = {

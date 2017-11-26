@@ -34,7 +34,8 @@ export default class GameMenu extends React.Component {
   render(){
     let modalComponent = this.createStartMenuModal();
     let {modalIdToDisplay} = this.state;
-    let componentToDisplay = this.modalMap[modalIdToDisplay];
+    let componentToDisplayFunc = this.modalMap[modalIdToDisplay];
+    let componentToDisplay = componentToDisplayFunc ? componentToDisplayFunc(): null;
 
     return componentToDisplay;
   }
@@ -67,8 +68,8 @@ export default class GameMenu extends React.Component {
   createModalMap(){
     this.modalMap = {
       'none': null,
-      [modalIdForWelcomeScreen]: this.createStartMenuModal(),
-      [modalIdForResultsScreen]: this.createShowGameResultsModal(),
+      [modalIdForWelcomeScreen]: this.createStartMenuModal.bind(this),
+      [modalIdForResultsScreen]: this.createShowGameResultsModal.bind(this),
     }
   }
 

@@ -3,7 +3,6 @@ import 'styles/index.scss';
 import StageOne from 'stages/StageOne';
 import {signal} from "core/core";
 import {eventConfig as ec} from 'core/eventConfig';
-import {stageOneConfig} from "stages/stageOneConfig";
 import PlayerControls from 'reactComponents/PlayerControls';
 import TopBar from 'reactComponents/TopBar';
 import GameMenu from 'reactComponents/GameMenu';

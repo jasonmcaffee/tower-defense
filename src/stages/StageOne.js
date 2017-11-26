@@ -14,10 +14,9 @@ export default class StageOne {
   children = []
   raycaster = new Raycaster()//used for hit tests
   projector = new Projector()//used for hit tests v2
-  constructor({children=[], stageConfig}={}) {
+  constructor({children=[]}={}) {
     this.children = children;
     signal.registerSignals(this);
-    stageConfig.createChildren({children: this.children});
     //begin animation after instantiating scene, camera, and renderer.
     this.initThreeJs();
   }

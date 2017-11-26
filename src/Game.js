@@ -2,28 +2,29 @@
 import StageOne from 'stages/StageOne';
 import {signal} from "core/core";
 import {eventConfig as ec} from 'core/eventConfig';
-import {stageOneConfig} from "stages/stageOneConfig";
+import GameOne from 'stages/GameOne';
 
 export default class Game{
-  constructor({stageConfig=stageOneConfig, threeJsRenderDiv}={}){
-    this.stageConfig = stageConfig;
+  constructor({gameConfig=new GameOne(), threeJsRenderDiv}={}){
+    this.gameConfig = gameConfig;
     this.threeJsRenderDiv = threeJsRenderDiv;
 
     signal.registerSignals(this);
   }
 
   signals = {
-    [ec.game.startGame]({stageConfig=this.stageConfig}={}){
+    [ec.game.startGame]({gameConfig=this.gameConfig}={}){
       if(this.stage){
         this.stage.destroy();
       }
-      this.stage = new StageOne({stageConfig});
+      this.stage = new StageOne();
+      gameConfig.registerComponentsWithStage();
       this.threeJsRenderDiv.innerHTML = "";
       this.threeJsRenderDiv.appendChild( this.stage.rendererDomElement);
     },
-    [ec.player.died](){
+    [ec.game.gameEnded]({resultMessage, didPlayerWin}){
       this.stage.destroy();
-      signal.trigger(ec.game.gameEnded, {resultMessage:"You Suck", didPlayerWin:false});
+      this.gameConfig.destroy();
     }
   }
 
