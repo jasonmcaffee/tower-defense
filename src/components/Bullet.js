@@ -1,5 +1,6 @@
-import {Geometry, LineBasicMaterial, Line, Vector3, SphereGeometry, MeshBasicMaterial, Mesh, Clock, Box3} from 'three';
+import {Geometry, LineBasicMaterial, Line, Vector3, SphereGeometry, MeshBasicMaterial, Mesh, Clock, Box3, AudioListener, PositionalAudio, AudioLoader} from 'three';
 import {generateUniqueId, signal, eventConfig as ec} from "core/core";
+import laserSound from 'sounds/lazer1.mp3';
 
 const style ={
   floor:{
@@ -23,12 +24,15 @@ export default class Bullet{
   distance = 0
   damage
   hitExclusionComponentId //player bullet shouldn't be able to hit player.
+  bulletAudio
   static get style() {return style;}
-  constructor({direction, distance=1000, distancePerSecond=300 , startPosition, damage=1,sphereGeometry=style.geometry.sphere, sphereMaterial=style.material.sphereMaterial, hitExclusionComponentId}={}){
+  constructor({direction, distance=1000, distancePerSecond=300 , startPosition, damage=1,sphereGeometry=style.geometry.sphere,
+                sphereMaterial=style.material.sphereMaterial, hitExclusionComponentId, bulletSound=laserSound}={}){
     this.distancePerSecond = distancePerSecond;
     this.direction = direction;
     this.distance = distance;
     this.damage = damage;
+
     this.hitExclusionComponentId = hitExclusionComponentId;
     let {x, y, z} = startPosition;
     this.sphere = new Mesh(sphereGeometry, sphereMaterial);
@@ -41,7 +45,15 @@ export default class Bullet{
 
     this.hitBox = new Box3().setFromObject(this.sphere);
 
+    this.createSounds({bulletSound, addSoundTo:this.sphere});
+
     this.clock = new Clock();
+  }
+
+  createSounds({bulletSound, addSoundTo}){
+    let {audio, listener} = this.createPositionalSound({src:bulletSound, playWhenReady:true});
+    addSoundTo.add(audio);
+    signal.trigger(ec.camera.attachAudioListenerToCamera, {listener});
   }
 
   render({delta=this.clock.getDelta(), hittableComponents}={}) {
@@ -105,11 +117,29 @@ export default class Bullet{
     scene.add(this.sphere);
   }
 
+  createPositionalSound({src, repeat=false, playWhenReady=false}={}){
+    let listener = new  AudioListener();
+
+    var audio = new PositionalAudio( listener );
+    var audioLoader = new AudioLoader();
+    audioLoader.load(src, function( buffer ) {
+      audio.setBuffer( buffer );
+      audio.setRefDistance( 10);
+      if(repeat){
+        audio.setLoop(true);
+      }
+      if(playWhenReady){
+        audio.play();
+      }
+    });
+
+    return {audio, listener};
+  }
+
   destroy({scene, name=this.threejsObject.name}){
     let object3d = scene.getObjectByName(name);
     scene.remove(object3d);
     object3d = scene.getObjectByName(this.sphere.name);
     scene.remove(object3d);
   }
-
 }
