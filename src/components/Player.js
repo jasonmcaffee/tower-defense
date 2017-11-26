@@ -20,7 +20,7 @@ export default class Player {
   componentId = generateUniqueId({name: 'Player'})
   hitBox //used to determine if something hit us
   hitPoints
-  constructor({x = 0, y = 0, z = 0, hitPoints=10} = {}) {
+  constructor({x = 0, y = 0, z = 0, hitPoints=10, lookAtX=0, lookAtY=0, lookAtZ=0} = {}) {
     let geometry = standardGeomatry;
     this.hitPoints = hitPoints;
     this.threejsObject = new Mesh(geometry, material);
@@ -31,6 +31,7 @@ export default class Player {
 
     signal.trigger(ec.player.hitPointsChanged, {hitPoints});
     signal.trigger(ec.camera.setPosition, {x, y, z});//move the camera to where the player is. a bit messy right now..
+    //signal.trigger(ec.camera.setLookAt, {x: lookAtX, y:lookAtY, z:lookAtZ}); //todo: NOT WORKING
   }
 
   signals = {

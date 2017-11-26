@@ -18,6 +18,7 @@ export default class GameOne{
     [ec.player.died](){
       //let game menu know. let game know so it can destroy the stage.
       signal.trigger(ec.game.gameEnded, {resultMessage:"You Suck", didPlayerWin:false});
+      this.enemies = [];
     },
     [ec.enemy.died]({componentId}){
       this.removeEnemy({componentId});
@@ -51,7 +52,7 @@ export default class GameOne{
 
     this.addEnemyAndRegisterWithStage(new TysonsMom({hitPoints:100}));
 
-    signal.trigger(ec.stage.addComponent, {component: new Player({hitPoints:10, y:grn({min, max}), z:grn({min, max})})});
+    signal.trigger(ec.stage.addComponent, {component: new Player({hitPoints:10, x: 30, y:30, z:30 })});
   }
 
 
@@ -64,5 +65,6 @@ export default class GameOne{
   }
   destroy(){
     this.runDestroyFuncs();
+    this.enemies = [];
   }
 }

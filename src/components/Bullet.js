@@ -12,6 +12,7 @@ const style ={
     purpleMaterial: new LineBasicMaterial({color:0x7b42af, transparent:true, opacity:0.25}),
     sphereMaterial: new MeshBasicMaterial({color:0x4286f4, transparent:true, opacity:0.5}),
     sphereMaterialRed: new MeshBasicMaterial({color:0xcc001e, transparent:true, opacity:0.75}),
+    sphereMaterialOrange: new MeshBasicMaterial({color:0xea8800, transparent:true, opacity: 0.9}),
   },
   geometry:{
     sphere: new SphereGeometry(.5 , 16, 16)
