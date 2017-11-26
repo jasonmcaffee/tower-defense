@@ -8,6 +8,7 @@ import Player from 'components/Player';
 
 export default class GameOne{
   onDestroyFuncs = [] //stuff to run when we destroy.
+  enemies = []
   constructor(){
     signal.registerSignals(this);
     this.addDestroy(function(){signal.unregisterSignals(this)});
@@ -17,7 +18,25 @@ export default class GameOne{
     [ec.player.died](){
       //let game menu know. let game know so it can destroy the stage.
       signal.trigger(ec.game.gameEnded, {resultMessage:"You Suck", didPlayerWin:false});
+    },
+    [ec.enemy.died]({componentId}){
+      console.log('enemy died. determining if game is over');
+      this.removeEnemy({componentId});
+      if(this.enemies.length <= 0){
+        signal.trigger(ec.game.gameEnded, {resultMessage:"YOU WIN!!!!", didPlayerWin:true});
+      }
     }
+  }
+
+  removeEnemy({componentId, enemies=this.enemies}={}){
+    let index = enemies.findIndex(e=>e.componentId == componentId);
+    if(index < 0){return;}
+    enemies.splice(index, 1);
+  }
+
+  addEnemyAndRegisterWithStage(enemy){
+    this.enemies.push(enemy);
+    signal.trigger(ec.stage.addComponent, {component: enemy});
   }
 
   registerComponentsWithStage(){
@@ -29,8 +48,10 @@ export default class GameOne{
       let component = new RotatingBox({x:grn({min, max}), y:grn({min, max}), z:grn({min, max})});
       signal.trigger(ec.stage.addComponent, {component});
     }
-    signal.trigger(ec.stage.addComponent, {component: new Floor()});
-    signal.trigger(ec.stage.addComponent, {component: new TysonsMom()});
+    let component = new Floor();
+    signal.trigger(ec.stage.addComponent, {component});
+
+    this.addEnemyAndRegisterWithStage(new TysonsMom({hitPoints:1}));
 
     signal.trigger(ec.stage.addComponent, {component: new Player()});
   }

@@ -2,7 +2,6 @@ import {BoxGeometry, CubeGeometry, MeshNormalMaterial, MeshLambertMaterial, Mesh
 import {signal, eventConfig as ec, generateUniqueId, generateRandomNumber} from "core/core";
 import Bullet from 'components/Bullet';
 import humpbackWhale1 from 'sounds/HumpbackWhale1.mp3';
-import ohyeahfullsong from 'sounds/ohyeahfullsong.mp3';
 import velicoraptorScream from 'sounds/velicoraptorScream.mp3';
 import trexRoar from 'sounds/trexRoar.mp3';
 
@@ -70,8 +69,6 @@ export default class TysonsMom {
     this.trexRoarAudio = trAudio;
     this.audioListeners.push(trListener);
 
-    this.ohyeahfullsongAudio = this.createAudio();
-
     threejsObject.add(this.humpBackAudio);
     threejsObject.add(this.velociraptorScreamAudio);
     threejsObject.add(this.trexRoarAudio);
@@ -87,8 +84,8 @@ export default class TysonsMom {
       this.playHitAnimation();
 
       if(this.hitPoints <= 0){
-        this.ohyeahfullsongAudio.play();
         signal.trigger(ec.stage.destroyComponent, {componentId});
+        signal.trigger(ec.enemy.died, {componentId});
       }
     },
     [ec.player.positionChanged]({x, y, z}){
@@ -193,7 +190,7 @@ export default class TysonsMom {
     return {audio, listener};
   }
 
-  createAudio({src=ohyeahfullsong}={}){
+  createAudio({src}={}){
     let audio = new Audio();
     audio.src = src;
     //audio.play();

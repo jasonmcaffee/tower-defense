@@ -42,6 +42,9 @@ export const eventConfig = {
     hitPointsChanged: 'player.hitPointsChanged',
     died: 'player.died',
   },
+  enemy:{
+    died: 'enemy.died' //so game config can determine if game ended.
+  },
   game:{
     startGame:'game.startGame',
     stopGame:'game.stopGame',
