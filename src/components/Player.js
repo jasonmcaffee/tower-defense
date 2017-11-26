@@ -88,7 +88,7 @@ export default class Player {
     let startPosition = cameraPosition.clone();
 
     let bullet = new Bullet({direction, startPosition, hitExclusionComponentId:this.componentId});
-    signal.trigger(ec.stage.addComponent, {component:bullet})
+    signal.trigger(ec.stage.addComponent, {component:bullet});
   }
 
   render() {
@@ -101,6 +101,7 @@ export default class Player {
   }
 
   destroy({scene, name = this.threejsObject.name, componentId = this.componentId}) {
+    signal.unregisterSignals(this);
     let object3d = scene.getObjectByName(name);
     scene.remove(object3d);
     signal.trigger(ec.hitTest.unregisterHittableComponent, {componentId});
