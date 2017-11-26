@@ -41,9 +41,9 @@ export default class GameOne{
 
   registerComponentsWithStage(){
     // children.push(new RotatingBox());
-    let min = -90;
-    let max = 90;
-    for(let i=0; i < 1000; ++i){
+    let min = -190;
+    let max = 190;
+    for(let i=0; i < 3000; ++i){
       let component = new RotatingBox({x:grn({min, max}), y:grn({min, max}), z:grn({min, max})});
       signal.trigger(ec.stage.addComponent, {component});
     }

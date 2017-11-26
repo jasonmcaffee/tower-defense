@@ -31,6 +31,14 @@ export default class Signal{
 
   }
 
+  getSignalIds(){
+    let result = [];
+    for(let key in this._signals){
+      result.push({key, length: this._signals[key].length});
+    }
+    return result;
+  }
+
   trigger(id, data) {
     if (!this._signals[id]) {
       return;

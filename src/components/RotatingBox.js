@@ -46,14 +46,14 @@ export default class RotatingBox{
   }
 
   fireBulletInRandomDirection({threejsObject=this.threejsObject, distance=this.bulletDistance, min=-10000, max=10000,
-                                sphereMaterial=Bullet.style.material.sphereMaterialOrange, damage=this.bulletDamage}={}){
+                                sphereMaterial=Bullet.style.material.sphereMaterialOrange, damage=this.bulletDamage, hitResolution=1}={}){
     let positionVector = new Vector3(grn({min, max}), grn({min, max}), grn({min, max}));
 
     let startPosition = threejsObject.position.clone();
     let direction = new Vector3();
     direction.subVectors(positionVector, startPosition);
 
-    let bullet = new Bullet({direction, startPosition, hitExclusionComponentId:this.componentId, distance, sphereMaterial, distancePerSecond: 2, damage});
+    let bullet = new Bullet({direction, startPosition, hitExclusionComponentId:this.componentId, distance, sphereMaterial, distancePerSecond: 2, damage, hitResolution});
     signal.trigger(ec.stage.addComponent, {component:bullet});
   }
 

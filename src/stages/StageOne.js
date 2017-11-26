@@ -19,11 +19,13 @@ export default class StageOne {
     signal.registerSignals(this);
     //begin animation after instantiating scene, camera, and renderer.
     this.initThreeJs();
+
+    console.log('signals: ' + JSON.stringify(signal.getSignalIds()));
   }
 
   initThreeJs(){
     let {width, height} = this.getScreenDimensions();
-    let camera = this.camera = new PerspectiveCamera( 70, width / height, 0.01, 10000 );
+    let camera = this.camera = new PerspectiveCamera( 70, width / height, 1, 1000 );
     signal.trigger(ec.camera.setPosition, {x:0, y:0, z:10});
     signal.trigger(ec.camera.setLookAt, {x:0, y:0, z:0});
 

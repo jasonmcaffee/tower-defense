@@ -12,7 +12,7 @@ const style ={
     purpleMaterial: new LineBasicMaterial({color:0x7b42af, transparent:true, opacity:0.25}),
     sphereMaterial: new MeshBasicMaterial({color:0x4286f4, transparent:true, opacity:0.5}),
     sphereMaterialRed: new MeshBasicMaterial({color:0xcc001e, transparent:true, opacity:0.75}),
-    sphereMaterialOrange: new MeshBasicMaterial({color:0xea8800, transparent:true, opacity: 0.9}),
+    sphereMaterialOrange: new MeshBasicMaterial({color:0xea8800, transparent:false}),
   },
   geometry:{
     sphere: new SphereGeometry(.5 , 16, 16)
@@ -29,11 +29,13 @@ export default class Bullet{
   bulletAudio
   static get style() {return style;}
   constructor({direction, distance=1000, distancePerSecond=300 , startPosition, damage=1,sphereGeometry=style.geometry.sphere,
-                sphereMaterial=style.material.sphereMaterial, hitExclusionComponentId, bulletSound=laserSound, explosionSound=bulletExplosionSound}={}){
+                sphereMaterial=style.material.sphereMaterial, hitExclusionComponentId, bulletSound=laserSound, explosionSound=bulletExplosionSound,
+                hitResolution=10}={}){
     this.distancePerSecond = distancePerSecond;
     this.direction = direction;
     this.distance = distance;
     this.damage = damage;
+    this.hitResolution = hitResolution;
 
     this.hitExclusionComponentId = hitExclusionComponentId;
     let {x, y, z} = startPosition;
@@ -76,7 +78,7 @@ export default class Bullet{
 
   //if we move fast, we jump coordinates in big spaces.
   //hitResolution allows us to divide up those big spaces into separate points, so we can hit test at each point.
-  performHitTestForEachPositionInTime({hittableComponents, delta, hitResolution=10, direction=this.direction, distancePerSecond=this.distancePerSecond, sphere=this.sphere}){
+  performHitTestForEachPositionInTime({hittableComponents, delta, hitResolution=this.hitResolution, direction=this.direction, distancePerSecond=this.distancePerSecond, sphere=this.sphere}){
     for (let hr = 1; hr <= hitResolution; ++hr){
       let distance = (distancePerSecond * delta) / hitResolution;
       this.totalDistanceTraveled += distance;

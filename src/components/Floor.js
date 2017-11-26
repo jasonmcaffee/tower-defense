@@ -6,8 +6,8 @@ const style ={
     numberOfLines: 200
   },
   material:{
-    blueMaterial: new LineBasicMaterial({color:0x4286f4}),
-    purpleMaterial: new LineBasicMaterial({color:0x7b42af}),
+    blueMaterial: new LineBasicMaterial({color:0x4286f4, transparent:true, opacity:0.3}),
+    purpleMaterial: new LineBasicMaterial({color:0x7b42af, transparent:true, opacity:0.3}),
   },
   color:{
     ambientLightColor:  0xffffff,//0x404040
@@ -21,12 +21,15 @@ export default class Floor {
   lines = []
   children = []
   lights = []
-  constructor({children = []} = {}) {
+  constructor({children = [], numberOfLines=200, distanceBetweenLines=100, lineLength} = {}) {
     this.children = children;
-    let {numberOfLines} = style.floor;
+    this.numberOfLines = numberOfLines;
+    this.distanceBetweenLines = distanceBetweenLines;
+    this.lineLength = numberOfLines * distanceBetweenLines;
+
     this.lines = [
-      ...this.createFloorLines({numberOfLines, material:style.material.blueMaterial}),
-      ...this.createWallLines({numberOfLines, material:style.material.purpleMaterial}),
+      ...this.createFloorLines({material:style.material.blueMaterial}),
+      ...this.createWallLines({material:style.material.purpleMaterial}),
     ];
     this.lights = this.createLights();
   }
@@ -62,7 +65,7 @@ export default class Floor {
     return lights;
   }
 
-  createFloorLines({numberOfLines=10, lineLength, distanceBetweenLines=.5, material}={}){
+  createFloorLines({numberOfLines=this.numberOfLines, lineLength=this.lineLength, distanceBetweenLines=this.distanceBetweenLines, material}={}){
     let lines = [
       ...this.createVerticalFloorLines({numberOfVerticalLines:numberOfLines, lineLength, distanceBetweenLines, material}),
       ...this.createHorizontalFloorLines({numberOfHorizontalLines:numberOfLines, lineLength, distanceBetweenLines, material}),
@@ -70,7 +73,7 @@ export default class Floor {
     return lines;
   }
 
-  createWallLines({numberOfLines=10, lineLength, distanceBetweenLines=.5, material}={}){
+  createWallLines({numberOfLines=this.numberOfLines, lineLength=this.lineLength, distanceBetweenLines=this.distanceBetweenLines, material}={}){
     let lines = [
       ...this.createVerticalWallLines({numberOfVerticalLines:numberOfLines, lineLength, distanceBetweenLines, material}),
       ...this.createHorizontalWallLines({numberOfHorizontalLines:numberOfLines, lineLength, distanceBetweenLines, material}),
