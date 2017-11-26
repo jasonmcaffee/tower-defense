@@ -44,9 +44,12 @@ module.exports = [
     exclude: /(node_modules|bower_components)/,
     loader: "url-loader?limit=10000&mimetype=image/png"
   },
+  // {
+  //   test: /\.mp3$/,
+  //   loader: 'file-loader',
+  // },
   {
     test: /\.mp3$/,
-    // include: SRC,
-    loader: 'file-loader',
+    use: 'base64-inline-loader?limit=10000000&name=[name].[ext]',
   },
 ];
