@@ -38,6 +38,7 @@ export default class Player {
       }
       this.hitPoints -= damage;
       this.playHitAnimation();
+      signal.trigger(ec.player.hitPointsChanged, {hitPoints:this.hitPoints});
       if(this.hitPoints <= 0){
         signal.trigger(ec.stage.destroyComponent, {componentId});
       }

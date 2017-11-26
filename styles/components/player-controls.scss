@@ -1,0 +1,30 @@
+
+%player-controls-component{
+  opacity: 0.5;
+  position: absolute;
+  z-index: 100;
+  width:100%;
+  height: 10%;
+  max-height: 40px;
+  bottom: 0;
+
+  font-size: 20px;
+  color: white;
+  div{
+    display:inline-block;
+    margin-right: 10px;
+    border: 1px solid white;
+
+    span:nth-child(2){
+      color: red;
+      font-weight: bold;
+    }
+  }
+
+}
+
+
+
+.player-controls-component{
+  @extend %player-controls-component;
+}

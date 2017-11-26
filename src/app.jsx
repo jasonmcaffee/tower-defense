@@ -4,17 +4,21 @@ import StageOne from 'stages/StageOne';
 import {signal} from "core/core";
 import {eventConfig as ec} from 'core/eventConfig';
 import {stageOneConfig} from "stages/stageOneConfig";
+import PlayerControls from 'reactComponents/PlayerControls';
+import TopBar from 'reactComponents/TopBar';
 
 export default class App extends React.Component {
   render() {
     return (
       <div>
+        <TopBar/>
         {/*<div id="follower">*/}
           {/*<div id="circle1"></div>*/}
           {/*<div id="circle2"></div>*/}
         {/*</div>*/}
-        <div id="threeJsRenderDiv">
+        <div id="threeJsRenderDiv" className="threeJsRenderDiv">
         </div>
+        <PlayerControls/>
       </div>
 
     )

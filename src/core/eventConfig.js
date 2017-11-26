@@ -39,5 +39,6 @@ export const eventConfig = {
   },
   player:{
     positionChanged:'player.positionChanged',//let enemies know where you are
+    hitPointsChanged: 'player.hitPointsChanged',
   }
 }

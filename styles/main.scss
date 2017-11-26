@@ -16,3 +16,7 @@ html:fullscreen {
   height: 100%;
   overflow: hidden;
 }
+
+.threeJsRenderDiv{
+  position:absolute; //let player controls lay on top
+}

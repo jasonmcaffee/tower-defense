@@ -1,0 +1,28 @@
+%top-bar-component{
+  position:absolute;
+  z-index: 100;
+  width: 100%;
+  height: 30px;
+  //background-color: white;
+  opacity: .5;
+
+  .player-hit-points{
+    @extend %player-hit-points;
+  }
+}
+
+%player-hit-points{
+  display:inline-block;
+  width: 20%;
+  padding: 2px;
+  height: 100%;
+  vertical-align: middle;
+  color: gray;
+  font-size:40px;
+}
+
+
+
+.top-bar-component{
+  @extend %top-bar-component;
+}
