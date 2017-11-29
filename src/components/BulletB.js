@@ -78,18 +78,14 @@ export default class BulletB{
 
   //if we move fast, we jump coordinates in big spaces.
   //hitResolution allows us to divide up those big spaces into separate points, so we can hit test at each point.
-  performHitTestForEachPositionInTime({hittableComponents, delta, hitResolution=this.hitResolution, direction=this.direction, distancePerSecond=this.distancePerSecond, sphere=this.sphere}){
-    for (let hr = 1; hr <= hitResolution; ++hr){
-      let distance = (distancePerSecond * delta) / hitResolution;
-      this.totalDistanceTraveled += distance;
-      let newPosition = new Vector3().copy(direction).normalize().multiplyScalar(distance);
-      sphere.position.add(newPosition);
-      this.hitBox =  new Box3().setFromObject(this.sphere);
-      // let hit = this.performHitTest({hittableComponents});
-      // if(hit){
-      //   return;
-      // }
-    }
+  performHitTestForEachPositionInTime({hittableComponents, delta, direction=this.direction, distancePerSecond=this.distancePerSecond, sphere=this.sphere}){
+    let distance = (distancePerSecond * delta);
+    this.totalDistanceTraveled += distance;
+    let newPosition = new Vector3().copy(direction).normalize().multiplyScalar(distance);
+    sphere.position.add(newPosition);
+    //this.hitBox =  new Box3().setFromObject(this.sphere);
+
+    let hit = this.performHitTest({hittableComponents});
   }
 
   //expects hitBox in hittableComponents objects
@@ -102,6 +98,10 @@ export default class BulletB{
 
       let otherHitBox = hittableComponent.hitBox;
       if(!otherHitBox){continue;}
+
+      //get the radius and shoot rays from it in random directions.
+      let sphereRadius = this.sphere.boundingSphere.radius;
+
       // if(hitBox.intersectsBox(otherHitBox)){
       //   console.log('BULLET HIT SOMETHING ' + hittableComponent.componentId + ' exclude: ' + hitExclusionComponentId);
       //   signal.trigger(ec.hitTest.hitComponent, {hitComponent:hittableComponent, hitByComponent:this, damage});
