@@ -3,11 +3,12 @@ import StageOne from 'stages/StageOne';
 import {signal} from "core/core";
 import {eventConfig as ec} from 'core/eventConfig';
 import GameOne from 'stages/GameOne';
+import GameTwo from 'stages/GameTwo';
 
 import ohyeahfullsong from 'sounds/ohyeahfullsong.mp3';
 
 export default class Game{
-  constructor({gameConfig=new GameOne(), threeJsRenderDiv}={}){
+  constructor({gameConfig=new GameTwo(), threeJsRenderDiv}={}){
     this.gameConfig = gameConfig;
     this.threeJsRenderDiv = threeJsRenderDiv;
 
