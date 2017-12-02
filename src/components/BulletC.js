@@ -59,8 +59,16 @@ export default class BulletC{
   }
 
   signals = {
-    [ec.webworker.message]({doesIntersect, hitteeComponentId, hitComponentId}){
-      //console.log(`bulletc received webworker message: doesIntersect: ${doesIntersect}  hitteeComponentId:${hitteeComponentId}  hitComponentId:${hitComponentId}`);
+    [ec.hitTest.hitTestResult]({doesIntersect, hitteeComponentId, hitComponentId, damage=this.damage}){
+      if(this.componentId != hitteeComponentId || this.hasHit || this.hitExclusionComponentId == hitComponentId){return;}
+      this.hasHit = true;
+
+      console.log(`bulletc received webworker hitTestResult: doesIntersect: ${doesIntersect}  hitteeComponentId:${hitteeComponentId}  hitComponentId:${hitComponentId}`);
+      console.log('BULLET HIT SOMETHING ' + hitComponentId);
+      signal.trigger(ec.hitTest.hitComponent, {hitComponent:{componentId:hitComponentId}, hitByComponent:this, damage});
+      signal.trigger(ec.stage.destroyComponent, {componentId:this.componentId});
+      this.stopTravelling = true;
+      this.createAndRegisterPositionalSound({src:bulletExplosionSound, playWhenReady:true});
     }
   }
 
@@ -95,37 +103,14 @@ export default class BulletC{
       let newPosition = new Vector3().copy(direction).normalize().multiplyScalar(distance);
       sphere.position.add(newPosition);
       this.hitBox =  new Box3().setFromObject(this.sphere);
-      let hit = this.performHitTest({hittableComponents});
-      if(hit){
-        return;
-      }
+      if(this.hasHit){return;} //stop processing if we get back a result from hitTest service.
+      this.performHitTest();
     }
   }
 
   //expects hitBox in hittableComponents objects
-  performHitTest({hittableComponents, hitBox=this.hitBox, damage=this.damage, hitExclusionComponentId=this.hitExclusionComponentId}){
-    // console.log(`bullet performing hit test against ${hittableComponents.length} components`);
-
-    signal.trigger(ec.hitTest.performHitTest, {hitteeComponent:this});
-
-    // let length = hittableComponents.length - 1;
-    // while(length >= 0){
-    //   let hittableComponent = hittableComponents[length--];
-    //   if(hitExclusionComponentId == hittableComponent.componentId){continue;}
-    //
-    //   let otherHitBox = hittableComponent.hitBox;
-    //   if(!otherHitBox){continue;}
-    //   if(hitBox.intersectsBox(otherHitBox)){
-    //     console.log('BULLET HIT SOMETHING ' + hittableComponent.componentId + ' exclude: ' + hitExclusionComponentId);
-    //     signal.trigger(ec.hitTest.hitComponent, {hitComponent:hittableComponent, hitByComponent:this, damage});
-    //     signal.trigger(ec.stage.destroyComponent, {componentId:this.componentId});
-    //     this.stopTravelling = true;
-    //
-    //     this.createAndRegisterPositionalSound({src:bulletExplosionSound, playWhenReady:true});
-    //     return true;
-    //   }
-    // }
-    return false;
+  performHitTest({hitteeComponent=this}={}){
+    signal.trigger(ec.hitTest.performHitTest, {hitteeComponent});
   }
 
   createLine({x=0, y=0, z=0, x2=0, y2=0, z2=0, material=style.material.blueMaterial}={}){

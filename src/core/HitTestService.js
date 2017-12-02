@@ -11,6 +11,10 @@ let webWorkerCommands = {
   updateComponentHitBox: 'updateComponentHitBox',
 };
 
+let webWorkerResultCommands = {
+  hitTestResult: 'hitTestResult',
+}
+
 export default class HitTestService{
   hitTestWorker
   destroyFuncs=[]
@@ -22,6 +26,19 @@ export default class HitTestService{
       signal.unregisterSignals(this);
     }.bind(this));
 
+    this.hitTestWorker.onmessage = (e)=>{
+      let data = e.data;
+      let {command} = data;
+      switch(command){
+        case webWorkerResultCommands.hitTestResult:{
+          signal.trigger(ec.hitTest.hitTestResult, data);
+          break;
+        }
+        default:{
+          console.log(`unknown webWorkerResult command ${command}`);
+        }
+      }
+    }
   }
   signals = {
     [ec.hitTest.performHitTest]({hitteeComponent, requestId, hitTestWorker=this.hitTestWorker}){
@@ -58,7 +75,7 @@ function webWorkerBox3HitTest(){
   let hittableWebWorkerHitBoxes = [];
 
   //performs hit tests agains all boxes
-  function performHitTest({requestId, webWorkerHitBox1, webWorkerHitBoxes=[]}){
+  function performHitTest({requestId, webWorkerHitBox1, webWorkerHitBoxes=hittableWebWorkerHitBoxes}){
     let hitteeComponentId = webWorkerHitBox1.componentId;
     let box1box3 = new Box3().set(webWorkerHitBox1.hitBox.min, webWorkerHitBox1.hitBox.max);
 
@@ -78,7 +95,11 @@ function webWorkerBox3HitTest(){
         break;
       }
     }
-    return intersectResult;
+    if(intersectResult.doesIntersect){
+      let webWorkerResponse = intersectResult;
+      webWorkerResponse.command = 'hitTestResult';
+      postMessage(webWorkerResponse);
+    }
   }
 
   function registerHittableWebWorkerHitBox({componentId, hitBox, hitBoxes=hittableWebWorkerHitBoxes}){
