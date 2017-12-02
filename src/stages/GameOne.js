@@ -52,7 +52,7 @@ export default class GameOne{
 
     this.addEnemyAndRegisterWithStage(new TysonsMom({hitPoints:100}));
 
-    signal.trigger(ec.stage.addComponent, {component: new Player({hitPoints:10, x: 30, y:30, z:30 })});
+    signal.trigger(ec.stage.addComponent, {component: new Player({hitPoints:10, x: 0, y:0, z:-10 })});
   }
 
 

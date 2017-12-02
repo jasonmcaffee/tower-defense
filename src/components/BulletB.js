@@ -10,7 +10,7 @@ const style ={
   material:{
     blueMaterial: new LineBasicMaterial({color:0x4286f4, transparent:false, opacity:0.15}),
     purpleMaterial: new LineBasicMaterial({color:0x7b42af, transparent:false, opacity:0.25}),
-    sphereMaterial: new MeshBasicMaterial({color:0x4286f4, transparent:true, opacity:0}),
+    sphereMaterial: new MeshBasicMaterial({color:0x4286f4, transparent:true, opacity:0.15}),
     sphereMaterialRed: new MeshBasicMaterial({color:0xcc001e, transparent:true, opacity:0.75}),
     sphereMaterialOrange: new MeshBasicMaterial({color:0xea8800, transparent:false}),
   },
@@ -38,8 +38,11 @@ export default class BulletB{
     this.damage = damage;
     this.hitResolution = hitResolution;
     this.radius = sphereGeometry.parameters.radius;
-
     this.hitExclusionComponentId = hitExclusionComponentId;
+
+    //do this first. other functions are dependent on this.rayCastRadians
+    this.preCalculateRayCastRadians();
+
     let {x, y, z} = startPosition;
     this.sphere = new Mesh(sphereGeometry, sphereMaterial);
     this.sphere.name = generateUniqueId({name:'sphere'});
@@ -49,60 +52,84 @@ export default class BulletB{
 
     this.threejsObject = this.createLine({x, y, z, x2, y2, z2});
 
-    this.createLinesInEachDirection()
+    this.createLinesForEachRayCast({rayCastEndPoints:this.calculateRayCastEndPoints()});//draw visible raycast lines for debugging.
 
-    this.hitBox = new Box3().setFromObject(this.sphere);
-
+    this.hitBox = new Box3().setFromObject(this.sphere);//todo: remove
     this.createSounds({bulletSound, explosionSound, addSoundTo:this.sphere});
-
     this.clock = new Clock();
   }
 
-  //bullet direction shouldn't matter
-  createLinesInEachDirection({lines=this.lines, position=this.sphere.position, radius=this.radius, sphere=this.sphere, numberOfLines=1000, material=style.material.purpleMaterial}={}){
-    let {x, y, z} = position;
+  //
+  rayCastRadians=[]
+  /**
+   * performance optimization
+   * build cache of radians we use to draw the raycast lines for hit testing.
+   * @param radians
+   * @param degreeIncrement
+   */
+  preCalculateRayCastRadians({radians=this.rayCastRadians, degreeIncrement=45}={}){
+    for(let d = 0; d < 360; d+=degreeIncrement){
+      let radian = d * Math.PI / 180;
+      radians.push(radian);
+    }
+  }
+
+  /**
+   * For debugging hit testing.
+   * Draws lines starting at the center of the sphere, and going to each point on the surface of the sphere.
+   * Any line that intersects with another object is considered a hit.
+   * @param lines - array of lines we will add to. this registers the line to be added to the scene.
+   * @param startPosition - beginning x,y,z for each line. typically the sphere threejs object's position
+   * @param radius - length of line from center of sphere to surface.
+   * @param material
+   * @param rayCastEndPoints
+   */
+  createLinesForEachRayCast({lines=this.lines, startPosition=this.sphere.position, radius=this.radius, material=style.material.purpleMaterial, rayCastEndPoints=[]}={}){
+    let {x, y, z} = startPosition;
     let createLine = this.createLine;
-    function doLine(x2, y2, z2){
-      // var {x: x2, y: y2, z: z2} = endPosition;
+    for(let i = 0, len=rayCastEndPoints.length; i < len; ++i){
+      let rayCastEndPoint = rayCastEndPoints[i];
+      let {x2, y2, z2} = rayCastEndPoint;
       var line = createLine({x, y, z, x2, y2, z2, material});
       lines.push(line);
     }
-    //2 radians equals 360 degrees
-    //1 radians equals 180 deg
-    //.5 radians equals 90 deg
+  }
 
-    let degreeMin = 0;
-    let degreeMax = 360
-    let degreeIncrement = 45;
+  /**
+   * When performing a hit test for a sphere shaped bullet, we want to send rays from the center of the sphere to points
+   * on the surface of the sphere.
+   * Currently calculates points for 3 planes.
+   * @param startPosition - x, y, z where lines should start from
+   * @param radius - line length from startPosition
+   * @param radians - number of lines per plane. this is precalculated on initialization in order to avoid unneeded calcs during frame rendering.
+   */
+  calculateRayCastEndPoints({startPosition=this.sphere.position, radius=this.radius, radians=this.rayCastRadians}={}){
+    let {x, y, z} = startPosition;//starting point of each line we draw
+    let x2, y2, z2;
+    let rayCastEndPoints = [];
+    //we want to create lines inside the bullet sphere, in such a way that they'll be useful for hit testing
+    for(let i = 0, len=radians.length; i < len; ++i){
+      let radian = radians[i];
 
+      //perfect back to front circle. flat z
+      x2 = x - radius * Math.sin(radian);
+      y2 = y - radius * Math.cos(radian);
+      z2 = z;
+      rayCastEndPoints.push({x2, y2, z2});
 
-    //perfect back to front circle. flat x
-    for(let d = degreeMin; d < degreeMax; d+=degreeIncrement){
-      let radian = d * Math.PI / 180;
-      let x2 = x - radius * Math.sin(radian);
-      let y2 = y - radius * Math.cos(radian);
-      let z2 = z;
-      doLine(x2, y2, z2);
+      //perfect left to right circle. flat y
+      x2 = x + radius * Math.sin(radian);
+      y2 = y;
+      z2 = z + radius * Math.cos(radian);
+      rayCastEndPoints.push({x2, y2, z2});
+
+      //perfect left to right circle. flat x
+      x2 = x;
+      y2 = y - radius * Math.sin(radian);
+      z2 = z - radius * Math.cos(radian);
+      rayCastEndPoints.push({x2, y2, z2});
     }
-
-     //perfect left to right circle. flat y
-    for(let d = degreeMin; d < degreeMax; d+=degreeIncrement){
-      let radian = d * Math.PI / 180;
-      let x2 = x + radius * Math.sin(radian);
-      let y2 = y;
-      let z2 = z + radius * Math.cos(radian);
-      doLine(x2, y2, z2);
-    }
-
-    //perfect left to right circle. flat z
-    for(let d = degreeMin; d < degreeMax; d+=degreeIncrement){
-      let radian = d * Math.PI / 180;
-      let x2 = x ;
-      let y2 = y - radius * Math.sin(radian);
-      let z2 = z - radius * Math.cos(radian);
-      doLine(x2, y2, z2);
-    }
-
+    return rayCastEndPoints;
   }
 
   createSounds({bulletSound, explosionSound, addSoundTo}){
@@ -158,13 +185,6 @@ export default class BulletB{
 
     }
     return false;
-  }
-
-  calculateRayCastDirections({bulletPosition=this.sphere.position, bulletRadius=this.radius, bulletDirection=this.direction}){
-    let startPosition = bulletPosition;
-    let distance = bulletRadius;
-    let endPosition = new Vector3().copy(bulletPosition).normalize().multiplyScalar(distance);//just so we can draw lines
-    return {startPosition, endPosition, distance};
   }
 
   createLine({x=0, y=0, z=0, x2=0, y2=0, z2=0, material=style.material.blueMaterial}={}){
