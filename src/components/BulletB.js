@@ -19,6 +19,8 @@ const style ={
   }
 };
 
+
+//NOTE THE HIT TEST HERE IS SLOOOOOWWWWW
 export default class BulletB{
   componentId = generateUniqueId({name:'BulletB'})
   distancePerSecond //NOTE: if you go to fast, hit test is incorrect. may need other approach.
