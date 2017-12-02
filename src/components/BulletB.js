@@ -1,4 +1,4 @@
-import {Geometry, LineBasicMaterial, Line, Vector3, SphereGeometry, MeshBasicMaterial, Mesh, Clock, Box3, AudioListener, PositionalAudio, AudioLoader} from 'three';
+import {Geometry, LineBasicMaterial, Line, Vector3, SphereGeometry, MeshBasicMaterial, Mesh, Clock, Box3, AudioListener, PositionalAudio, AudioLoader, Raycaster} from 'three';
 import {generateUniqueId, signal, eventConfig as ec} from "core/core";
 import laserSound from 'sounds/lazer1.mp3';
 import bulletExplosionSound from 'sounds/bulletexplosion1.mp3';
@@ -28,6 +28,7 @@ export default class BulletB{
   hitExclusionComponentId //player bullet shouldn't be able to hit player.
   bulletAudio
   lines = []
+  rayCaster
   static get style() {return style;}
   constructor({direction, distance=1000, distancePerSecond=10 , startPosition, damage=1,sphereGeometry=style.geometry.sphere,
                 sphereMaterial=style.material.sphereMaterial, hitExclusionComponentId, bulletSound=laserSound, explosionSound=bulletExplosionSound,
@@ -42,6 +43,8 @@ export default class BulletB{
 
     //do this first. other functions are dependent on this.rayCastRadians
     this.preCalculateRayCastRadians();
+
+    this.rayCaster = new Raycaster();
 
     let {x, y, z} = startPosition;
     this.sphere = new Mesh(sphereGeometry, sphereMaterial);
@@ -95,43 +98,6 @@ export default class BulletB{
     }
   }
 
-  /**
-   * When performing a hit test for a sphere shaped bullet, we want to send rays from the center of the sphere to points
-   * on the surface of the sphere.
-   * Currently calculates points for 3 planes.
-   * @param startPosition - x, y, z where lines should start from
-   * @param radius - line length from startPosition
-   * @param radians - number of lines per plane. this is precalculated on initialization in order to avoid unneeded calcs during frame rendering.
-   */
-  calculateRayCastEndPoints({startPosition=this.sphere.position, radius=this.radius, radians=this.rayCastRadians}={}){
-    let {x, y, z} = startPosition;//starting point of each line we draw
-    let x2, y2, z2;
-    let rayCastEndPoints = [];
-    //we want to create lines inside the bullet sphere, in such a way that they'll be useful for hit testing
-    for(let i = 0, len=radians.length; i < len; ++i){
-      let radian = radians[i];
-
-      //perfect back to front circle. flat z
-      x2 = x - radius * Math.sin(radian);
-      y2 = y - radius * Math.cos(radian);
-      z2 = z;
-      rayCastEndPoints.push({x2, y2, z2});
-
-      //perfect left to right circle. flat y
-      x2 = x + radius * Math.sin(radian);
-      y2 = y;
-      z2 = z + radius * Math.cos(radian);
-      rayCastEndPoints.push({x2, y2, z2});
-
-      //perfect left to right circle. flat x
-      x2 = x;
-      y2 = y - radius * Math.sin(radian);
-      z2 = z - radius * Math.cos(radian);
-      rayCastEndPoints.push({x2, y2, z2});
-    }
-    return rayCastEndPoints;
-  }
-
   createSounds({bulletSound, explosionSound, addSoundTo}){
     let {audio, listener} = this.createPositionalSound({src:bulletSound, playWhenReady:true});
     addSoundTo.add(audio);
@@ -173,7 +139,14 @@ export default class BulletB{
   }
 
   //expects hitBox in hittableComponents objects
-  performHitTest({hittableComponents, hitBox=this.hitBox, damage=this.damage, hitExclusionComponentId=this.hitExclusionComponentId, bulletRadius=this.radius}){
+  //todo: some type of preliminary check to see if hittableComponent is anywhere close to ray endpoint.
+  //e.g. if (rayCastEnpoint.x - sphere.position.x > radius) {return;}
+  //todo: factor in delta somehow. perhaps by expanding radius in the direction we're going, and behind us.
+  performHitTest({hittableComponents, damage=this.damage, hitExclusionComponentId=this.hitExclusionComponentId, radius=this.radius,
+                   startPosition=this.sphere.startPosition, radians=this.rayCastRadians, rayCaster=this.rayCaster}){
+
+    //first get the raycast endpoints
+    let rayCastEndpoints = this.calculateRayCastEndPoints({startPosition, radius, radians});
     // console.log(`bullet performing hit test against ${hittableComponents.length} components`);
     for (let i =0, len=hittableComponents.length; i < len; ++i){ //fastest loop
       let hittableComponent = hittableComponents[i];
@@ -182,9 +155,88 @@ export default class BulletB{
       let otherHitBox = hittableComponent.hitBox;
       if(!otherHitBox){continue;}
 
+      this.performHitTestAgainstHittableComponent({hittableComponent, rayCastEndpoints});
 
     }
     return false;
+  }
+
+  performHitTestAgainstHittableComponent({hittableComponent, hitExclusionComponentId=this.hitExclusionComponentId, radius=this.radius, rayCastEndpoints, startPosition=this.sphere.position,
+                                         rayCaster=this.rayCaster, damage=this.damage}){
+    let dir = new Vector3();
+    let hitBox = hittableComponent.threejsObject;//TODO: our main hit object now needs to be a mesh
+    let doesHit = false;
+    //iterate over each rayCastEndpoint
+    for(let i=0, len=rayCastEndpoints.length; i < len; ++i){
+      //get the rayCasts end vector
+      let rayCastEndpoint = rayCastEndpoints[i];
+      let {x2:x, y2:y, z2:z} = rayCastEndpoint;
+      //calculate the direction by subtracting the vectors
+      dir.subVectors({x,y,z}, startPosition).normalize();
+      //set our raycaster to point in the direction we want to perform hit tests
+      rayCaster.set(startPosition, dir, 0, radius);
+
+      let intersects = rayCaster.intersectObject(hitBox);
+
+      if(intersects.length > 0){
+        let intersect = intersects[0];
+        let {distance} = intersect;
+        console.log(`hit something that was ${distance} distance away`);
+        if(distance < radius){
+          doesHit = true;
+          break;
+        }
+
+      }
+    }
+
+    if(doesHit){
+      console.log('BULLET HIT SOMETHING ' + hittableComponent.componentId);
+      signal.trigger(ec.hitTest.hitComponent, {hitComponent:hittableComponent, hitByComponent:this, damage});
+      signal.trigger(ec.stage.destroyComponent, {componentId:this.componentId});
+      this.stopTravelling = true;
+
+      this.createAndRegisterPositionalSound({src:bulletExplosionSound, playWhenReady:true});
+    }
+
+    return doesHit;
+  }
+
+  /**
+   * When performing a hit test for a sphere shaped bullet, we want to send rays from the center of the sphere to points
+   * on the surface of the sphere.
+   * Currently calculates points for 3 planes.
+   * @param startPosition - x, y, z where lines should start from
+   * @param radius - line length from startPosition
+   * @param radians - number of lines per plane. this is precalculated on initialization in order to avoid unneeded calcs during frame rendering.
+   */
+  calculateRayCastEndPoints({startPosition=this.sphere.position, radius=this.radius, radians=this.rayCastRadians}={}){
+    let {x, y, z} = startPosition;//starting point of each line we draw
+    let x2, y2, z2;
+    let rayCastEndPoints = [];
+    //we want to create lines inside the bullet sphere, in such a way that they'll be useful for hit testing
+    for(let i = 0, len=radians.length; i < len; ++i){
+      let radian = radians[i];
+
+      //perfect back to front circle. flat z
+      x2 = x - radius * Math.sin(radian);
+      y2 = y - radius * Math.cos(radian);
+      z2 = z;
+      rayCastEndPoints.push({x2, y2, z2});
+
+      //perfect left to right circle. flat y
+      x2 = x + radius * Math.sin(radian);
+      y2 = y;
+      z2 = z + radius * Math.cos(radian);
+      rayCastEndPoints.push({x2, y2, z2});
+
+      //perfect left to right circle. flat x
+      x2 = x;
+      y2 = y - radius * Math.sin(radian);
+      z2 = z - radius * Math.cos(radian);
+      rayCastEndPoints.push({x2, y2, z2});
+    }
+    return rayCastEndPoints;
   }
 
   createLine({x=0, y=0, z=0, x2=0, y2=0, z2=0, material=style.material.blueMaterial}={}){
