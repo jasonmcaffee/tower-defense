@@ -52,7 +52,7 @@ export default class Signal{
         if (callbackWithContext.context) {
           callbackWithContext.callback.call(callbackWithContext.context, data);
         } else {
-          callback(data);
+          callbackWithContext.callback(data);
         }
       }
     }

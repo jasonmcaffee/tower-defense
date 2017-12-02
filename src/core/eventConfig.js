@@ -21,11 +21,17 @@ export const eventConfig = {
   },
   webworker:{
     message: 'webworker.message',
+
+    // registerHittableWebWorkerHitBox : 'webworker.registerHittableWebWorkerHitBox',
+    // unregisterHittableWebWorkerHitBox: 'webworker.unregisterHittableWebWorkerHitBox',
+    destroy: 'webworker.destroy',
   },
   webgl:{
     performFrameCalculations: 'webgl.performFrameCalculations', //let all objects know to recalculate for upcoming render.
   },
   hitTest:{
+    hitTestResult: 'webworker.hitTestResult',
+    performHitTest: 'webworker.performHitTest',
     registerHittableComponent: 'hitTest.registerHittableComponent',//{componentId:'box123', threejsObject: new THREE.Mesh( geometry, material)}
     unregisterHittableComponent:'hitTest.unregisterHittableComponent',//{componentId:'box123'}
     // registerHitteeComponent: 'hitTest.registerHitteeComponent',

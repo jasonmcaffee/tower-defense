@@ -3,6 +3,7 @@ import {eventConfig as ec} from 'core/eventConfig';
 import {signal, generateRandomNumber} from "core/core";
 import RotatingBox from 'components/RotatingBox';
 import Floor from 'components/Floor';
+import HitTestService from 'core/HitTestService';
 
 export default class StageOne {
   camera
@@ -17,6 +18,8 @@ export default class StageOne {
   constructor({children=[]}={}) {
     this.children = children;
     signal.registerSignals(this);
+    let hitTestService = new HitTestService({signal});
+
     //begin animation after instantiating scene, camera, and renderer.
     this.initThreeJs();
 
@@ -193,6 +196,7 @@ export default class StageOne {
     this.children = [];
     this.hittableComponents = [];
     this.stopAnimating = true;
+    signal.trigger(ec.hitTest.destroy);
   }
 }
 

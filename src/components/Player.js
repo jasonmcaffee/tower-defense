@@ -1,8 +1,8 @@
 import {BoxGeometry, CubeGeometry, MeshBasicMaterial, MeshLambertMaterial, Mesh, Box3, Vector3, DoubleSide} from 'three';
 import {signal, eventConfig as ec, generateUniqueId} from "core/core";
-import Bullet from 'components/Bullet';
-// import BulletB from 'components/BulletB';
-// let Bullet = BulletB;//testing.
+// import Bullet from 'components/Bullet';
+import BulletC from 'components/BulletC';
+let Bullet = BulletC;//testing.
 
 let material = new MeshBasicMaterial({color: 0x4286f4, transparent:true, opacity:0});
 material.side = DoubleSide;//view box when in box
