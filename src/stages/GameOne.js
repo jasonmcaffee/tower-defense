@@ -41,9 +41,9 @@ export default class GameOne{
 
   registerComponentsWithStage(){
     // children.push(new RotatingBox());
-    let min = -190;
-    let max = 190;
-    for(let i=0; i < 3000; ++i){
+    let min = -290;
+    let max = 290;
+    for(let i=0; i < 5000; ++i){
       let component = new RotatingBox({x:grn({min, max}), y:grn({min, max}), z:grn({min, max})});
       signal.trigger(ec.stage.addComponent, {component});
     }
@@ -51,7 +51,9 @@ export default class GameOne{
     signal.trigger(ec.stage.addComponent, {component});
 
     this.addEnemyAndRegisterWithStage(new TysonsMom({hitPoints:100}));
-
+    // this.addEnemyAndRegisterWithStage(new TysonsMom({hitPoints:100}));
+    // this.addEnemyAndRegisterWithStage(new TysonsMom({hitPoints:100}));
+    // this.addEnemyAndRegisterWithStage(new TysonsMom({hitPoints:100}));
     signal.trigger(ec.stage.addComponent, {component: new Player({hitPoints:10, x: 0, y:0, z:-10 })});
   }
 

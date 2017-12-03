@@ -7,3 +7,9 @@ scores
 
 google analytics
 
+
+auto fire gun
+
+pointer api
+
+mesh material for mines

@@ -10,8 +10,8 @@ const style ={
   material:{
     blueMaterial: new LineBasicMaterial({color:0x4286f4, transparent:true, opacity:0.15}),
     purpleMaterial: new LineBasicMaterial({color:0x7b42af, transparent:true, opacity:0.25}),
-    sphereMaterial: new MeshBasicMaterial({color:0x4286f4, transparent:true, opacity:0.5}),
-    sphereMaterialRed: new MeshBasicMaterial({color:0xcc001e, transparent:true, opacity:0.75}),
+    sphereMaterial: new MeshBasicMaterial({color:0x4286f4, transparent:false, opacity:0.5}),
+    sphereMaterialRed: new MeshBasicMaterial({color:0xcc001e, transparent:false, opacity:0.75}),
     sphereMaterialOrange: new MeshBasicMaterial({color:0xea8800, transparent:false}),
   },
   geometry:{
@@ -31,7 +31,7 @@ export default class Bullet{
   hitExclusionComponentId //player bullet shouldn't be able to hit player.
   bulletAudio
   static get style() {return style;}
-  constructor({direction, distance=1000, distancePerSecond=300 , startPosition, damage=1,sphereGeometry=style.geometry.sphere,
+  constructor({direction, distance=500, distancePerSecond=300 , startPosition, damage=1,sphereGeometry=style.geometry.sphere,
                 sphereMaterial=style.material.sphereMaterial, hitExclusionComponentId, bulletSound=laserSound, explosionSound=bulletExplosionSound,
                 hitResolution=10}={}){
     this.distancePerSecond = distancePerSecond;

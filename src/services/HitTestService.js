@@ -18,7 +18,7 @@ let webWorkerResultCommands = {
 export default class HitTestService{
   hitTestWorkers=[]
   destroyFuncs=[]
-  constructor({signal, numberOfSubWorkers=2}){
+  constructor({signal, numberOfSubWorkers=3}){
     this.hitTestWorker = NewWorker(hitTestWorkerFunc);
     this.signal=signal;
     signal.registerSignals(this);
