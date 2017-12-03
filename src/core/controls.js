@@ -27,15 +27,18 @@ let {moveForward, moveBackward, moveLeft, moveRight, moveUp, moveDown} = ec.came
 //start listening for keyboard, window, mouse movements, etc.
 export function listen(){
   listenKeyboard();
-  listenMouse();
+  controls.unlistenMouse = listenMouse();
   listenWindow();
-  //controls.startMouseInterval();
+  listenPointerLock();
   signal.registerSignals(controls);
+  //setupRequestPointerLock();
+
 }
 
 //control camera position
 let controls = {
   moveDistancePerSecond: 30 ,
+  unlistenMouse: ()=>{}, //unregister all mouse events.
   //storage for keys that are currently pressed, and their associated interval id.
   //key should only be given one interval (started when key is first pressed, stopped when key is released)
   keysCurrentlyPressed: {key:undefined, intervalId:undefined},
@@ -45,6 +48,12 @@ let controls = {
     this.mouseX = pageX - (width/2);
     this.mouseY = pageY - (height/2);
   },
+
+  pointerMoved({movementX=0, movementY=0}){
+    this.mouseX += movementX;
+    this.mouseY += movementY;
+  },
+
   signals:{
     [ec.webgl.performFrameCalculations]({clock=moveClock}={}){
       this.performLookAtBasedOnMouseMovement();
@@ -93,8 +102,12 @@ let controls = {
   //control the camera position
   keyPressed({keyPressed, keyCode}){
     console.log('keypressed, keycode', keyPressed, keyCode);
-    if(keyCode === 70){
+    if(keyCode === 70){ //f
       requestFullScreen();
+      return;
+    }
+    if(keyCode === 80){ //p
+      requestPointerLock();
       return;
     }
     let key = keyCode + '';
@@ -165,29 +178,80 @@ function listenWindow(){
 }
 
 function listenMouse(){
-  document.onmousemove = (e)=>{
+  let removeEventListenerFuncs = []
+  let onmousemove = (e)=>{
     if(controls.stopLookingWithMouse){return;}
     let {clientX, clientY, pageX, pageY} = e;
     //console.log(`mouse move x:${x} y:${y}`);
     controls.mouseMoved({clientX, clientY, pageX, pageY});
   }
+  //document.onmousemove = onmousemove;
+  document.addEventListener('mousemove', onmousemove);
+  removeEventListenerFuncs.push(()=>{document.removeEventListener('mousemove', onmousemove, false)});
 
-  document.onmousedown = (e)=>{
+  let onmousedown = (e)=>{
     let {clientX, clientY, pageX, pageY} = e;
     signal.trigger(ec.mouse.mousedown, {clientX, clientY, pageX, pageY});
   }
+  document.onmousedown = onmousedown;
+  removeEventListenerFuncs.push(()=>{document.removeEventListener('mousedown', onmousedown, false)});
 
-  document.onmouseout = (e)=>{
+  let onmouseout = (e)=>{
     let from = e.relatedTarget || e.toElement;
     if(!from || from.nodeName == "HTML"){
+      console.log('movemovement tracking is stopped because mouseout');
       controls.stopLookingWithMouse = true;
       lookClock = new Clock();//reset the time so cursor movement doesn't jump to somewhere other than where we left the screen.
     }
   }
+  document.onmouseout = onmouseout;
+  removeEventListenerFuncs.push(()=>{document.removeEventListener('mouseout', onmouseout, false)});
 
-  document.onmouseover = (e)=>{
+  let onmouseover = (e)=>{
     controls.stopLookingWithMouse = false;
   }
+  document.onmouseover = onmouseover;
+  removeEventListenerFuncs.push(()=>{document.removeEventListener('mouseover', onmouseover, false)});
+
+  function unlisten(){
+    removeEventListenerFuncs.forEach(f=>f());
+  }
+  return unlisten;
+}
+
+let isUsingPointerLock = false;
+function listenPointerLock(){
+  let onmousemove = (e)=>{
+    console.log(`mousemove pointerlock`, e);
+    //if(controls.stopLookingWithMouse){return;}
+    let {clientX, clientY, pageX, pageY, movementX, movementY} = e;
+    //console.log(`mouse move x:${x} y:${y}`);
+
+    controls.pointerMoved({clientX, clientY, pageX, pageY, movementX, movementY});
+  }
+
+  document.addEventListener('pointerlockchange', (e)=>{
+    isUsingPointerLock = document.pointerLockElement === document.body ? true : false;
+    console.log(`isUsingPointerLock: ${isUsingPointerLock}`, e);
+    console.log(`pointerlockelement`, document.pointerLockElement);
+    // if(controls.stopLookingWithMouse){return;}
+
+    //controls.unlistenMouse = listenMouse();
+    //document.onmousemove = onmousemove;
+    if(!isUsingPointerLock){
+      document.removeEventListener('mousemove', onmousemove);
+      controls.unlistenMouse = listenMouse();
+    }else{
+      controls.unlistenMouse();
+      document.addEventListener('mousemove', onmousemove);
+
+    }
+
+  });
+
+  document.addEventListener('pointerlockerror', (e)=>{
+    console.error(`pointer lock error`, e);
+  });
 }
 
 function listenKeyboard(){
@@ -218,12 +282,34 @@ function setupRequestFullScreen(){
   //document.body.addEventListener('mousedown', handleInitialFullScreenRequestBegin, false);
 }
 
+// function setupRequestPointerLock(){
+//   function handleInitialPointerLockBegin(){
+//     var el = document.documentElement,
+//       rfs = el.requestPointerLock
+//         || el.mozRequestPointerLock
+//     ;
+//
+//     rfs.call(el);
+//     document.body.removeEventListener('mousedown', handleInitialPointerLockBegin);
+//   }
+//   document.body.addEventListener('mousedown', handleInitialPointerLockBegin, false);
+// }
+
 function requestFullScreen(){
   var el = document.documentElement,
     rfs = el.requestFullscreen
       || el.webkitRequestFullScreen
       || el.mozRequestFullScreen
       || el.msRequestFullscreen
+  ;
+
+  rfs.call(el);
+}
+
+function requestPointerLock(){
+  var el = document.body,
+    rfs = el.requestPointerLock
+      || el.mozRequestPointerLock
   ;
 
   rfs.call(el);
