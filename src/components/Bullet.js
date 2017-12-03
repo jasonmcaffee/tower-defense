@@ -1,4 +1,4 @@
-import {Geometry, LineBasicMaterial, Line, Vector3, SphereGeometry, MeshBasicMaterial, Mesh, Clock, Box3, AudioListener, PositionalAudio, AudioLoader} from 'three';
+import {Geometry, LineBasicMaterial, Line, Vector3, SphereGeometry, MeshBasicMaterial, Mesh, Clock, Box3, AudioListener, PositionalAudio, AudioLoader, CubeGeometry} from 'three';
 import {generateUniqueId, signal, eventConfig as ec} from "core/core";
 import laserSound from 'sounds/lazer1.mp3';
 import bulletExplosionSound from 'sounds/bulletexplosion1.mp3';
@@ -15,12 +15,15 @@ const style ={
     sphereMaterialOrange: new MeshBasicMaterial({color:0xea8800, transparent:false}),
   },
   geometry:{
-    sphere: new SphereGeometry(.5 , 16, 16)
+    sphere: new SphereGeometry(.5 , 16, 16),
+    box: new CubeGeometry(.2, .2, .2)
   }
 };
 
+style.geometry.sphere.computeBoundingSphere();
+
 export default class Bullet{
-  componentId = generateUniqueId({name:'Bullet'})
+  componentId = generateUniqueId({name:'BulletC'})
   distancePerSecond //NOTE: if you go to fast, hit test is incorrect. may need other approach.
   totalDistanceTraveled = 0
   distance = 0
@@ -52,6 +55,21 @@ export default class Bullet{
     this.createSounds({bulletSound, explosionSound, addSoundTo:this.sphere});
 
     this.clock = new Clock();
+    signal.registerSignals(this);
+  }
+
+  signals = {
+    [ec.hitTest.hitTestResult]({doesIntersect, hitteeComponentId, hitComponentId, damage=this.damage}){
+      if(this.componentId != hitteeComponentId || this.hasHit || this.hitExclusionComponentId == hitComponentId){return;}
+      this.hasHit = true;
+
+      console.log(`bulletc received webworker hitTestResult: doesIntersect: ${doesIntersect}  hitteeComponentId:${hitteeComponentId}  hitComponentId:${hitComponentId}`);
+      console.log('BULLET HIT SOMETHING ' + hitComponentId);
+      signal.trigger(ec.hitTest.hitComponent, {hitComponent:{componentId:hitComponentId}, hitByComponent:this, damage});
+      signal.trigger(ec.stage.destroyComponent, {componentId:this.componentId});
+      this.stopTravelling = true;
+      this.createAndRegisterPositionalSound({src:bulletExplosionSound, playWhenReady:true});
+    }
   }
 
   createSounds({bulletSound, explosionSound, addSoundTo}){
@@ -85,34 +103,14 @@ export default class Bullet{
       let newPosition = new Vector3().copy(direction).normalize().multiplyScalar(distance);
       sphere.position.add(newPosition);
       this.hitBox =  new Box3().setFromObject(this.sphere);
-      let hit = this.performHitTest({hittableComponents});
-      if(hit){
-        return;
-      }
+      if(this.hasHit){return;} //stop processing if we get back a result from hitTest service.
+      this.performHitTest();
     }
   }
 
   //expects hitBox in hittableComponents objects
-  performHitTest({hittableComponents, hitBox=this.hitBox, damage=this.damage, hitExclusionComponentId=this.hitExclusionComponentId}){
-    // console.log(`bullet performing hit test against ${hittableComponents.length} components`);
-    let length = hittableComponents.length - 1;
-    while(length >= 0){
-      let hittableComponent = hittableComponents[length--];
-      if(hitExclusionComponentId == hittableComponent.componentId){continue;}
-
-      let otherHitBox = hittableComponent.hitBox;
-      if(!otherHitBox){continue;}
-      if(hitBox.intersectsBox(otherHitBox)){
-        console.log('BULLET HIT SOMETHING ' + hittableComponent.componentId + ' exclude: ' + hitExclusionComponentId);
-        signal.trigger(ec.hitTest.hitComponent, {hitComponent:hittableComponent, hitByComponent:this, damage});
-        signal.trigger(ec.stage.destroyComponent, {componentId:this.componentId});
-        this.stopTravelling = true;
-
-        this.createAndRegisterPositionalSound({src:bulletExplosionSound, playWhenReady:true});
-        return true;
-      }
-    }
-    return false;
+  performHitTest({hitteeComponent=this}={}){
+    signal.trigger(ec.hitTest.performHitTest, {hitteeComponent});
   }
 
   createLine({x=0, y=0, z=0, x2=0, y2=0, z2=0, material=style.material.blueMaterial}={}){
@@ -153,5 +151,7 @@ export default class Bullet{
     scene.remove(object3d);
     object3d = scene.getObjectByName(this.sphere.name);
     scene.remove(object3d);
+    signal.unregisterSignals(this);
+    //to stop web worker
   }
 }

@@ -3,7 +3,7 @@ import {eventConfig as ec} from 'core/eventConfig';
 import {signal, generateRandomNumber} from "core/core";
 import RotatingBox from 'components/RotatingBox';
 import Floor from 'components/Floor';
-import HitTestService from 'core/HitTestService';
+import HitTestService from 'services/HitTestService';
 
 export default class StageOne {
   camera

@@ -1,7 +1,6 @@
 import {BoxGeometry, CubeGeometry, MeshNormalMaterial, MeshLambertMaterial, Mesh, Box3, Texture, MirroredRepeatWrapping, Vector3, Clock, AudioLoader, PositionalAudio, AudioListener} from 'three';
 import {signal, eventConfig as ec, generateUniqueId, generateRandomNumber} from "core/core";
-import BulletC from 'components/BulletC';
-let Bullet = BulletC;
+import Bullet from 'components/Bullet';
 
 import humpbackWhale1 from 'sounds/HumpbackWhale1.mp3';
 import velicoraptorScream from 'sounds/velicoraptorScream.mp3';

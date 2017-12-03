@@ -1,7 +1,6 @@
 import {BoxGeometry, CubeGeometry, MeshNormalMaterial, MeshLambertMaterial, Mesh, Box3, Vector3} from 'three';
 import {signal, eventConfig as ec, generateUniqueId, generateRandomNumber as grn} from "core/core";
-import BulletC from 'components/BulletC';
-let Bullet = BulletC;
+import Bullet from 'components/Bullet';
 
 let material = new MeshNormalMaterial();
 let standardGeomatry = new CubeGeometry(.2, .2, .2);
