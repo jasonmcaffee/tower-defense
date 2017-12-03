@@ -31,7 +31,7 @@ export default class TysonsMom {
   moveDistancePerSecond
   audioListeners = [] //for positional sounds
   positionalSounds = []
-  constructor({x = grn({min, max}), y = grn({min, max}), z = grn({min, max}), hitPoints=100, bulletDistancePerSecond=100, moveDistancePerSecond=9, damage=.1} = {}) {
+  constructor({x = grn({min, max}), y = grn({min, max}), z = grn({min, max}), hitPoints=100, bulletDistancePerSecond=100, moveDistancePerSecond=9, damage=1} = {}) {
     let geometry = standardGeomatry;
     this.hitPoints = hitPoints;
     this.bulletDistancePerSecond = bulletDistancePerSecond;
