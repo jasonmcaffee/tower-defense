@@ -37,6 +37,7 @@ export const eventConfig = {
     // registerHitteeComponent: 'hitTest.registerHitteeComponent',
     // unregisterHitteeComponent: 'hitTest.unregisterHitteeComponent',
     hitComponent: 'hitTest.hitComponent', //{hitComponent: 'box123', hitByComponent: 'bullet12359'}
+    updateComponentHitBox: 'hitTest.updateComponentHitBox', //when move {component}
   },
   stage:{
     destroyComponent:'stage.destroyComponent', //{componentId}

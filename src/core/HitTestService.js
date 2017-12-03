@@ -111,6 +111,12 @@ export default class HitTestService{
       let webWorkerRequest = {command: webWorkerCommands.unregisterHittableWebWorkerHitBox, componentId};
       //hitTestWorker.postMessage(webWorkerRequest);
       this.postMessageToAllSubWorkers(webWorkerRequest);
+    },
+    [ec.hitTest.updateComponentHitBox]({component}){
+      let hb = createWebWorkerHitBoxFromComponent({component});
+      let {componentId, hitBox} = hb;
+      let webWorkerRequest = {command: webWorkerCommands.updateComponentHitBox, componentId, hitBox};
+      this.postMessageToAllSubWorkers(webWorkerRequest);
     }
   }
 }

@@ -8,7 +8,7 @@ import GameTwo from 'stages/GameTwo';
 import ohyeahfullsong from 'sounds/ohyeahfullsong.mp3';
 
 export default class Game{
-  constructor({gameConfig=new GameTwo(), threeJsRenderDiv}={}){
+  constructor({gameConfig=new GameOne(), threeJsRenderDiv}={}){
     this.gameConfig = gameConfig;
     this.threeJsRenderDiv = threeJsRenderDiv;
 

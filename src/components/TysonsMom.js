@@ -1,6 +1,8 @@
 import {BoxGeometry, CubeGeometry, MeshNormalMaterial, MeshLambertMaterial, Mesh, Box3, Texture, MirroredRepeatWrapping, Vector3, Clock, AudioLoader, PositionalAudio, AudioListener} from 'three';
 import {signal, eventConfig as ec, generateUniqueId, generateRandomNumber} from "core/core";
-import Bullet from 'components/Bullet';
+import BulletC from 'components/BulletC';
+let Bullet = BulletC;
+
 import humpbackWhale1 from 'sounds/HumpbackWhale1.mp3';
 import velicoraptorScream from 'sounds/velicoraptorScream.mp3';
 import trexRoar from 'sounds/trexRoar.mp3';
@@ -29,13 +31,14 @@ export default class TysonsMom {
   moveDistancePerSecond
   audioListeners = [] //for positional sounds
   positionalSounds = []
-  constructor({x = grn({min, max}), y = grn({min, max}), z = grn({min, max}), hitPoints=100, bulletDistancePerSecond=100, moveDistancePerSecond=9} = {}) {
+  constructor({x = grn({min, max}), y = grn({min, max}), z = grn({min, max}), hitPoints=100, bulletDistancePerSecond=100, moveDistancePerSecond=9, damage=.1} = {}) {
     let geometry = standardGeomatry;
     this.hitPoints = hitPoints;
     this.bulletDistancePerSecond = bulletDistancePerSecond;
     this.moveDistancePerSecond = moveDistancePerSecond;
     this.image = new Image();
     this.image.src = tysonsMomImageBase64;
+    this.damage = damage;
 
     let texture = new Texture();
     texture.image = this.image;
@@ -104,6 +107,7 @@ export default class TysonsMom {
     let newPosition = new Vector3().copy(direction).normalize().multiplyScalar(distance);
     this.threejsObject.position.add(newPosition);
     this.hitBox = new Box3().setFromObject(this.threejsObject);
+    signal.trigger(ec.hitTest.updateComponentHitBox, {component:this});
   }
   startFiringBullets(timeout=generateRandomNumber({min:100, max:1000})){
     if(this.isDestroyed){return;}
@@ -114,7 +118,7 @@ export default class TysonsMom {
   }
 
   fireBulletAtPlayer({playerPosition=this.playerPosition, threejsObject=this.threejsObject, componentId=this.componentId,
-                       bulletMaterial=Bullet.style.material.sphereMaterialRed, bulletDistancePerSecond=this.bulletDistancePerSecond}={}){
+                       bulletMaterial=Bullet.style.material.sphereMaterialRed, bulletDistancePerSecond=this.bulletDistancePerSecond, damage=this.damage}={}){
     if(!playerPosition){
       let min = -10000;
       let max = 10000;
@@ -127,7 +131,7 @@ export default class TysonsMom {
     let direction = new Vector3();
     direction.subVectors(playerPosition, startPosition);
 
-    let bullet = new Bullet({direction, startPosition, hitExclusionComponentId:componentId, sphereMaterial: bulletMaterial, distancePerSecond:bulletDistancePerSecond});
+    let bullet = new Bullet({direction, startPosition, hitExclusionComponentId:componentId, sphereMaterial: bulletMaterial, distancePerSecond:bulletDistancePerSecond, damage});
     signal.trigger(ec.stage.addComponent, {component:bullet});
   }
 
