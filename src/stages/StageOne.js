@@ -63,36 +63,32 @@ export default class StageOne {
       z += this.camera.position.z;
       signal.trigger(ec.camera.setLookAt, {x,y,z});
     },
-    [ec.camera.moveBackward]({amount=0}={}){
-      this.camera.translateZ(amount);
-      let {x, y, z} = this.camera.position;
-      signal.trigger(ec.camera.positionChanged, {x, y, z});
+    [ec.camera.moveMultiDirection](multiMovesEventData){
+      //let {x, y, z} = this.camera.position;
+      let moveDownAmount = multiMovesEventData[ec.camera.moveDown] || 0;
+      let moveUpAmount = multiMovesEventData[ec.camera.moveUp] || 0;
+      let moveLeftAmount = multiMovesEventData[ec.camera.moveLeft] || 0;
+      let moveRightAmount = multiMovesEventData[ec.camera.moveRight] || 0;
+      let moveForwardAmount = multiMovesEventData[ec.camera.moveForward] || 0;
+      let moveBackwardAmount = multiMovesEventData[ec.camera.moveBackward] || 0;
+
+      let zAmount =  moveBackwardAmount - moveForwardAmount;
+      this.camera.translateZ(zAmount);
+
+      let xAmount = moveRightAmount - moveLeftAmount;
+      this.camera.translateX(xAmount);
+
+      let yAmount = moveUpAmount - moveDownAmount;
+      this.camera.translateY(yAmount);
+
+      //his.camera.position.set(x, y, z);
+      let {x:newX, y:newY, z:newZ} = this.camera.position;
+
+
+      signal.trigger(ec.camera.positionChanged, {x:newX, y:newY, z:newZ});
+
     },
-    [ec.camera.moveForward]({amount=0}={}){
-      this.camera.translateZ(- amount);
-      let {x, y, z} = this.camera.position;
-      signal.trigger(ec.camera.positionChanged, {x, y, z});
-    },
-    [ec.camera.moveLeft]({amount=0}={}){
-      this.camera.translateX(- amount);
-      let {x, y, z} = this.camera.position;
-      signal.trigger(ec.camera.positionChanged, {x, y, z});
-    },
-    [ec.camera.moveRight]({amount=0}={}){
-      this.camera.translateX(amount);
-      let {x, y, z} = this.camera.position;
-      signal.trigger(ec.camera.positionChanged, {x, y, z});
-    },
-    [ec.camera.moveUp]({amount=0}={}){
-      this.camera.translateY(amount);
-      let {x, y, z} = this.camera.position;
-      signal.trigger(ec.camera.positionChanged, {x, y, z});
-    },
-    [ec.camera.moveDown]({amount=0}={}){
-      this.camera.translateY(- amount);
-      let {x, y, z} = this.camera.position;
-      signal.trigger(ec.camera.positionChanged, {x, y, z});
-    },
+
     [ec.window.resize]({height, width}){
       let {camera, renderer} = this;
       let aspect = width / height;

@@ -13,6 +13,7 @@ export const eventConfig = {
     moveRight:"camera.moveRight",
     moveUp:"camera.moveUp",
     moveDown:"camera.moveDown",
+    moveMultiDirection:"camera.moveMultiDirection", //{camera.moveDown:.1, camera.moveUp:.1}
     positionChanged:"camera.positionChanged", //let player hitbox follow
     attachAudioListenerToCamera:"camera.attachAudioListenerToCamera"
   },

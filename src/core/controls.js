@@ -35,9 +35,7 @@ export function listen(){
 
 //control camera position
 let controls = {
-  //how far to move the camera in a given direction
-  moveAmount: .2,
-  moveDistancePerSecond: 10 ,
+  moveDistancePerSecond: 20 ,
   //storage for keys that are currently pressed, and their associated interval id.
   //key should only be given one interval (started when key is first pressed, stopped when key is released)
   keysCurrentlyPressed: {key:undefined, intervalId:undefined},
@@ -48,9 +46,9 @@ let controls = {
     this.mouseY = pageY - (height/2);
   },
   signals:{
-    [ec.webgl.performFrameCalculations](){
+    [ec.webgl.performFrameCalculations]({clock=moveClock}={}){
       this.performLookAtBasedOnMouseMovement();
-      this.performMovementBasedOnKeysPressed();
+      this.performMovementBasedOnKeysPressed({clock});
     }
   },
   performLookAtBasedOnMouseMovement({lookSpeed=0.1, mouseX=this.mouseX, mouseY=this.mouseY}={}){
@@ -103,13 +101,43 @@ let controls = {
     this.keysCurrentlyPressed[key] = {keyPressed, keyCode, clock:new Clock()};
   },
 
-  performMovementBasedOnKeysPressed({amount=this.moveAmount}={}){
+  /**
+   * iterates over all the keys currently pressed.
+   * creates camera.multiDirectionMove event data in the form
+   * {
+   *   [ec.camera.moveDown]: .1,
+   *   [ec.camera.moveLeft]: -.1,
+   *   ...
+   * }
+   * @param keyCodeToCameraMovementMap
+   * @param clock
+   * @param moveDistancePerSecond
+   */
+  performMovementBasedOnKeysPressed({keyCodeToCameraMovementMap=this.keyCodeToCameraMovementMap, clock=moveClock, moveDistancePerSecond=this.moveDistancePerSecond}={}){
+    let delta = clock.getDelta();
+    let amount = moveDistancePerSecond * delta;
+
+    let moveEvents = [];
     for(let key in this.keysCurrentlyPressed){
       let keyInfo = this.keysCurrentlyPressed[key];
       if(keyInfo == undefined){continue;}
-      let {keyPressed, keyCode, clock} = keyInfo;
-      this.performMovementBasedOnKeyPressed({keyPressed, keyCode, clock});
+      let {keyPressed, keyCode} = keyInfo;
+
+      let event = keyCodeToCameraMovementMap[keyPressed.toLowerCase()] || keyCodeToCameraMovementMap[keyCode];
+      if(!event){continue;}
+
+      moveEvents.push(event);
     }
+    if(moveEvents.length == 0){return;}//avoid divide by 0 or unnecessarily trying to move
+
+    let multiMovesEventData = {};
+    let adjustedAmount = amount / moveEvents.length;
+    for(let i=0, len=moveEvents.length; i < len; ++i){
+     let event = moveEvents[i];
+     multiMovesEventData[event] = adjustedAmount;//e.g. camera.moveDown = .1
+    }
+
+    signal.trigger(ec.camera.moveMultiDirection, multiMovesEventData);
   },
 
   keyCodeToCameraMovementMap:{
@@ -124,24 +152,7 @@ let controls = {
     [39]:moveRight, //right arrow
     [37]:moveLeft, //left arrow
   },
-  performMovementBasedOnKeyPressed({keyCodeToCameraMovementMap=this.keyCodeToCameraMovementMap, keyPressed, keyCode, moveDistancePerSecond=this.moveDistancePerSecond, clock}){
-    let event = keyCodeToCameraMovementMap[keyPressed.toLowerCase()] || keyCodeToCameraMovementMap[keyCode];
-    if(!event){return;}
-    let delta = clock.getDelta();
-    // let delta=moveClock.getDelta();
-    // let delta;
-    // switch(event){
-    //   case moveUp: delta = moveLeftClock.getDelta(); break;
-    //   case moveDown: delta = moveDownClock.getDelta(); break;
-    //   case moveLeft: delta = moveLeftClock.getDelta();break;
-    //   case moveRight: delta = moveRightClock.getDelta();break;
-    //   case moveForward: delta = moveForwardClock.getDelta(); break;
-    //   case moveBackward: delta = moveBackwardClock.getDelta(); break;
-    // }
-    // if(delta == undefined){return;}
-    let amount = moveDistancePerSecond * delta;
-    signal.trigger(event, {amount});
-  }
+
 
 };
 
