@@ -103,10 +103,10 @@ export default class StageOne {
     //hit test
     //all registered hittable components will be evaluated to determine if the mouse x, y coordinates intersect/hit.
     //https://threejs.org/docs/#api/core/Raycaster
-    [ec.mouse.mousedown]({clientX, clientY, cameraPosition=this.camera.position, camera=this.camera, screenDimensions=this.getScreenDimensions(), projector=this.projector}){
+    [ec.mouse.mousedown]({clientX, clientY, cursorX, cursorY, cameraPosition=this.camera.position, camera=this.camera, screenDimensions=this.getScreenDimensions(), projector=this.projector}){
       // this.fireBullet({clientX, clientY});
       let {width, height} = screenDimensions;
-      signal.trigger(ec.stage.mouseClickedOnStage, {camera, cameraPosition, clientX, clientY, width, height, projector});
+      signal.trigger(ec.stage.mouseClickedOnStage, {camera, cameraPosition, clientX, clientY, width, height, projector, cursorX, cursorY});
     },
     //anything that wants to be hittable (e.g. by a bullet) should register via this signal
     [ec.hitTest.registerHittableComponent]({component}){

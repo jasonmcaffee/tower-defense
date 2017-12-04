@@ -1,9 +1,14 @@
-import {BoxGeometry, CubeGeometry, MeshNormalMaterial, MeshLambertMaterial, Mesh, Box3, Vector3} from 'three';
+import {BoxGeometry, CubeGeometry, MeshBasicMaterial, MeshLambertMaterial, SphereGeometry, Mesh, Box3, Vector3} from 'three';
 import {signal, eventConfig as ec, generateUniqueId, generateRandomNumber as grn} from "core/core";
 
-let material = new MeshNormalMaterial();
-let standardGeomatry = new CubeGeometry(.2, .2, .2);
-standardGeomatry.computeBoundingBox();
+let style = {
+  material:{
+    meshOne: new MeshBasicMaterial({color:0x4286f4, transparent:true, opacity:0.5}),
+  },
+  geometry: {
+    geometryOne: new SphereGeometry(.5 , 16, 16),
+  }
+};
 
 export default class Cursor{
   componentId = generateUniqueId({name:'Cursor'})
@@ -14,9 +19,7 @@ export default class Cursor{
   lookAt
   cursorX
   cursorY
-  constructor({x=0, y=0, z=0}={}){
-
-    let geometry = standardGeomatry;
+  constructor({x=0, y=0, z=0, geometry=style.geometry.geometryOne, material=style.material.meshOne}={}){
     this.threejsObject = new Mesh(geometry, material);
 
     this.threejsObject.name = this.componentId;//needed for removing from scene

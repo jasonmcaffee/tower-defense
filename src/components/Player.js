@@ -55,8 +55,8 @@ export default class Player {
       signal.trigger(ec.player.positionChanged, {x, y, z});//let enemy know where you arez
       signal.trigger(ec.hitTest.updateComponentHitBox, {component:this});
     },
-    [ec.stage.mouseClickedOnStage]({camera, cameraPosition, clientX, clientY, projector, width, height}){
-      this.fireBullet({camera, cameraPosition, projector, clientX, clientY, width, height});
+    [ec.stage.mouseClickedOnStage]({camera, cameraPosition, clientX, clientY, projector, width, height, cursorX, cursorY}){
+      this.fireBullet({camera, cameraPosition, projector, clientX, clientY, width, height, cursorX, cursorY});
     }
   }
 
@@ -83,10 +83,12 @@ export default class Player {
     }.bind(this), intervalMs);
   }
 
-  fireBullet({camera, cameraPosition, projector, clientX, clientY, width, height}){
+  fireBullet({camera, cameraPosition, projector, clientX, clientY, width, height, cursorX, cursorY}){
 
-    let mouseX = (clientX / width) * 2 - 1;
-    let mouseY = - (clientY / height) * 2 + 1;
+    // let mouseX = (clientX / width) * 2 - 1;
+    // let mouseY = - (clientY / height) * 2 + 1;
+    let mouseX = cursorX;
+    let mouseY = cursorY;
     let mouseVector = new Vector3(mouseX, mouseY, 1);
     projector.unprojectVector(mouseVector, camera);
 

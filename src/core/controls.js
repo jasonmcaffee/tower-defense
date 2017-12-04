@@ -202,7 +202,7 @@ function listenMouse(){
 
   let onmousedown = (e)=>{
     let {clientX, clientY, pageX, pageY} = e;
-    signal.trigger(ec.mouse.mousedown, {clientX, clientY, pageX, pageY});
+    signal.trigger(ec.mouse.mousedown, {clientX, clientY, pageX, pageY, cursorX: controls.cursorX, cursorY: controls.cursorY});
   }
   document.onmousedown = onmousedown;
   removeEventListenerFuncs.push(()=>{document.removeEventListener('mousedown', onmousedown, false)});
@@ -210,7 +210,7 @@ function listenMouse(){
   let onmouseout = (e)=>{
     let from = e.relatedTarget || e.toElement;
     if(!from || from.nodeName == "HTML"){
-      console.log('movemovement tracking is stopped because mouseout');
+      //console.log('movemovement tracking is stopped because mouseout');
       controls.stopLookingWithMouse = true;
       lookClock = new Clock();//reset the time so cursor movement doesn't jump to somewhere other than where we left the screen.
     }
@@ -233,31 +233,19 @@ function listenMouse(){
 let isUsingPointerLock = false;
 function listenPointerLock(){
   let onmousemove = (e)=>{
-    console.log(`mousemove pointerlock`, e);
-    //if(controls.stopLookingWithMouse){return;}
     let {clientX, clientY, pageX, pageY, movementX, movementY} = e;
-    //console.log(`mouse move x:${x} y:${y}`);
-
     controls.pointerMoved({clientX, clientY, pageX, pageY, movementX, movementY});
   }
 
   document.addEventListener('pointerlockchange', (e)=>{
     isUsingPointerLock = document.pointerLockElement === document.body ? true : false;
-    console.log(`isUsingPointerLock: ${isUsingPointerLock}`, e);
-    console.log(`pointerlockelement`, document.pointerLockElement);
-    // if(controls.stopLookingWithMouse){return;}
-
-    //controls.unlistenMouse = listenMouse();
-    //document.onmousemove = onmousemove;
     if(!isUsingPointerLock){
       document.removeEventListener('mousemove', onmousemove);
       controls.unlistenMouse = listenMouse();
     }else{
       controls.unlistenMouse();
       document.addEventListener('mousemove', onmousemove);
-
     }
-
   });
 
   document.addEventListener('pointerlockerror', (e)=>{
