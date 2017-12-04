@@ -3,6 +3,9 @@ export const eventConfig = {
     move: "mouse.move",
     mousedown: "mouse.mousedown",
   },
+  cursor:{
+    mousexyzChanged:'cursor.mousexyzChanged', //only calc the x, y, z once.
+  },
   camera:{
     setPosition: "camera.setPosition",
     setLookAt: "camera.setLookAtVector",

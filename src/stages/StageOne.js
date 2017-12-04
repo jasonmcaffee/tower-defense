@@ -85,7 +85,7 @@ export default class StageOne {
       let {x:newX, y:newY, z:newZ} = this.camera.position;
 
 
-      signal.trigger(ec.camera.positionChanged, {x:newX, y:newY, z:newZ, camera:this.camera});
+      signal.trigger(ec.camera.positionChanged, {x:newX, y:newY, z:newZ, camera:this.camera, xAmount, yAmount, zAmount});
 
     },
 

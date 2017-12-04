@@ -1,9 +1,10 @@
-import {BoxGeometry, CubeGeometry, MeshBasicMaterial, MeshLambertMaterial, SphereGeometry, Mesh, Box3, Vector3} from 'three';
+import {BoxGeometry, CubeGeometry, MeshBasicMaterial, MeshNormalMaterial, MeshLambertMaterial, SphereGeometry, Mesh, Box3, Vector3} from 'three';
 import {signal, eventConfig as ec, generateUniqueId, generateRandomNumber as grn} from "core/core";
 
 let style = {
   material:{
-    meshOne: new MeshBasicMaterial({color:0x4286f4, wireframe:true}),
+    meshOne: new MeshBasicMaterial({color:0x4286f4, wireframe:false}),
+    meshTwo: new MeshNormalMaterial(),
   },
   geometry: {
     geometryOne: new SphereGeometry(.1 , 4, 4),
@@ -21,7 +22,7 @@ export default class Cursor{
   lookAt
   cursorX
   cursorY
-  constructor({x=0, y=0, z=0, geometry=style.geometry.geometryOne, material=style.material.meshOne}={}){
+  constructor({x=0, y=0, z=0, geometry=style.geometry.geometryOne, material=style.material.meshTwo}={}){
     this.threejsObject = new Mesh(geometry, material);
 
     this.threejsObject.name = this.componentId;//needed for removing from scene
@@ -50,13 +51,15 @@ export default class Cursor{
     if(!camera){return;}
     //console.log(`cursorX ${cursorX} cursorY: ${cursorY}`);
 
-    var vector = new Vector3(cursorX, cursorY, 0.5);
+    var vector = new Vector3(cursorX, cursorY, .5);
     vector.unproject( camera );
     var dir = vector.sub( camera.position ).normalize();
     var distance = 2;//- camera.position.z / dir.z;
     var pos = camera.position.clone().add( dir.multiplyScalar( distance ) );
     this.threejsObject.position.copy(pos);
     //console.log(`new position ${JSON.stringify(this.threejsObject.position)}`);
+    let {x, y, z} = this.threejsObject.position;
+    signal.trigger(ec.cursor.mousexyzChanged, {x, y, z, direction:dir});
 
   }
 

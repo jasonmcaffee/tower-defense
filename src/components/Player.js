@@ -57,6 +57,10 @@ export default class Player {
     },
     [ec.stage.mouseClickedOnStage]({camera, cameraPosition, clientX, clientY, projector, width, height, cursorX, cursorY}){
       this.fireBullet({camera, cameraPosition, projector, clientX, clientY, width, height, cursorX, cursorY});
+    },
+    [ec.cursor.mousexyzChanged]({x, y, z, direction}){
+      this.mouseVector = new Vector3(x, y, z);
+      this.mouseDirection = direction;
     }
   }
 
@@ -84,6 +88,15 @@ export default class Player {
   }
 
   fireBullet({camera, cameraPosition, projector, clientX, clientY, width, height, cursorX, cursorY}){
+    if(!this.mouseDirection){return;}
+    let direction = this.mouseDirection;
+    let startPosition = this.mouseVector;
+
+    let bullet = new Bullet({direction, startPosition, hitExclusionComponentId:this.componentId});
+    signal.trigger(ec.stage.addComponent, {component:bullet});
+  }
+
+  fireBulletOLD({camera, cameraPosition, projector, clientX, clientY, width, height, cursorX, cursorY}){
 
     // let mouseX = (clientX / width) * 2 - 1;
     // let mouseY = - (clientY / height) * 2 + 1;
