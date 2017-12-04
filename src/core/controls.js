@@ -47,18 +47,19 @@ let controls = {
     this.clientX = clientX;
     this.clientY = clientY;
 
-    this.cursorX = (this.clientX /width) * 2 - 1;
-    this.cursorY = - (this.clientY /height) * 2 + 1;
-    signal.trigger(ec.mouse.move, {mouseX:this.mouseX, mouseY:this.mouseY, clientX:this.clientX, clientY:this.clientY, cursorX:this.cursorX, cursorY:this.cursorY});
   },
 
-  pointerMoved({movementX=0, movementY=0, height=window.innerHeight, width=window.innerWidth}){
+  pointerMoved({movementX=0, movementY=0}){
     this.mouseX += movementX;
     this.mouseY += movementY;
 
     this.clientX += movementX;
     this.clientY += movementY;
 
+
+  },
+
+  calculateCursorPositionAndSignal({height=window.innerHeight, width=window.innerWidth}={}){
     this.cursorX = (this.clientX /width) * 2 - 1;
     this.cursorY = - (this.clientY /height) * 2 + 1;
     signal.trigger(ec.mouse.move, {mouseX:this.mouseX, mouseY:this.mouseY, clientX:this.clientX, clientY:this.clientY, cursorX:this.cursorX, cursorY:this.cursorY});
@@ -68,6 +69,7 @@ let controls = {
     [ec.webgl.performFrameCalculations]({clock=moveClock}={}){
       this.performLookAtBasedOnMouseMovement();
       this.performMovementBasedOnKeysPressed({clock});
+      this.calculateCursorPositionAndSignal();
     }
   },
   performLookAtBasedOnMouseMovement({lookSpeed=0.1, mouseX=this.mouseX, mouseY=this.mouseY}={}){

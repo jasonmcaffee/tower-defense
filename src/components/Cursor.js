@@ -3,12 +3,14 @@ import {signal, eventConfig as ec, generateUniqueId, generateRandomNumber as grn
 
 let style = {
   material:{
-    meshOne: new MeshBasicMaterial({color:0x4286f4, transparent:true, opacity:0.5}),
+    meshOne: new MeshBasicMaterial({color:0x4286f4, wireframe:true}),
   },
   geometry: {
-    geometryOne: new SphereGeometry(.5 , 16, 16),
+    geometryOne: new SphereGeometry(.1 , 4, 4),
+    geometryTwo: new CubeGeometry(.2, .2, .2),
   }
 };
+
 
 export default class Cursor{
   componentId = generateUniqueId({name:'Cursor'})
