@@ -2,13 +2,10 @@ import {eventConfig as ec} from "core/eventConfig";
 import {signal} from "core/core";
 import {Clock, Math as threeMath} from "three";
 
+//NOTE: the code in here is old and kind of ghetto.
+
+
 let lookClock = new Clock();
-// let moveRightClock = new Clock();
-// let moveLeftClock = new Clock();
-// let moveUpClock = new Clock();
-// let moveDownClock = new Clock();
-// let moveForwardClock = new Clock();
-// let moveBackwardClock = new Clock();
 let moveClock = new Clock();
 
 let qwertyKeyCodeOrder = [
@@ -44,14 +41,27 @@ let controls = {
   keysCurrentlyPressed: {key:undefined, intervalId:undefined},
   stopLookingWithMouse: false, //when mouse leaves window, this will be set to true
 
-  mouseMoved({pageX, pageY, height=window.innerHeight, width=window.innerWidth}){
+  mouseMoved({pageX, pageY, clientX, clientY, height=window.innerHeight, width=window.innerWidth}){
     this.mouseX = pageX - (width/2);
     this.mouseY = pageY - (height/2);
+    this.clientX = clientX;
+    this.clientY = clientY;
+
+    this.cursorX = (this.clientX /width) * 2 - 1;
+    this.cursorY = - (this.clientY /height) * 2 + 1;
+    signal.trigger(ec.mouse.move, {mouseX:this.mouseX, mouseY:this.mouseY, clientX:this.clientX, clientY:this.clientY, cursorX:this.cursorX, cursorY:this.cursorY});
   },
 
-  pointerMoved({movementX=0, movementY=0}){
+  pointerMoved({movementX=0, movementY=0, height=window.innerHeight, width=window.innerWidth}){
     this.mouseX += movementX;
     this.mouseY += movementY;
+
+    this.clientX += movementX;
+    this.clientY += movementY;
+
+    this.cursorX = (this.clientX /width) * 2 - 1;
+    this.cursorY = - (this.clientY /height) * 2 + 1;
+    signal.trigger(ec.mouse.move, {mouseX:this.mouseX, mouseY:this.mouseY, clientX:this.clientX, clientY:this.clientY, cursorX:this.cursorX, cursorY:this.cursorY});
   },
 
   signals:{
@@ -91,6 +101,7 @@ let controls = {
       return;
     }
     signal.trigger(ec.camera.setLookAtFromMouseMovement, this.xyz);
+
   },
 
   //stop controlling camera position

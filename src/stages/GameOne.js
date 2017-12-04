@@ -3,7 +3,7 @@ import RotatingBox from 'components/RotatingBox';
 import Floor from 'components/Floor';
 import TysonsMom from 'components/TysonsMom';
 import Player from 'components/Player';
-
+import Cursor from 'components/Cursor';
 
 
 export default class GameOne{
@@ -43,18 +43,19 @@ export default class GameOne{
     // children.push(new RotatingBox());
     let min = -290;
     let max = 290;
-    for(let i=0; i < 5000; ++i){
-      let component = new RotatingBox({x:grn({min, max}), y:grn({min, max}), z:grn({min, max})});
-      signal.trigger(ec.stage.addComponent, {component});
-    }
+    // for(let i=0; i < 5000; ++i){
+    //   let component = new RotatingBox({x:grn({min, max}), y:grn({min, max}), z:grn({min, max})});
+    //   signal.trigger(ec.stage.addComponent, {component});
+    // }
     let component = new Floor();
     signal.trigger(ec.stage.addComponent, {component});
 
-    this.addEnemyAndRegisterWithStage(new TysonsMom({hitPoints:100}));
+    // this.addEnemyAndRegisterWithStage(new TysonsMom({hitPoints:100}));
     // this.addEnemyAndRegisterWithStage(new TysonsMom({hitPoints:100}));
     // this.addEnemyAndRegisterWithStage(new TysonsMom({hitPoints:100}));
     // this.addEnemyAndRegisterWithStage(new TysonsMom({hitPoints:100}));
     signal.trigger(ec.stage.addComponent, {component: new Player({hitPoints:10, x: 0, y:0, z:-10 })});
+    signal.trigger(ec.stage.addComponent, {component: new Cursor()});
   }
 
 
