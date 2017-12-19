@@ -64,7 +64,7 @@ export default class Cursor{
   }
 
   addToScene({scene}) {
-    scene.add(this.threejsObject);
+    //scene.add(this.threejsObject);
   }
 
   destroy({scene, name=this.threejsObject.name, componentId=this.componentId}){
