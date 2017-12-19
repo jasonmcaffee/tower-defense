@@ -37,12 +37,12 @@ module.exports = [
   {
     test: /\.jpg/,
     exclude: /(node_modules|bower_components)/,
-    loader: "url-loader?limit=10000&mimetype=image/jpg"
+    loader: "base64-inline-loader?limit=10000000&name=[name].[ext]"
   },
   {
     test: /\.png/,
     exclude: /(node_modules|bower_components)/,
-    loader: "url-loader?limit=10000&mimetype=image/png"
+    loader: "base64-inline-loader?limit=10000000&name=[name].[ext]"
   },
   // {
   //   test: /\.mp3$/,

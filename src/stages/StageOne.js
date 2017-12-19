@@ -28,7 +28,7 @@ export default class StageOne {
 
   initThreeJs(){
     let {width, height} = this.getScreenDimensions();
-    let camera = this.camera = new PerspectiveCamera( 70, width / height, 1, 700 );
+    let camera = this.camera = new PerspectiveCamera( 70, width / height, 5, 700 );
     signal.trigger(ec.camera.setPosition, {x:0, y:0, z:0});
     signal.trigger(ec.camera.setLookAt, {x:0, y:0, z:0});
 
