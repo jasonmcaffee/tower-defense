@@ -8,7 +8,7 @@ standardGeomatry.computeBoundingBox();
 import earthSurfaceImage from 'images/earth/earthSurface.jpg';
 
 export default class Earth{
-  componentId = generateUniqueId({name:'RotatingBox'})
+  componentId = generateUniqueId({name:'Earth'})
   hitBox //used to determine if something hit us
   constructor({x=0, y=0, z=0}={}){
 
