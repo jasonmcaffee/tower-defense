@@ -51,7 +51,7 @@ export default class GameOne{
     let component = new Floor({numberOfLines:100, distanceBetweenLines:100});
     signal.trigger(ec.stage.addComponent, {component});
 
-   // this.addEnemyAndRegisterWithStage(new TysonsMom({hitPoints:100}));
+    this.addEnemyAndRegisterWithStage(new TysonsMom({hitPoints:100}));
     // this.addEnemyAndRegisterWithStage(new TysonsMom({hitPoints:100}));
     // this.addEnemyAndRegisterWithStage(new TysonsMom({hitPoints:100}));
     // this.addEnemyAndRegisterWithStage(new TysonsMom({hitPoints:100}));
