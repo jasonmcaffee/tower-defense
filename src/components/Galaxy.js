@@ -6,7 +6,7 @@ let standardGeomatry = new SphereGeometry(20, 32, 32);
 standardGeomatry.computeBoundingBox();
 
 import galaxyImageSource from 'images/galaxy/galaxy3.png';
-//import galaxy2ImageSource from 'images/galaxy/galaxy2.jpg';
+import galaxy2ImageSource from 'images/galaxy/galaxy2.jpg';
 /**
  * big sphere with backside display of image
  */
@@ -16,8 +16,8 @@ export default class Galaxy{
   constructor({x=0, y=0, z=0, radius=600}={}){
 
     let galaxyMesh = this.createGalaxyMesh({radius});
-    //let galaxy2Mesh = this.createGalaxyMesh({radius: radius -1, imageSource:galaxy2ImageSource, transparent:true, opacity:0.5});
-    //galaxyMesh.add(galaxy2Mesh);
+    let galaxy2Mesh = this.createGalaxyMesh({radius: radius -1, imageSource:galaxy2ImageSource, transparent:true, opacity:0.2, repeat:1});
+    galaxyMesh.add(galaxy2Mesh);
     this.threejsObject = galaxyMesh;
     this.threejsObject.name = this.componentId;
     this.threejsObject.position.set(x, y, z);

@@ -81,12 +81,10 @@ export default class Player {
   }
 
   moveInOppositeDirection({currentDirection=this.mouseDirection, currentPosition=this.threejsObject.position, distance=-2}={}){
-
-    console.log(`old position is x: ${currentPosition.x}  y: ${currentPosition.y} z: ${currentPosition.z}`);
+    //console.log(`old position is x: ${currentPosition.x}  y: ${currentPosition.y} z: ${currentPosition.z}`);
     let newPosition = new Vector3().copy(currentDirection).normalize().multiplyScalar(distance);
     this.threejsObject.position.add(newPosition);
-
-    console.log(`new position is x:${this.threejsObject.position.x} y: ${this.threejsObject.position.y} z: ${this.threejsObject.position.z}`);
+    //console.log(`new position is x:${this.threejsObject.position.x} y: ${this.threejsObject.position.y} z: ${this.threejsObject.position.z}`);
     signal.trigger(ec.camera.setPosition, this.threejsObject.position);
   }
 

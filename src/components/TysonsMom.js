@@ -91,6 +91,13 @@ export default class TysonsMom {
         signal.trigger(ec.enemy.died, {componentId});
       }
     },
+    //see if we hit anything while moving.e.g earth
+    [ec.hitTest.hitTestResult]({doesIntersect, hitteeComponentId, hitComponentId, damage=this.damage}){
+      if(this.componentId != hitteeComponentId || this.hitExclusionComponentId == hitComponentId){return;}
+      this.hasHit = true;
+      console.log(`tysons mom has hit something ${hitteeComponentId}  ${hitComponentId}`);
+      this.moveInOppositeDirection();
+    },
     // [ec.player.positionChanged]({x, y, z}){
     //   this.playerPosition = {x, y, z};
     // }
@@ -147,12 +154,16 @@ export default class TysonsMom {
     let startPosition = this.threejsObject.position;
     let direction = new Vector3();
     direction.subVectors(nearestTargetVector, startPosition);
+    this.currentDirection = direction;//needed so when we run into something we can back up.
+
     let distance = (moveDistancePerSecond * delta);
 
     let newPosition = new Vector3().copy(direction).normalize().multiplyScalar(distance);
     this.threejsObject.position.add(newPosition);
     this.hitBox = new Box3().setFromObject(this.threejsObject);
     signal.trigger(ec.hitTest.updateComponentHitBox, {component:this});
+
+    this.performHitTest();
   }
   startFiringBullets(timeout=generateRandomNumber({min:100, max:1000})){
     if(this.isDestroyed){return;}
@@ -201,6 +212,18 @@ export default class TysonsMom {
       threejsObject.material.color.setHex(color);
     }.bind(this), intervalMs);
 
+  }
+
+  //when we run into something.
+  moveInOppositeDirection({currentDirection=this.currentDirection, currentPosition=this.threejsObject.position, distance=-2}={}){
+    let newPosition = new Vector3().copy(currentDirection).normalize().multiplyScalar(distance);
+    this.threejsObject.position.add(newPosition);
+    this.hitBox = new Box3().setFromObject(this.threejsObject);
+    signal.trigger(ec.hitTest.updateComponentHitBox, {component:this});
+  }
+
+  performHitTest({hitteeComponent=this}={}){
+    signal.trigger(ec.hitTest.performHitTest, {hitteeComponent});
   }
 
   render() {
