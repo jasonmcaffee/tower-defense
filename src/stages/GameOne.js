@@ -5,6 +5,7 @@ import TysonsMom from 'components/TysonsMom';
 import Player from 'components/Player';
 import Cursor from 'components/Cursor';
 import Earth from 'components/Earth';
+import Galaxy from 'components/Galaxy';
 
 export default class GameOne{
   onDestroyFuncs = [] //stuff to run when we destroy.
@@ -57,6 +58,7 @@ export default class GameOne{
     signal.trigger(ec.stage.addComponent, {component: new Player({hitPoints:10, x: 0, y:0, z:-10 })});
     signal.trigger(ec.stage.addComponent, {component: new Cursor()});
     signal.trigger(ec.stage.addComponent, {component: new Earth()});
+    signal.trigger(ec.stage.addComponent, {component: new Galaxy()});
   }
 
 

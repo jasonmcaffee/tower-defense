@@ -1,6 +1,7 @@
 import {eventConfig as ec} from 'core/eventConfig';
 import {NewWorker} from "webworker/WebWorker";
 import hitTestWorkerFunc from 'webworker/hitTestWorkerFunc';
+import {Sphere} from 'three';
 
 //events
 let webWorkerCommands = {
@@ -126,9 +127,29 @@ export default class HitTestService{
 
 function createWebWorkerHitBoxFromComponent({component}){
   let {componentId, hitBox} = component;
-  let {min, max} = hitBox;
+  let wwHitBox;
+  if(hitBox instanceof Sphere){
+    wwHitBox = createWebWorkerSphereHitBox({sphere:hitBox, componentId});
+  }else{//assume box
+    let {min, max} = hitBox;
+    wwHitBox = {
+      type:'Box3',
+      componentId,
+      hitBox:{min, max}
+    }
+  }
+
+  return wwHitBox;
+}
+
+function createWebWorkerSphereHitBox({sphere, componentId}){
   let wwHitBox = {
-    componentId, hitBox:{min, max}
+    componentId,
+    hitBox:{
+      type:'Sphere',
+      center: sphere.center,
+      radius: sphere.radius
+    }
   }
   return wwHitBox;
 }
