@@ -25,11 +25,12 @@ export default class TysonsMom {
   componentId = generateUniqueId({name: 'TysonsMom'})
   hitBox //used to determine if something hit us
   hitPoints
-  playerPosition //keep track of where player currently is
+  nearestTargetVector //keep track of where player currently is
   bulletDistancePerSecond
   moveDistancePerSecond
   audioListeners = [] //for positional sounds
   positionalSounds = []
+  targets = [] //{componentId, x, y, z} all targets that move
   constructor({x = grn({min, max}), y = grn({min, max}), z = grn({min, max}), hitPoints=100, bulletDistancePerSecond=100, moveDistancePerSecond=9, damage=1} = {}) {
     let geometry = standardGeomatry;
     this.hitPoints = hitPoints;
@@ -90,17 +91,62 @@ export default class TysonsMom {
         signal.trigger(ec.enemy.died, {componentId});
       }
     },
-    [ec.player.positionChanged]({x, y, z}){
-      this.playerPosition = {x, y, z};
+    // [ec.player.positionChanged]({x, y, z}){
+    //   this.playerPosition = {x, y, z};
+    // }
+    [ec.enemy.targetPositionChanged]({x, y, z, componentId}){
+      let target = this.getTargetByComponentId(componentId);
+      if(!target){
+        target = {componentId, x, y, z};
+        this.addTarget(target);
+      }else{
+        target.x = x;
+        target.y = y;
+        target.z = z;
+      }
+      this.nearestTargetVector = this.findNearestTargetVector();
     }
   }
-  followPlayer({playerPosition=this.playerPosition, delta=moveClock.getDelta(), moveDistancePerSecond=this.moveDistancePerSecond}={}){
-    if(!playerPosition){ return;}
-    let playerPositionVector = new Vector3(playerPosition.x, playerPosition.y, playerPosition.z);
+  addTarget(target){
+    this.targets.push(target);
+  }
+  getTargetByComponentId(componentId){
+    for(let i =0, len=this.targets.length; i < len; ++i){
+      let target = this.targets[i];
+      if(target.componentId === componentId){
+        return target;
+      }
+    }
+    return undefined;
+  }
+
+  //when player moves, we want to either attack earth or the player.
+  findNearestTargetVector({targets=this.targets, startPosition=this.threejsObject.position}={}){
+    let nearestTargetVector = new Vector3(0, 0, 0);
+    let shortestDistance;
+    for(let i=0, len=targets.length; i < len; ++i){
+      let target = targets[i];
+      let targetVector = new Vector3(target.x, target.y, target.z);
+      let distance = startPosition.distanceTo(targetVector);
+      if(!shortestDistance){
+        shortestDistance = distance;
+        nearestTargetVector = targetVector;
+      }
+      if(distance < shortestDistance){
+        shortestDistance = distance;
+        nearestTargetVector = targetVector;
+      }
+
+    }
+    return nearestTargetVector;
+  }
+  followPlayer({nearestTargetVector=this.nearestTargetVector, delta=moveClock.getDelta(), moveDistancePerSecond=this.moveDistancePerSecond}={}){
+    if(!nearestTargetVector){ return;}
+    let playerPositionVector = new Vector3(nearestTargetVector.x, nearestTargetVector.y, nearestTargetVector.z);
 
     let startPosition = this.threejsObject.position;
     let direction = new Vector3();
-    direction.subVectors(playerPosition, startPosition);
+    direction.subVectors(nearestTargetVector, startPosition);
     let distance = (moveDistancePerSecond * delta);
 
     let newPosition = new Vector3().copy(direction).normalize().multiplyScalar(distance);
@@ -116,19 +162,19 @@ export default class TysonsMom {
     }.bind(this), timeout)
   }
 
-  fireBulletAtPlayer({playerPosition=this.playerPosition, threejsObject=this.threejsObject, componentId=this.componentId,
+  fireBulletAtPlayer({nearestTargetVector=this.nearestTargetVector, threejsObject=this.threejsObject, componentId=this.componentId,
                        bulletMaterial=Bullet.style.material.sphereMaterialRed, bulletDistancePerSecond=this.bulletDistancePerSecond, damage=this.damage}={}){
-    if(!playerPosition){
+    if(!nearestTargetVector){
       let min = -10000;
       let max = 10000;
       let grn = generateRandomNumber;
-      playerPosition = {x:grn({min, max}), y:grn({min, max}), z:grn({min, max})};
+      nearestTargetVector = {x:grn({min, max}), y:grn({min, max}), z:grn({min, max})};
     }
-    let playerPositionVector = new Vector3(playerPosition.x, playerPosition.y, playerPosition.z);
+    let playerPositionVector = nearestTargetVector;
 
     let startPosition = threejsObject.position.clone();
     let direction = new Vector3();
-    direction.subVectors(playerPosition, startPosition);
+    direction.subVectors(nearestTargetVector, startPosition);
 
     let bullet = new Bullet({direction, startPosition, hitExclusionComponentId:componentId, sphereMaterial: bulletMaterial, distancePerSecond:bulletDistancePerSecond, damage});
     signal.trigger(ec.stage.addComponent, {component:bullet});

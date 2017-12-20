@@ -54,7 +54,8 @@ export const eventConfig = {
     died: 'player.died',
   },
   enemy:{
-    died: 'enemy.died' //so game config can determine if game ended.
+    died: 'enemy.died', //so game config can determine if game ended.
+    targetPositionChanged: 'enemy.target.positionChanged', //for earth, player, etc. lets enemies know where there targets are.
   },
   game:{
     startGame:'game.startGame',

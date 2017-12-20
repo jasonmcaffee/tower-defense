@@ -27,6 +27,7 @@ export default class Earth{
     this.hitBox = new Sphere(this.threejsObject.position, radius);
 
     signal.registerSignals(this);
+    signal.trigger(ec.enemy.targetPositionChanged, {x, y, z, componentId:this.componentId});//let enemies know where we are.
   }
 
   createGlobeMesh({radius}){
@@ -87,8 +88,8 @@ export default class Earth{
   }
   render() {
     // this.threejsObject.rotation.x += 0.01;
-    // this.threejsObject.rotation.y += 0.0007;
-    // this.cloudMesh.rotation.y += 0.0006;
+    this.threejsObject.rotation.y += 0.0007;
+    this.cloudMesh.rotation.y += 0.0006;
     //this.threejsObject.rotation.z += 0.01;
     this.hitBox = new Box3().setFromObject(this.cloudMesh); //allow for moving box
   }

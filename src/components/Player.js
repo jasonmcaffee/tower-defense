@@ -62,10 +62,11 @@ export default class Player {
       this.moveInOppositeDirection();
     },
     //follow the camera
-    [ec.camera.positionChanged]({x, y, z}){
+    [ec.camera.positionChanged]({x, y, z, componentId=this.componentId}){
       this.threejsObject.position.set(x, y, z);
       this.hitBox = new Box3().setFromObject(this.threejsObject);
-      signal.trigger(ec.player.positionChanged, {x, y, z});//let enemy know where you arez
+      signal.trigger(ec.player.positionChanged, {x, y, z});//move the galaxy
+      signal.trigger(ec.enemy.targetPositionChanged, {x, y, z, componentId});
       signal.trigger(ec.hitTest.updateComponentHitBox, {component:this});
 
       this.performHitTest();
