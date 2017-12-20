@@ -5,9 +5,9 @@ import {signal, eventConfig as ec, generateUniqueId, generateRandomNumber as grn
 let standardGeomatry = new SphereGeometry(20, 32, 32);
 standardGeomatry.computeBoundingBox();
 
-import earthSurfaceImageSource from 'images/earth/earthhdsurface.jpg';
+import earthSurfaceImageSource from 'images/earth/earthSurface.jpg';
 //import earthBumpMapImageSource from 'images/earth/earthhdbumpmap.jpg';
-import earthAtmosphereImageSource from 'images/earth/earthcloudshd.png';
+import earthAtmosphereImageSource from 'images/earth/earthAtmosphere.png';
 import earthSurfaceSpecularImageSource from 'images/earth/earthSurfaceSpecular.jpg';
 
 /**
@@ -16,12 +16,13 @@ import earthSurfaceSpecularImageSource from 'images/earth/earthSurfaceSpecular.j
 export default class Earth{
   componentId = generateUniqueId({name:'Earth'})
   hitBox //used to determine if something hit us
-  constructor({x=0, y=0, z=-700}={}){
+  constructor({x=0, y=0, z=-300}={}){
 
     let {globeMesh, cloudMesh} = this.createGlobeMesh();
     this.cloudMesh = cloudMesh;
     this.cloudMesh.position.set(x,y,z);
     this.threejsObject = globeMesh;
+    this.threejsObject.name = this.componentId;
     this.threejsObject.position.set(x, y, z);
     this.hitBox = new Box3().setFromObject(this.threejsObject);
 
@@ -113,6 +114,7 @@ export default class Earth{
     [ec.hitTest.hitComponent]({hitComponent}){
       let componentId = hitComponent.componentId;
       if(this.componentId !== componentId){return;}
+      console.log(`earth was hit dude`);
       //signal.trigger(ec.stage.destroyComponent, {componentId});
     }
   }

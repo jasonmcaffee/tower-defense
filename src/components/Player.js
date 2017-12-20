@@ -3,7 +3,7 @@ import {signal, eventConfig as ec, generateUniqueId} from "core/core";
 // import Bullet from 'components/Bullet';
 import Bullet from 'components/Bullet';
 
-let material = new MeshBasicMaterial({color: 0x4286f4, transparent:true, opacity:0});
+let material = new MeshBasicMaterial({color: 0x4286f4, transparent:true, opacity:0.01});
 material.side = DoubleSide;//view box when in box
 
 let standardGeomatry = new CubeGeometry(2, 2, 2);
@@ -16,6 +16,10 @@ let style ={
   }
 };
 
+/**
+ * issue: perform hit test is returning the first hit component.
+ * since the player is hitting itself (it's a hitter and a hittee), we never get the second hit.
+ */
 export default class Player {
   componentId = generateUniqueId({name: 'Player'})
   hitBox //used to determine if something hit us
@@ -32,6 +36,8 @@ export default class Player {
     signal.trigger(ec.player.hitPointsChanged, {hitPoints});
     signal.trigger(ec.camera.setPosition, {x, y, z});//move the camera to where the player is. a bit messy right now..
     //signal.trigger(ec.camera.setLookAt, {x: lookAtX, y:lookAtY, z:lookAtZ}); //todo: NOT WORKING
+
+    this.hitExclusionComponentId = this.componentId;//so you can't hit yourself while moving.
   }
 
   signals = {
@@ -48,12 +54,20 @@ export default class Player {
         signal.trigger(ec.player.died);
       }
     },
+    //see if we hit anything while moving.e.g earth
+    [ec.hitTest.hitTestResult]({doesIntersect, hitteeComponentId, hitComponentId, damage=this.damage}){
+      if(this.componentId != hitteeComponentId || this.hitExclusionComponentId == hitComponentId){return;}
+      this.hasHit = true;
+      console.log(`player has hit something ${hitteeComponentId}  ${hitComponentId}`);
+    },
     //follow the camera
     [ec.camera.positionChanged]({x, y, z}){
       this.threejsObject.position.set(x, y, z);
       this.hitBox = new Box3().setFromObject(this.threejsObject);
       signal.trigger(ec.player.positionChanged, {x, y, z});//let enemy know where you arez
       signal.trigger(ec.hitTest.updateComponentHitBox, {component:this});
+
+      this.performHitTest();
     },
     [ec.stage.mouseClickedOnStage]({camera, cameraPosition, clientX, clientY, projector, width, height, cursorX, cursorY}){
       this.fireBullet({camera, cameraPosition, projector, clientX, clientY, width, height, cursorX, cursorY});
@@ -96,24 +110,13 @@ export default class Player {
     signal.trigger(ec.stage.addComponent, {component:bullet});
   }
 
-  fireBulletOLD({camera, cameraPosition, projector, clientX, clientY, width, height, cursorX, cursorY}){
-
-    // let mouseX = (clientX / width) * 2 - 1;
-    // let mouseY = - (clientY / height) * 2 + 1;
-    let mouseX = cursorX;
-    let mouseY = cursorY;
-    let mouseVector = new Vector3(mouseX, mouseY, 1);
-    projector.unprojectVector(mouseVector, camera);
-
-    let direction = mouseVector.sub(cameraPosition).normalize();
-    let startPosition = cameraPosition.clone();
-
-    let bullet = new Bullet({direction, startPosition, hitExclusionComponentId:this.componentId});
-    signal.trigger(ec.stage.addComponent, {component:bullet});
-  }
-
   render() {
     this.hitBox = new Box3().setFromObject(this.threejsObject); //allow for moving box
+
+  }
+
+  performHitTest({hitteeComponent=this}={}){
+    signal.trigger(ec.hitTest.performHitTest, {hitteeComponent});
   }
 
   addToScene({scene}) {

@@ -24,6 +24,10 @@ export default function hitTestWorkerFunc(){
       let doesIntersect = box1box3.intersectsBox(box2box3);
       if(doesIntersect === true){
         let hitComponentId = webWorkerHitBox2.componentId;
+        //don't let things hit themselves. e.g. a Player is a hitter and a hittee.
+        if(hitComponentId == webWorkerHitBox1.componentId){
+          continue;
+        }
         intersectResult.doesIntersect = true;
         intersectResult.hitComponentId = hitComponentId;
         break;
