@@ -48,7 +48,7 @@ export default class GameOne{
       let component = new RotatingBox({x:grn({min, max}), y:grn({min, max}), z:grn({min, max})});
       signal.trigger(ec.stage.addComponent, {component});
     }
-    let component = new Floor();
+    let component = new Floor({numberOfLines:100, distanceBetweenLines:100});
     signal.trigger(ec.stage.addComponent, {component});
 
    // this.addEnemyAndRegisterWithStage(new TysonsMom({hitPoints:100}));

@@ -5,8 +5,8 @@ import {signal, eventConfig as ec, generateUniqueId, generateRandomNumber as grn
 let standardGeomatry = new SphereGeometry(20, 32, 32);
 standardGeomatry.computeBoundingBox();
 
-import galaxyImageSource from 'images/galaxy/galaxy.jpg';
-import galaxy2ImageSource from 'images/galaxy/galaxy2.jpg';
+import galaxyImageSource from 'images/galaxy/galaxy3.png';
+//import galaxy2ImageSource from 'images/galaxy/galaxy2.jpg';
 /**
  * big sphere with backside display of image
  */
@@ -16,8 +16,8 @@ export default class Galaxy{
   constructor({x=0, y=0, z=0, radius=600}={}){
 
     let galaxyMesh = this.createGalaxyMesh({radius});
-    let galaxy2Mesh = this.createGalaxyMesh({radius: radius -1, imageSource:galaxy2ImageSource, transparent:true, opacity:0.5});
-    galaxyMesh.add(galaxy2Mesh);
+    //let galaxy2Mesh = this.createGalaxyMesh({radius: radius -1, imageSource:galaxy2ImageSource, transparent:true, opacity:0.5});
+    //galaxyMesh.add(galaxy2Mesh);
     this.threejsObject = galaxyMesh;
     this.threejsObject.name = this.componentId;
     this.threejsObject.position.set(x, y, z);
@@ -25,7 +25,7 @@ export default class Galaxy{
     signal.registerSignals(this);
   }
 
-  createGalaxyMesh({radius, imageSource=galaxyImageSource, repeat=4, transparent=false, opacity=1}){
+  createGalaxyMesh({radius, imageSource=galaxyImageSource, repeat=8, transparent=false, opacity=1}){
     function onload(){
       if(typeof material != undefined){
         material.needsUpdate = true;

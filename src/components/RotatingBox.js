@@ -9,11 +9,13 @@ standardGeomatry.computeBoundingBox();
 export default class RotatingBox{
   componentId = generateUniqueId({name:'RotatingBox'})
   hitBox //used to determine if something hit us
-  constructor({x=0, y=0, z=0, numberOfBulletsOnExplode=10, bulletDistance=10, bulletDamage=5}={}){
+  rotationEnabled = false
+  constructor({x=0, y=0, z=0, numberOfBulletsOnExplode=10, bulletDistance=10, bulletDamage=5, rotationEnabled=false}={}){
 
     this.numberOfBulletsOnExplode = numberOfBulletsOnExplode;
     this.bulletDistance = bulletDistance;
     this.bulletDamage = bulletDamage;
+    this.rotationEnabled = rotationEnabled;
 
     let geometry = standardGeomatry;
     this.threejsObject = new Mesh(geometry, material);
@@ -31,9 +33,12 @@ export default class RotatingBox{
     }
   }
   render() {
-    this.threejsObject.rotation.x += 0.01;
-    this.threejsObject.rotation.y += 0.02;
-    this.hitBox = new Box3().setFromObject(this.threejsObject); //allow for moving box
+    if(this.rotationEnabled){
+      this.threejsObject.rotation.x += 0.01;
+      this.threejsObject.rotation.y += 0.02;
+      this.hitBox = new Box3().setFromObject(this.threejsObject); //allow for moving box
+    }
+
   }
 
   explode({numberOfBulletsOnExplode=this.numberOfBulletsOnExplode, bulletDistance=this.bulletDistance}={}){
