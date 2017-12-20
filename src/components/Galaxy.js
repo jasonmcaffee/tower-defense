@@ -1,4 +1,4 @@
-import {BoxGeometry, SphereGeometry, MeshPhongMaterial, MeshLambertMaterial, Mesh, Box3, Vector3, Texture, Object3D, ImageUtils, ShaderLib, UniformsUtils, ShaderMaterial, DoubleSide, BackSide} from 'three';
+import {BoxGeometry, SphereGeometry, MeshPhongMaterial, MeshLambertMaterial, Mesh, Box3, Vector3, Texture, Object3D, ImageUtils, ShaderLib, UniformsUtils, ShaderMaterial, DoubleSide, BackSide, RepeatWrapping} from 'three';
 import {signal, eventConfig as ec, generateUniqueId, generateRandomNumber as grn} from "core/core";
 
 
@@ -6,7 +6,7 @@ let standardGeomatry = new SphereGeometry(20, 32, 32);
 standardGeomatry.computeBoundingBox();
 
 import galaxyImageSource from 'images/galaxy/galaxy.jpg';
-
+import galaxy2ImageSource from 'images/galaxy/galaxy2.jpg';
 /**
  * big sphere with backside display of image
  */
@@ -16,6 +16,8 @@ export default class Galaxy{
   constructor({x=0, y=0, z=0, radius=600}={}){
 
     let galaxyMesh = this.createGalaxyMesh({radius});
+    let galaxy2Mesh = this.createGalaxyMesh({radius: radius -1, imageSource:galaxy2ImageSource, transparent:true, opacity:0.5});
+    galaxyMesh.add(galaxy2Mesh);
     this.threejsObject = galaxyMesh;
     this.threejsObject.name = this.componentId;
     this.threejsObject.position.set(x, y, z);
@@ -23,17 +25,24 @@ export default class Galaxy{
     signal.registerSignals(this);
   }
 
-  createGalaxyMesh({radius}){
+  createGalaxyMesh({radius, imageSource=galaxyImageSource, repeat=4, transparent=false, opacity=1}){
     function onload(){
       if(typeof material != undefined){
         material.needsUpdate = true;
       }
+      galaxyTexture.wrapS = RepeatWrapping;
+      galaxyTexture.wrapT = RepeatWrapping;
+      galaxyTexture.offset.set(0,0);
+      galaxyTexture.repeat.set(repeat,repeat);
     }
-    let galaxyTexture = this.createTextureFromImage({imageSource: galaxyImageSource, onload});
+    let galaxyTexture = this.createTextureFromImage({imageSource, onload});
     let geometry   = new SphereGeometry(radius, 32, 32);
     let material  = new MeshPhongMaterial({
       map     : galaxyTexture,
       side        : BackSide,
+      //side        : DoubleSide,
+      transparent,
+      opacity
     })
     let galaxyMesh = new Mesh(geometry, material);
     return galaxyMesh;
