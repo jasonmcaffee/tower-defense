@@ -5,60 +5,74 @@ import {signal, eventConfig as ec, generateUniqueId, generateRandomNumber as grn
 let standardGeomatry = new SphereGeometry(20, 32, 32);
 standardGeomatry.computeBoundingBox();
 
-import earthSurfaceImageSource from 'images/earth/earthSurface.jpg';
-import earthSurfaceNormalImageSource from 'images/earth/earthSurfaceNormal.jpg';
-import earthAtmosphereImageSource from 'images/earth/earthAtmosphere.png';
+import earthSurfaceImageSource from 'images/earth/earthhdsurface.jpg';
+//import earthBumpMapImageSource from 'images/earth/earthhdbumpmap.jpg';
+import earthAtmosphereImageSource from 'images/earth/earthcloudshd.png';
 import earthSurfaceSpecularImageSource from 'images/earth/earthSurfaceSpecular.jpg';
 
+/**
+ * http://learningthreejs.com/blog/2013/09/16/how-to-make-the-earth-in-webgl/
+ */
 export default class Earth{
   componentId = generateUniqueId({name:'Earth'})
   hitBox //used to determine if something hit us
-  constructor({x=0, y=0, z=200}={}){
+  constructor({x=0, y=0, z=-700}={}){
 
-    let globeMesh = this.createGlobeMesh();
-
+    let {globeMesh, cloudMesh} = this.createGlobeMesh();
+    this.cloudMesh = cloudMesh;
+    this.cloudMesh.position.set(x,y,z);
     this.threejsObject = globeMesh;
-    //this.threejsObject = new Object3D();
-    //this.threejsObject.add(globeMesh);
+    this.threejsObject.position.set(x, y, z);
     this.hitBox = new Box3().setFromObject(this.threejsObject);
 
     signal.registerSignals(this);
   }
 
   createGlobeMesh(){
-    let earthSurfaceImage = new Image();
-    earthSurfaceImage.src = earthSurfaceImageSource;
-    let earthSurfaceTexture = new Texture();
-    earthSurfaceTexture.image = earthSurfaceImage;
-    earthSurfaceImage.onload = ()=>{
-      earthSurfaceTexture.needsUpdate = true;
-    };
+    function onload(){
+      if(typeof globeMaterial != undefined){
+        material.needsUpdate = true;
+        console.log('material updated');
+      }
+    }
+    let earthSurfaceTexture = this.createTextureFromImage({imageSource: earthSurfaceImageSource, onload});
+    let earthAtmosphereTexture = this.createTextureFromImage({imageSource: earthAtmosphereImageSource, onload});
+    //let earthBumpTexture = this.createTextureFromImage({imageSource: earthBumpMapImageSource, onload});
 
-    let earthAtmosphereImage = new Image();
-    earthAtmosphereImage.src = earthAtmosphereImageSource;
-    let earthAtmosphereTexture = new Texture();
-    earthAtmosphereTexture.image = earthAtmosphereImage;
-    earthAtmosphereImage.onload = ()=>{ earthAtmosphereTexture.needsUpdate = true; };
-
-    let geometry   = new SphereGeometry(20, 32, 32);
+    let geometry   = new SphereGeometry(150, 32, 32);
+    let cloudGeometry = new SphereGeometry(152, 32, 32);
 
     //globe
-    var material  = new MeshPhongMaterial({map:earthSurfaceTexture});
-    var globeMesh = new Mesh(geometry, material)
+    let globeMaterial  = new MeshPhongMaterial({
+      map:earthSurfaceTexture,
+      //bumpMap: earthBumpTexture,
+      bumpScale: 8,
+    });
+
+    let globeMesh = new Mesh(geometry, globeMaterial);
 
     //clouds
-    var material  = new MeshPhongMaterial({
+    let material  = new MeshPhongMaterial({
       map     : earthAtmosphereTexture,
       side        : DoubleSide,
-      //opacity     : 0.8,
+      opacity     : 0.5,
       transparent : true,
       depthWrite  : false,
     })
-    var cloudMesh = new Mesh(geometry, material)
-    globeMesh.add(cloudMesh);
+    let cloudMesh = new Mesh(cloudGeometry, material)
+    //globeMesh.add(cloudMesh);
 
-    return globeMesh;
+    return {globeMesh, cloudMesh};
 
+  }
+
+  createTextureFromImage({imageSource, onload=()=>{}}){
+    let image = new Image();
+    image.src = imageSource;
+    let texture = new Texture();
+    texture.image = image;
+    image.onload = ()=>{texture.needsUpdate=true; onload();}
+    return texture;
   }
 
   createGlobeMeshOUTDATEDAPI(){
@@ -104,13 +118,15 @@ export default class Earth{
   }
   render() {
     // this.threejsObject.rotation.x += 0.01;
-    this.threejsObject.rotation.y += 0.02;
+    this.threejsObject.rotation.y += 0.0007;
+    this.cloudMesh.rotation.y += 0.0006;
     //this.threejsObject.rotation.z += 0.01;
     this.hitBox = new Box3().setFromObject(this.threejsObject); //allow for moving box
   }
 
   addToScene({scene}) {
     scene.add(this.threejsObject);
+    scene.add(this.cloudMesh);
     signal.trigger(ec.hitTest.registerHittableComponent, {component:this});
   }
 
