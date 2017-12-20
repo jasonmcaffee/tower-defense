@@ -59,6 +59,7 @@ export default class Player {
       if(this.componentId != hitteeComponentId || this.hitExclusionComponentId == hitComponentId){return;}
       this.hasHit = true;
       console.log(`player has hit something ${hitteeComponentId}  ${hitComponentId}`);
+      this.moveInOppositeDirection();
     },
     //follow the camera
     [ec.camera.positionChanged]({x, y, z}){
@@ -76,6 +77,16 @@ export default class Player {
       this.mouseVector = new Vector3(x, y, z);
       this.mouseDirection = direction;
     }
+  }
+
+  moveInOppositeDirection({currentDirection=this.mouseDirection, currentPosition=this.threejsObject.position, distance=-2}={}){
+
+    console.log(`old position is x: ${currentPosition.x}  y: ${currentPosition.y} z: ${currentPosition.z}`);
+    let newPosition = new Vector3().copy(currentDirection).normalize().multiplyScalar(distance);
+    this.threejsObject.position.add(newPosition);
+
+    console.log(`new position is x:${this.threejsObject.position.x} y: ${this.threejsObject.position.y} z: ${this.threejsObject.position.z}`);
+    signal.trigger(ec.camera.setPosition, this.threejsObject.position);
   }
 
   playHitAnimation({hitPoints=this.hitPoints, threejsObject=this.threejsObject, intervalMs=100, maxIntervalCount=2, hitColor=style.color.materialHit}={}){
