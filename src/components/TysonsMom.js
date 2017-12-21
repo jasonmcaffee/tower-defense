@@ -96,11 +96,9 @@ export default class TysonsMom {
       if(this.componentId != hitteeComponentId || this.hitExclusionComponentId == hitComponentId){return;}
       this.hasHit = true;
       console.log(`tysons mom has hit something ${hitteeComponentId}  ${hitComponentId}`);
+      this.lastHitComponentId = hitComponentId;
       this.moveInOppositeDirection();
     },
-    // [ec.player.positionChanged]({x, y, z}){
-    //   this.playerPosition = {x, y, z};
-    // }
     [ec.enemy.targetPositionChanged]({x, y, z, componentId}){
       let target = this.getTargetByComponentId(componentId);
       if(!target){
@@ -111,7 +109,9 @@ export default class TysonsMom {
         target.y = y;
         target.z = z;
       }
-      this.nearestTargetVector = this.findNearestTargetVector();
+      let {nearestTargetVector, nearestComponentId} = this.findNearestTargetVector();
+      this.nearestTargetVector = nearestTargetVector;
+      this.nearestComponentId = nearestComponentId;
     }
   }
   addTarget(target){
@@ -131,6 +131,7 @@ export default class TysonsMom {
   findNearestTargetVector({targets=this.targets, startPosition=this.threejsObject.position}={}){
     let nearestTargetVector = new Vector3(0, 0, 0);
     let shortestDistance;
+    let nearestComponentId;
     for(let i=0, len=targets.length; i < len; ++i){
       let target = targets[i];
       let targetVector = new Vector3(target.x, target.y, target.z);
@@ -138,17 +139,32 @@ export default class TysonsMom {
       if(!shortestDistance){
         shortestDistance = distance;
         nearestTargetVector = targetVector;
+        nearestComponentId = target.componentId;
       }
       if(distance < shortestDistance){
         shortestDistance = distance;
         nearestTargetVector = targetVector;
+        nearestComponentId = target.componentId;
       }
 
     }
-    return nearestTargetVector;
+    return {nearestTargetVector, nearestComponentId};
   }
-  followPlayer({nearestTargetVector=this.nearestTargetVector, delta=moveClock.getDelta(), moveDistancePerSecond=this.moveDistancePerSecond}={}){
+  stopMovingIfYouHitEarth(){
+    //if we previously hit earth, and earth is still the nearest target, dont move.
+    if(this.lastHitComponentId && this.lastHitComponentId.indexOf('Earth') >= 0){
+      if(this.nearestComponentId === this.lastHitComponentId){
+        return true;
+      }else{
+        this.lastHitComponentId = undefined;//clear out so when she leaves earth, she'll go back again.
+      }
+    }
+    return false;
+  }
+  followNearestTarget({nearestTargetVector=this.nearestTargetVector, delta=moveClock.getDelta(), moveDistancePerSecond=this.moveDistancePerSecond}={}){
     if(!nearestTargetVector){ return;}
+    if(this.stopMovingIfYouHitEarth()){return;}
+
     let playerPositionVector = new Vector3(nearestTargetVector.x, nearestTargetVector.y, nearestTargetVector.z);
 
     let startPosition = this.threejsObject.position;
@@ -168,12 +184,12 @@ export default class TysonsMom {
   startFiringBullets(timeout=generateRandomNumber({min:100, max:1000})){
     if(this.isDestroyed){return;}
     setTimeout(function(){
-      this.fireBulletAtPlayer();
+      this.fireBulletAtNearestTarget();
       this.startFiringBullets();
     }.bind(this), timeout)
   }
 
-  fireBulletAtPlayer({nearestTargetVector=this.nearestTargetVector, threejsObject=this.threejsObject, componentId=this.componentId,
+  fireBulletAtNearestTarget({nearestTargetVector=this.nearestTargetVector, threejsObject=this.threejsObject, componentId=this.componentId,
                        bulletMaterial=Bullet.style.material.sphereMaterialRed, bulletDistancePerSecond=this.bulletDistancePerSecond, damage=this.damage}={}){
     if(!nearestTargetVector){
       let min = -10000;
@@ -230,7 +246,7 @@ export default class TysonsMom {
     this.threejsObject.rotation.x += 0.01;
     this.threejsObject.rotation.y += 0.02;
     this.hitBox = new Box3().setFromObject(this.threejsObject); //allow for moving box
-    this.followPlayer();
+    this.followNearestTarget();
   }
 
   addToScene({scene}) {

@@ -16,8 +16,8 @@ export default class Galaxy{
   constructor({x=0, y=0, z=0, radius=600}={}){
 
     let galaxyMesh = this.createGalaxyMesh({radius});
-    let galaxy2Mesh = this.createGalaxyMesh({radius: radius -1, imageSource:galaxy2ImageSource, transparent:true, opacity:0.2, repeat:1});
-    galaxyMesh.add(galaxy2Mesh);
+    this.galaxy2Mesh = this.createGalaxyMesh({radius: radius -5, imageSource:galaxy2ImageSource, transparent:true, opacity:0.2, repeat:1});
+    galaxyMesh.add(this.galaxy2Mesh);
     this.threejsObject = galaxyMesh;
     this.threejsObject.name = this.componentId;
     this.threejsObject.position.set(x, y, z);
@@ -63,7 +63,8 @@ export default class Galaxy{
     }
   }
   render() {
-    this.threejsObject.rotation.y += 0.0007;
+    this.threejsObject.rotation.y += 0.00007;
+    this.galaxy2Mesh.rotation.x += 0.00005;
     if(this.playerPosition){
       let {x, y, z} = this.playerPosition;
       this.threejsObject.position.set(x, y, z);
