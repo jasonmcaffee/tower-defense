@@ -6,6 +6,7 @@ import Player from 'components/Player';
 import Cursor from 'components/Cursor';
 import Earth from 'components/Earth';
 import Galaxy from 'components/Galaxy';
+import AsteroidMine from 'components/AsteroidMine'
 
 export default class GameOne{
   onDestroyFuncs = [] //stuff to run when we destroy.
@@ -44,21 +45,21 @@ export default class GameOne{
     // children.push(new RotatingBox());
     let min = -290;
     let max = 290;
-    for(let i=0; i < 5000; ++i){
-      let component = new RotatingBox({x:grn({min, max}), y:grn({min, max}), z:grn({min, max})});
+    for(let i=0; i < 1000; ++i){
+      let component = new AsteroidMine({x:grn({min, max}), y:grn({min, max}), z:grn({min, max})});
       signal.trigger(ec.stage.addComponent, {component});
     }
-    let component = new Floor({numberOfLines:0, distanceBetweenLines:100});
+    let component = new Floor({numberOfLines:200, distanceBetweenLines:100});
     signal.trigger(ec.stage.addComponent, {component});
 
-    this.addEnemyAndRegisterWithStage(new TysonsMom({hitPoints:100}));
+   // this.addEnemyAndRegisterWithStage(new TysonsMom({hitPoints:100}));
     // this.addEnemyAndRegisterWithStage(new TysonsMom({hitPoints:100}));
     // this.addEnemyAndRegisterWithStage(new TysonsMom({hitPoints:100}));
     // this.addEnemyAndRegisterWithStage(new TysonsMom({hitPoints:100}));
     signal.trigger(ec.stage.addComponent, {component: new Player({hitPoints:10, x: 0, y:0, z:-10 })});
     signal.trigger(ec.stage.addComponent, {component: new Cursor()});
-    signal.trigger(ec.stage.addComponent, {component: new Earth()});
-    signal.trigger(ec.stage.addComponent, {component: new Galaxy()});
+    //signal.trigger(ec.stage.addComponent, {component: new Earth()});
+    //signal.trigger(ec.stage.addComponent, {component: new Galaxy()});
   }
 
 
