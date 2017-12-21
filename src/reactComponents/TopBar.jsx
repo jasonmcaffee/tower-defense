@@ -5,12 +5,15 @@ import {signal, eventConfig as ec} from "core/core";
 export default class TopBar extends React.Component {
   constructor(){
     super();
-    this.state = {hitPoints:0};
+    this.state = {hitPoints:0, x:0, y:0, z:0};
   }
   signals ={
     [ec.player.hitPointsChanged]({hitPoints}){
       console.log('player hitpoints change')
       this.setState({playerHitPoints:hitPoints});
+    },
+    [ec.player.positionChanged]({x,y,z}){
+      this.setState({x, y, z});
     }
   }
   componentWillMount(){
@@ -20,11 +23,20 @@ export default class TopBar extends React.Component {
     signal.unregisterSignals(this);
   }
   render(){
-    let {playerHitPoints} = this.state;
+    let {playerHitPoints, x, y, z} = this.state;
+    let precision = 4;
+    x = x.toPrecision(precision);
+    y = y.toPrecision(precision);
+    z = z.toPrecision(precision);
     return(
       <div className="top-bar-component">
         <div className="player-hit-points">
           HP {playerHitPoints}
+        </div>
+        <div className="player-location">
+          <span>x: {x} </span>
+          <span>y: {y} </span>
+          <span>z: {z} </span>
         </div>
       </div>
     );

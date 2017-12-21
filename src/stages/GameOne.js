@@ -47,17 +47,17 @@ export default class GameOne{
     let min = -290;
     let max = 290;
     for(let i=0; i < 3000; ++i){
-      let component = new AsteroidMine({ rotationEnabled:false, x:grn({min, max}), y:grn({min, max}), z:grn({min, max})});
+      let component = new AsteroidMine({ rotationEnabled:true, x:grn({min, max}), y:grn({min, max}), z:grn({min, max})});
       signal.trigger(ec.stage.addComponent, {component});
     }
     let component = new Floor({numberOfLines:0, distanceBetweenLines:100});
     signal.trigger(ec.stage.addComponent, {component});
 
-    this.addEnemyAndRegisterWithStage(new TysonsMom({hitPoints:100}));
+    this.addEnemyAndRegisterWithStage(new TysonsMom({hitPoints:100, x:5.3, y: 56, z:8.6}));
     // this.addEnemyAndRegisterWithStage(new TysonsMom({hitPoints:100}));
     // this.addEnemyAndRegisterWithStage(new TysonsMom({hitPoints:100}));
     // this.addEnemyAndRegisterWithStage(new TysonsMom({hitPoints:100}));
-    signal.trigger(ec.stage.addComponent, {component: new Player({hitPoints:10, x: 0, y:0, z:-10 })});
+    signal.trigger(ec.stage.addComponent, {component: new Player({hitPoints:10, x: -188, y:186, z:102 })});
     signal.trigger(ec.stage.addComponent, {component: new Cursor()});
     signal.trigger(ec.stage.addComponent, {component: new Earth()});
     signal.trigger(ec.stage.addComponent, {component: new Galaxy()});
