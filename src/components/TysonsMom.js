@@ -136,6 +136,11 @@ export default class TysonsMom {
       let target = targets[i];
       let targetVector = new Vector3(target.x, target.y, target.z);
       let distance = startPosition.distanceTo(targetVector);
+
+      if(target.componentId.indexOf('Player')>=0){
+        distance *= 2; //the player should be twice as close as the earth for us to follow them.
+      }
+
       if(!shortestDistance){
         shortestDistance = distance;
         nearestTargetVector = targetVector;

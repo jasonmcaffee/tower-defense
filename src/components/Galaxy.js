@@ -63,8 +63,8 @@ export default class Galaxy{
     }
   }
   render() {
-    this.threejsObject.rotation.y += 0.00007;
-    this.galaxy2Mesh.rotation.x += 0.00005;
+    // this.threejsObject.rotation.y += 0.00007;
+    // this.galaxy2Mesh.rotation.x += 0.00005;
     if(this.playerPosition){
       let {x, y, z} = this.playerPosition;
       this.threejsObject.position.set(x, y, z);

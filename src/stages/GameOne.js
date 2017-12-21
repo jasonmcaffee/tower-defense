@@ -46,7 +46,7 @@ export default class GameOne{
     // children.push(new RotatingBox());
     let min = -290;
     let max = 290;
-    for(let i=0; i < 5000; ++i){
+    for(let i=0; i < 3000; ++i){
       let component = new AsteroidMine({ rotationEnabled:false, x:grn({min, max}), y:grn({min, max}), z:grn({min, max})});
       signal.trigger(ec.stage.addComponent, {component});
     }
