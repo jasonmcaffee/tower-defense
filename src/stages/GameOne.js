@@ -7,6 +7,7 @@ import Cursor from 'components/Cursor';
 import Earth from 'components/Earth';
 import Galaxy from 'components/Galaxy';
 import AsteroidMine from 'components/AsteroidMine'
+import SunLight from 'components/SunLight';
 
 export default class GameOne{
   onDestroyFuncs = [] //stuff to run when we destroy.
@@ -60,6 +61,7 @@ export default class GameOne{
     signal.trigger(ec.stage.addComponent, {component: new Cursor()});
     signal.trigger(ec.stage.addComponent, {component: new Earth()});
     signal.trigger(ec.stage.addComponent, {component: new Galaxy()});
+    signal.trigger(ec.stage.addComponent, {component: new SunLight({x: 100, y:100, z:700})})
   }
 
 
