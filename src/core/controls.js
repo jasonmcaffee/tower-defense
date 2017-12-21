@@ -70,6 +70,11 @@ let controls = {
       this.performLookAtBasedOnMouseMovement();
       this.performMovementBasedOnKeysPressed({clock});
       this.calculateCursorPositionAndSignal();
+    },
+    [ec.controls.reset]({lat=0, lon=0}){
+      this.lat = lat;
+      this.lon = lon;
+
     }
   },
   performLookAtBasedOnMouseMovement({lookSpeed=0.1, mouseX=this.mouseX, mouseY=this.mouseY}={}){

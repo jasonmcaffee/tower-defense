@@ -6,6 +6,9 @@ export const eventConfig = {
   cursor:{
     mousexyzChanged:'cursor.mousexyzChanged', //only calc the x, y, z once.
   },
+  controls:{
+    reset:'controls.reset', //reset things like lat, lon, so when a new screen is splayed we can start fresh with lookAt camera
+  },
   camera:{
     setPosition: "camera.setPosition",
     setLookAt: "camera.setLookAtVector",
@@ -52,6 +55,10 @@ export const eventConfig = {
     positionChanged:'player.positionChanged',//let enemies know where you are
     hitPointsChanged: 'player.hitPointsChanged',
     died: 'player.died',
+    scoreChanged:'player.scoreChanged',
+  },
+  earth:{
+    hitPointsChanged: 'earth.hitPointsChanged',
   },
   enemy:{
     died: 'enemy.died', //so game config can determine if game ended.

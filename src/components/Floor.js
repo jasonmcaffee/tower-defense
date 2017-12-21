@@ -148,7 +148,7 @@ export default class Floor {
   }
 
   createLight({x=0, y=0, z=0, color=style.color.ambientLightColor, intensity=1}){
-    let thereBeLight = new AmbientLight(color, 0.5);
+    let thereBeLight = new AmbientLight(color, 0.7);
     return thereBeLight;
   }
 

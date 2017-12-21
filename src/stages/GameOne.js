@@ -43,6 +43,9 @@ export default class GameOne{
   }
 
   registerComponentsWithStage(){
+    //tell the camera where to look
+    signal.trigger(ec.controls.reset, {lat:-40, lon:-40});
+
     // children.push(new RotatingBox());
     let min = -290;
     let max = 290;
@@ -57,7 +60,7 @@ export default class GameOne{
     // this.addEnemyAndRegisterWithStage(new TysonsMom({hitPoints:100}));
     // this.addEnemyAndRegisterWithStage(new TysonsMom({hitPoints:100}));
     // this.addEnemyAndRegisterWithStage(new TysonsMom({hitPoints:100}));
-    signal.trigger(ec.stage.addComponent, {component: new Player({hitPoints:10, x: -188, y:186, z:102 })});
+    signal.trigger(ec.stage.addComponent, {component: new Player({hitPoints:10, x: -153, y:158, z:40 })});
     signal.trigger(ec.stage.addComponent, {component: new Cursor()});
     signal.trigger(ec.stage.addComponent, {component: new Earth()});
     signal.trigger(ec.stage.addComponent, {component: new Galaxy()});

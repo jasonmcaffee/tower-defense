@@ -13,7 +13,7 @@
 
 %player-hit-points{
   display:inline-block;
-  width: 5%;
+  width: 20%;
   padding: 2px;
   height: 100%;
   vertical-align: middle;
@@ -21,9 +21,18 @@
   font-size:40px;
 }
 
+.earth-hit-points{
+  @extend %player-hit-points;
+}
+
+.player-score{
+  @extend %player-hit-points;
+  width:30%;
+}
+
 .player-location{
   @extend %player-hit-points;
-  width: 40%;
+  width: 28%;
   font-size:20px;
 }
 

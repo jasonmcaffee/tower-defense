@@ -5,15 +5,20 @@ import {signal, eventConfig as ec} from "core/core";
 export default class TopBar extends React.Component {
   constructor(){
     super();
-    this.state = {hitPoints:0, x:0, y:0, z:0};
+    this.state = {playerHitPoints:0, x:0, y:0, z:0, earthHitPoints:0, playerScore:0};
   }
   signals ={
     [ec.player.hitPointsChanged]({hitPoints}){
-      console.log('player hitpoints change')
       this.setState({playerHitPoints:hitPoints});
     },
     [ec.player.positionChanged]({x,y,z}){
       this.setState({x, y, z});
+    },
+    [ec.earth.hitPointsChanged]({hitPoints}){
+      this.setState({earthHitPoints: hitPoints});
+    },
+    [ec.player.scoreChanged]({score}){
+      this.setState({playerScore:score});
     }
   }
   componentWillMount(){
@@ -23,7 +28,7 @@ export default class TopBar extends React.Component {
     signal.unregisterSignals(this);
   }
   render(){
-    let {playerHitPoints, x, y, z} = this.state;
+    let {playerHitPoints, x, y, z, earthHitPoints, playerScore} = this.state;
     let precision = 4;
     x = x.toPrecision(precision);
     y = y.toPrecision(precision);
@@ -32,6 +37,12 @@ export default class TopBar extends React.Component {
       <div className="top-bar-component">
         <div className="player-hit-points">
           HP {playerHitPoints}
+        </div>
+        <div className="earth-hit-points">
+          Earth {earthHitPoints}
+        </div>
+        <div className="player-score">
+          Score {playerScore}
         </div>
         <div className="player-location">
           <span>x: {x} </span>
