@@ -2,37 +2,33 @@ import {BoxGeometry, CubeGeometry, MeshNormalMaterial, MeshLambertMaterial, Mesh
 import {signal, eventConfig as ec, generateUniqueId, generateRandomNumber as grn} from "core/core";
 import Bullet from 'components/Bullet';
 
-let material = new MeshNormalMaterial();
-let standardGeomatry = new CubeGeometry(.2, .2, .2);
-standardGeomatry.computeBoundingBox();
-
 import asteroidImageSource from 'images/asteroid/asteroid.jpg';
+//for performance, create 1 texture and reuse.
 let asteroidTexture = createTextureFromImage({imageSource:asteroidImageSource});
+
+//for performance, cache a finite set of random asteroid shapes
+let asteroidGeometries = createArrayOfRandomAsteroidGeometries({numberOfGeometriesToCreate:100, size:1});
 
 export default class AsteroidMine{
   componentId = generateUniqueId({name:'AsteroidMine'})
   hitBox //used to determine if something hit us
   rotationEnabled = false
-  constructor({x=0, y=0, z=0, numberOfBulletsOnExplode=10, bulletDistance=10, bulletDamage=5, rotationEnabled=false}={}){
+  constructor({x=0, y=0, z=0, numberOfBulletsOnExplode=10, bulletDistance=10, bulletDamage=5, rotationEnabled=false, geometries=asteroidGeometries}={}){
 
     this.numberOfBulletsOnExplode = numberOfBulletsOnExplode;
     this.bulletDistance = bulletDistance;
     this.bulletDamage = bulletDamage;
     this.rotationEnabled = rotationEnabled;
 
-    this.threejsObject = this.createAsteroidMesh();
+    this.threejsObject = this.createAsteroidMesh({geometries});
     this.threejsObject.position.set(x, y, z);
     this.threejsObject.name = this.componentId;//needed for removing from scene
     this.hitBox = new Box3().setFromObject(this.threejsObject);
     signal.registerSignals(this);
   }
-  createAsteroidMesh({size=1,spreadX=1,maxWidth=5,maxHeight=5,maxDepth=1, texture=asteroidTexture}={}){
-    let geometry = new DodecahedronGeometry(size, 1);
-    geometry.vertices.forEach(function(v){
-      v.x += (0-Math.random()*(size/4));
-      v.y += (0-Math.random()*(size/4));
-      v.z += (0-Math.random()*(size/4));
-    })
+
+  createAsteroidMesh({size=1,spreadX=1,maxWidth=5,maxHeight=5,maxDepth=1, texture=asteroidTexture, geometries}={}){
+    let geometry = getRandomAsteroidGeometry({geometries});
 
     let asteroidMaterial  = new MeshPhongMaterial({
       map:texture,
@@ -44,8 +40,6 @@ export default class AsteroidMine{
     return cube;
   }
 
-
-
   signals = {
     [ec.hitTest.hitComponent]({hitComponent}){
       let componentId = hitComponent.componentId;
@@ -54,6 +48,7 @@ export default class AsteroidMine{
       signal.trigger(ec.stage.destroyComponent, {componentId});
     }
   }
+
   render() {
     if(this.rotationEnabled){
       this.threejsObject.rotation.x += 0.01;
@@ -97,25 +92,6 @@ export default class AsteroidMine{
 
 }
 
-function ColorLuminance(hex, lum) {
-
-  // validate hex string
-  hex = String(hex).replace(/[^0-9a-f]/gi, '');
-  if (hex.length < 6) {
-    hex = hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];
-  }
-  lum = lum || 0;
-
-  // convert to decimal and change luminosity
-  var rgb = "#", c, i;
-  for (i = 0; i < 3; i++) {
-    c = parseInt(hex.substr(i*2,2), 16);
-    c = Math.round(Math.min(Math.max(0, c + (c * lum)), 255)).toString(16);
-    rgb += ("00"+c).substr(c.length);
-  }
-
-  return rgb;
-}
 
 function createTextureFromImage({imageSource, onload=()=>{}}){
   let image = new Image();
@@ -124,4 +100,31 @@ function createTextureFromImage({imageSource, onload=()=>{}}){
   texture.image = image;
   image.onload = ()=>{texture.needsUpdate=true; onload();}
   return texture;
+}
+
+function createArrayOfRandomAsteroidGeometries({numberOfGeometriesToCreate=20, size=1}={}){
+  let geometries = [];
+  for(let i =1; i <= numberOfGeometriesToCreate; ++i){
+    let geometry = createRandomAsteroidGeometry({size});
+    geometries.push(geometry);
+  }
+  return geometries;
+}
+
+function getRandomAsteroidGeometry({geometries}){
+  let min = 0;
+  let max = geometries.length - 1;
+  let randomIndex = grn({min, max});
+  let geometry = geometries[randomIndex];
+  return geometry;
+}
+
+function createRandomAsteroidGeometry({size=1}={}){
+  let geometry = new DodecahedronGeometry(size, 1);
+  geometry.vertices.forEach(function(v){
+    v.x += (0-Math.random()*(size/4));
+    v.y += (0-Math.random()*(size/4));
+    v.z += (0-Math.random()*(size/4));
+  });
+  return geometry;
 }
