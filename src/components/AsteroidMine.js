@@ -7,7 +7,7 @@ import asteroidImageSource from 'images/asteroid/asteroid.jpg';
 let asteroidTexture = createTextureFromImage({imageSource:asteroidImageSource});
 
 //for performance, cache a finite set of random asteroid shapes
-let asteroidGeometries = createArrayOfRandomAsteroidGeometries({numberOfGeometriesToCreate:100, size:1});
+let asteroidGeometries = createArrayOfRandomAsteroidGeometries({numberOfGeometriesToCreate:100, minSize:1, maxSize:1});
 
 export default class AsteroidMine{
   componentId = generateUniqueId({name:'AsteroidMine'})
@@ -102,8 +102,9 @@ function createTextureFromImage({imageSource, onload=()=>{}}){
   return texture;
 }
 
-function createArrayOfRandomAsteroidGeometries({numberOfGeometriesToCreate=20, size=1}={}){
+function createArrayOfRandomAsteroidGeometries({numberOfGeometriesToCreate=20, minSize=1, maxSize=2}={}){
   let geometries = [];
+  let size = Math.random() * (maxSize - minSize) + minSize;
   for(let i =1; i <= numberOfGeometriesToCreate; ++i){
     let geometry = createRandomAsteroidGeometry({size});
     geometries.push(geometry);
