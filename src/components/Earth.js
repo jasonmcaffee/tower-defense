@@ -10,6 +10,8 @@ import earthSurfaceImageSource from 'images/earth/earthSurface.jpg';
 import earthAtmosphereImageSource from 'images/earth/earthAtmosphere.png';
 import earthSurfaceSpecularImageSource from 'images/earth/earthSurfaceSpecular.jpg';
 
+import earthExplosionSoundSource from 'sounds/earth-exploding.mp3';
+
 /**
  * http://learningthreejs.com/blog/2013/09/16/how-to-make-the-earth-in-webgl/
  */
@@ -27,6 +29,8 @@ export default class Earth{
     this.threejsObject.name = this.componentId;
     this.threejsObject.position.set(x, y, z);
     this.hitBox = new Sphere(this.threejsObject.position, radius);
+
+    this.explodingEarthAudio = createAudio({src: earthExplosionSoundSource});
 
     signal.registerSignals(this);
     signal.trigger(ec.enemy.targetPositionChanged, {x, y, z, componentId:this.componentId});//let enemies know where we are.
@@ -97,8 +101,9 @@ export default class Earth{
     }
   }
 
-  explode({componentId=this.componentId, numberOfTimedExplosions=10, explosionIntervalMs=4000}={}){
+  explode({componentId=this.componentId, numberOfTimedExplosions=4, explosionIntervalMs=4000}={}){
     console.log(`earth exploded`);
+    this.explodingEarthAudio.play();
     this.isExploding = true;
     signal.trigger(ec.stage.destroyComponent, {componentId});
 
@@ -164,4 +169,11 @@ export default class Earth{
     signal.trigger(ec.hitTest.unregisterHittableComponent, {componentId});
   }
 
+}
+
+function createAudio({src}={}){
+  let audio = new Audio();
+  audio.src = src;
+  //audio.play();
+  return audio;
 }
