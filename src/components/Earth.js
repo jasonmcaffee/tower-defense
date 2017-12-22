@@ -97,7 +97,7 @@ export default class Earth{
     }
   }
 
-  explode({componentId=this.componentId, numberOfTimedExplosions=20, explosionIntervalMs=4000}={}){
+  explode({componentId=this.componentId, numberOfTimedExplosions=10, explosionIntervalMs=4000}={}){
     console.log(`earth exploded`);
     this.isExploding = true;
     signal.trigger(ec.stage.destroyComponent, {componentId});
@@ -108,6 +108,8 @@ export default class Earth{
     let intervalId = setInterval(()=>{
       if(completedTimedExplosions++ >= numberOfTimedExplosions){
         clearInterval(intervalId);
+        clearInterval(cloudExpansionIntervalId);
+        signal.trigger(ec.earth.doneExploding);
       }else{
         self.fireBullets();
       }

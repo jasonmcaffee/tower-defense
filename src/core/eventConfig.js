@@ -32,6 +32,7 @@ export const eventConfig = {
     // registerHittableWebWorkerHitBox : 'webworker.registerHittableWebWorkerHitBox',
     // unregisterHittableWebWorkerHitBox: 'webworker.unregisterHittableWebWorkerHitBox',
     destroy: 'webworker.destroy',
+    destroyAllWorkers: 'webworker.destroyAllWorkers',
   },
   webgl:{
     performFrameCalculations: 'webgl.performFrameCalculations', //let all objects know to recalculate for upcoming render.
@@ -60,6 +61,7 @@ export const eventConfig = {
   earth:{
     hitPointsChanged: 'earth.hitPointsChanged',
     died: 'earth.died',
+    doneExploding: 'earth.doneExploding', //we don't want any remnant bullets firing when we start new game.
   },
   enemy:{
     died: 'enemy.died', //so game config can determine if game ended.
