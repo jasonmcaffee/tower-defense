@@ -55,29 +55,20 @@ export default class GameOne{
     //tell the camera where to look
     signal.trigger(ec.controls.reset, {lat:-40, lon:-40});
 
-    // children.push(new RotatingBox());
-    let min = -290;
-    let max = 290;
-    let numberOfAsteroids = 3000;
-    let radiusIncrement = earthRadius / numberOfAsteroids;
-    let radius = 1;
-    for(let i=0; i < 3000; ++i){
-      let vector = randomSpherePoint({centerPosition:{x:0, y:0, z:0}, radius:earthRadius});
-      let {x, y, z} = vector;
-      let component = new AsteroidMine({ rotationEnabled:true, x, y, z});
+    let moonPosition = new Vector3(134, 140, -50);
+    createRandomAsteroids({centerPosition:moonPosition, numberToCreate:3000, radius: 100});
 
-      signal.trigger(ec.stage.addComponent, {component});
-    }
+
     let component = new Floor({numberOfLines:0, distanceBetweenLines:100});
     signal.trigger(ec.stage.addComponent, {component});
 
-    //this.addEnemyAndRegisterWithStage(new TysonsMom({hitPoints:100, x:5.3, y: 56, z:8.6}));
+    this.addEnemyAndRegisterWithStage(new TysonsMom({hitPoints:100, x:5.3, y: 56, z:8.6}));
     // this.addEnemyAndRegisterWithStage(new TysonsMom({hitPoints:100}));
     // this.addEnemyAndRegisterWithStage(new TysonsMom({hitPoints:100}));
     // this.addEnemyAndRegisterWithStage(new TysonsMom({hitPoints:100}));
     signal.trigger(ec.stage.addComponent, {component: new Player({hitPoints:10, x: -153, y:158, z:40 })});
     signal.trigger(ec.stage.addComponent, {component: new Cursor()});
-    //signal.trigger(ec.stage.addComponent, {component: new Earth({radius:earthRadius})});
+    signal.trigger(ec.stage.addComponent, {component: new Earth({radius:earthRadius})});
     signal.trigger(ec.stage.addComponent, {component: new Galaxy()});
     signal.trigger(ec.stage.addComponent, {component: new SunLight({x: 100, y:100, z:700})})
   }
@@ -114,11 +105,27 @@ function createRandomCubeVectors({centerPosition, radius, numberToCreate=3000}){
   return vectors;
 }
 
+function createRandomSphereVectors({centerPosition, radius, numberToCreate=3000}){
+  let cubeVectors = createRandomCubeVectors({centerPosition, radius, numberToCreate});
+  let sphereVectors = [];
+  let sphere = new Sphere(new Vector3(centerPosition.x, centerPosition.y, centerPosition.z), radius);
+  for(let i = 0, len=cubeVectors.length; i < len; ++i){
+    let cubeVector = cubeVectors[i];
+    let {x, y, z} = cubeVector;
+    let s = new Sphere(new Vector3(x, y, z), .1);
+    if(sphere.intersectsSphere(s)){
+      sphereVectors.push(cubeVector);
+    }
+  }
+  return sphereVectors;
+}
+
 
 function createRandomAsteroids({centerPosition, numberToCreate, radius}){
 
-  let randomCubeVectors = createRandomCubeVectors({centerPosition, numberToCreate, radius});
+  let randomCubeVectors = createRandomSphereVectors({centerPosition, numberToCreate, radius});
   let randomAsteroids = randomCubeVectors.map((v)=>{
+    let {x, y, z} = v;
     let component = new AsteroidMine({ rotationEnabled:true, x, y, z});
     signal.trigger(ec.stage.addComponent, {component});
     return component;
