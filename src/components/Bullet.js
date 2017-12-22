@@ -16,6 +16,7 @@ const style ={
   },
   geometry:{
     sphere: new SphereGeometry(.5 , 16, 16),
+    earthExplosionSphere: new SphereGeometry(3, 16, 16),
     box: new CubeGeometry(.2, .2, .2)
   }
 };
@@ -32,15 +33,17 @@ export default class Bullet{
   bulletAudio
   ownerComponentId //so we can add to score when player hits something.
   static get style() {return style;}
+  playSound = true //whether sound should be played for the bullet.
   constructor({direction, distance=500, distancePerSecond=300 , startPosition, damage=1,sphereGeometry=style.geometry.sphere,
                 sphereMaterial=style.material.sphereMaterial, hitExclusionComponentId, bulletSound=laserSound, explosionSound=bulletExplosionSound,
-                hitResolution=10, ownerComponentId}={}){
+                hitResolution=10, ownerComponentId, playSound=true}={}){
     this.distancePerSecond = distancePerSecond;
     this.direction = direction;
     this.distance = distance;
     this.damage = damage;
     this.hitResolution = hitResolution;
     this.ownerComponentId = ownerComponentId;
+    this.playSound = playSound;
 
     this.hitExclusionComponentId = hitExclusionComponentId;
     let {x, y, z} = startPosition;
@@ -74,13 +77,15 @@ export default class Bullet{
     }
   }
 
-  createSounds({bulletSound, explosionSound, addSoundTo}){
+  createSounds({bulletSound, explosionSound, addSoundTo, playSound=this.playSound}){
+    if(!playSound){return;}
     let {audio, listener} = this.createPositionalSound({src:bulletSound, playWhenReady:true});
     addSoundTo.add(audio);
     signal.trigger(ec.camera.attachAudioListenerToCamera, {listener});
   }
 
-  createAndRegisterPositionalSound({src, addSoundTo=this.sphere, playWhenReady=false}){
+  createAndRegisterPositionalSound({src, addSoundTo=this.sphere, playWhenReady=false, playSound=this.playSound}){
+    if(!playSound){return;}
     let {audio, listener} = this.createPositionalSound({src, playWhenReady});
     addSoundTo.add(audio);
     signal.trigger(ec.camera.attachAudioListenerToCamera, {listener});

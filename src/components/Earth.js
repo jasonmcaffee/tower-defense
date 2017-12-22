@@ -1,6 +1,6 @@
 import {BoxGeometry, SphereGeometry, MeshPhongMaterial, MeshLambertMaterial, Mesh, Box3, Vector3, Texture, Object3D, ImageUtils, ShaderLib, UniformsUtils, ShaderMaterial, DoubleSide, Sphere} from 'three';
 import {signal, eventConfig as ec, generateUniqueId, generateRandomNumber as grn} from "core/core";
-
+import Bullet from 'components/Bullet';
 
 let standardGeomatry = new SphereGeometry(20, 32, 32);
 standardGeomatry.computeBoundingBox();
@@ -16,8 +16,10 @@ import earthSurfaceSpecularImageSource from 'images/earth/earthSurfaceSpecular.j
 export default class Earth{
   componentId = generateUniqueId({name:'Earth'})
   hitBox //used to determine if something hit us
-  constructor({x=0, y=0, z=-300, radius=150}={}){
-
+  hitPoints
+  constructor({x=0, y=0, z=-300, radius=150, hitPoints=20}={}){
+    this.hitPoints = hitPoints;
+    signal.trigger(ec.earth.hitPointsChanged, {hitPoints:this.hitPoints});
     let {globeMesh, cloudMesh} = this.createGlobeMesh({radius});
     this.cloudMesh = cloudMesh;
     this.cloudMesh.position.set(x,y,z);
@@ -79,13 +81,67 @@ export default class Earth{
   }
 
   signals = {
-    [ec.hitTest.hitComponent]({hitComponent}){
+    [ec.hitTest.hitComponent]({hitComponent, damage}){
+      if(this.hasDied){return;}
       let componentId = hitComponent.componentId;
       if(this.componentId !== componentId){return;}
-      console.log(`earth was hit dude`);
-      //signal.trigger(ec.stage.destroyComponent, {componentId});
+      this.hitPoints -= damage;
+      signal.trigger(ec.earth.hitPointsChanged, {hitPoints:this.hitPoints});
+
+      if(this.hitPoints <=0){
+        this.hasDied = true;
+        signal.trigger(ec.earth.died);
+        this.explode();
+      }
+      //
     }
   }
+
+  explode({componentId=this.componentId, numberOfTimedExplosions=20, explosionIntervalMs=4000}={}){
+    console.log(`earth exploded`);
+    this.isExploding = true;
+    signal.trigger(ec.stage.destroyComponent, {componentId});
+
+    let self = this;
+    this.fireBullets();
+    let completedTimedExplosions = 1;
+    let intervalId = setInterval(()=>{
+      if(completedTimedExplosions++ >= numberOfTimedExplosions){
+        clearInterval(intervalId);
+      }else{
+        self.fireBullets();
+      }
+    }, explosionIntervalMs);
+
+    //increase the size of the cloudmesh
+    let scale = .01;
+    let cloudExpansionIntervalId = setInterval(()=>{ //since render stops firing after destroyComponent is called, do your own loop.
+      self.cloudMesh.scale.x += scale;
+      self.cloudMesh.scale.y += scale;
+      self.cloudMesh.scale.z += scale;
+    }, 30);
+
+  }
+  fireBullets({numberOfBullets=100}={}){
+    for(let i=1; i < numberOfBullets; ++i){
+      this.fireBulletAtRandomLocation();
+    }
+  }
+  fireBulletAtRandomLocation({nearestTargetVector=this.nearestTargetVector, threejsObject=this.threejsObject, componentId=this.componentId,
+       bulletMaterial=Bullet.style.material.sphereMaterialRed, bulletDistancePerSecond=40, damage=100, hitResolution=1,
+       playSound=false, sphereGeometry=Bullet.style.geometry.earthExplosionSphere}={}){
+    let min = -10000;
+    let max = 10000;
+    let positionToFireAt = {x:grn({min, max}), y:grn({min, max}), z:grn({min, max})};
+    let startPosition = threejsObject.position.clone();
+    let direction = new Vector3();
+    direction.subVectors(positionToFireAt, startPosition);
+
+    let bullet = new Bullet({direction, startPosition, hitExclusionComponentId:componentId, sphereGeometry,
+      sphereMaterial: bulletMaterial, distancePerSecond:bulletDistancePerSecond, damage, hitResolution, playSound});
+    signal.trigger(ec.stage.addComponent, {component:bullet});
+  }
+
   render() {
     // this.threejsObject.rotation.x += 0.01;
     this.threejsObject.rotation.y += 0.0007;

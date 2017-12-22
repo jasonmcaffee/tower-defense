@@ -42,9 +42,10 @@ export default class Player {
   }
 
   signals = {
-    //when player gets hit by something
+    //when player gets hit by something or one of their bullets hits something.
     [ec.hitTest.hitComponent]({hitComponent, damage, ownerComponentId}) {
       let componentId = hitComponent.componentId;
+      //check
       if (this.componentId !== componentId) {
         if(ownerComponentId != this.componentId){return;}
         console.log(`player bullet hit something!`);

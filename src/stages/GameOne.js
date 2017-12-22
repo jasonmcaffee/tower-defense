@@ -28,6 +28,15 @@ export default class GameOne{
       if(this.enemies.length <= 0){
         signal.trigger(ec.game.gameEnded, {resultMessage:"YOU HAVE DEFEATED HER!!!!.  THE GALAXY IS SAVED!!!!", didPlayerWin:true});
       }
+    },
+    [ec.earth.died]({enemies=this.enemies}={}){
+      enemies.forEach(e=>{
+        signal.trigger(ec.stage.destroyComponent, {componentId: e.componentId});
+      });
+
+      setTimeout(()=>{
+        signal.trigger(ec.game.gameEnded, {resultMessage:"All those you loved are now dead.", didPlayerWin:false});
+      }, 10*1000)//give time for explosions
     }
   }
 
