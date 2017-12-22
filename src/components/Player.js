@@ -24,6 +24,7 @@ export default class Player {
   componentId = generateUniqueId({name: 'Player'})
   hitBox //used to determine if something hit us
   hitPoints
+  score = 0 //how many points the player has earned.
   constructor({x = 0, y = 0, z = 0, hitPoints=10, lookAtX=0, lookAtY=0, lookAtZ=0} = {}) {
     let geometry = standardGeomatry;
     this.hitPoints = hitPoints;
@@ -41,9 +42,14 @@ export default class Player {
   }
 
   signals = {
-    [ec.hitTest.hitComponent]({hitComponent, damage}) {
+    //when player gets hit by something
+    [ec.hitTest.hitComponent]({hitComponent, damage, ownerComponentId}) {
       let componentId = hitComponent.componentId;
       if (this.componentId !== componentId) {
+        if(ownerComponentId != this.componentId){return;}
+        console.log(`player bullet hit something!`);
+        this.score += 100;
+        signal.trigger(ec.player.scoreChanged, {score:this.score});
         return;
       }
       this.hitPoints -= damage;
@@ -116,7 +122,7 @@ export default class Player {
     let direction = this.mouseDirection;
     let startPosition = this.mouseVector;
 
-    let bullet = new Bullet({direction, startPosition, hitExclusionComponentId:this.componentId});
+    let bullet = new Bullet({direction, startPosition, hitExclusionComponentId:this.componentId, ownerComponentId:this.componentId});
     signal.trigger(ec.stage.addComponent, {component:bullet});
   }
 

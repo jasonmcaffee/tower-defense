@@ -30,15 +30,17 @@ export default class Bullet{
   damage
   hitExclusionComponentId //player bullet shouldn't be able to hit player.
   bulletAudio
+  ownerComponentId //so we can add to score when player hits something.
   static get style() {return style;}
   constructor({direction, distance=500, distancePerSecond=300 , startPosition, damage=1,sphereGeometry=style.geometry.sphere,
                 sphereMaterial=style.material.sphereMaterial, hitExclusionComponentId, bulletSound=laserSound, explosionSound=bulletExplosionSound,
-                hitResolution=10}={}){
+                hitResolution=10, ownerComponentId}={}){
     this.distancePerSecond = distancePerSecond;
     this.direction = direction;
     this.distance = distance;
     this.damage = damage;
     this.hitResolution = hitResolution;
+    this.ownerComponentId = ownerComponentId;
 
     this.hitExclusionComponentId = hitExclusionComponentId;
     let {x, y, z} = startPosition;
@@ -59,13 +61,13 @@ export default class Bullet{
   }
 
   signals = {
-    [ec.hitTest.hitTestResult]({doesIntersect, hitteeComponentId, hitComponentId, damage=this.damage}){
+    [ec.hitTest.hitTestResult]({doesIntersect, hitteeComponentId, hitComponentId, damage=this.damage, ownerComponentId=this.ownerComponentId}){
       if(this.componentId != hitteeComponentId || this.hasHit || this.hitExclusionComponentId == hitComponentId){return;}
       this.hasHit = true;
 
       console.log(`bulletc received webworker hitTestResult: doesIntersect: ${doesIntersect}  hitteeComponentId:${hitteeComponentId}  hitComponentId:${hitComponentId}`);
       console.log('BULLET HIT SOMETHING ' + hitComponentId);
-      signal.trigger(ec.hitTest.hitComponent, {hitComponent:{componentId:hitComponentId}, hitByComponent:this, damage});
+      signal.trigger(ec.hitTest.hitComponent, { hitComponent:{componentId:hitComponentId}, hitByComponent:this, damage, ownerComponentId} );
       signal.trigger(ec.stage.destroyComponent, {componentId:this.componentId});
       this.stopTravelling = true;
       this.createAndRegisterPositionalSound({src:bulletExplosionSound, playWhenReady:true});
