@@ -68,8 +68,8 @@ export default class Bullet{
       if(this.componentId != hitteeComponentId || this.hasHit || this.hitExclusionComponentId == hitComponentId){return;}
       this.hasHit = true;
 
-      console.log(`bulletc received webworker hitTestResult: doesIntersect: ${doesIntersect}  hitteeComponentId:${hitteeComponentId}  hitComponentId:${hitComponentId}`);
-      console.log('BULLET HIT SOMETHING ' + hitComponentId);
+      // console.log(`bulletc received webworker hitTestResult: doesIntersect: ${doesIntersect}  hitteeComponentId:${hitteeComponentId}  hitComponentId:${hitComponentId}`);
+      // console.log('BULLET HIT SOMETHING ' + hitComponentId);
       signal.trigger(ec.hitTest.hitComponent, { hitComponent:{componentId:hitComponentId}, hitByComponent:this, damage, ownerComponentId} );
       signal.trigger(ec.stage.destroyComponent, {componentId:this.componentId});
       this.stopTravelling = true;

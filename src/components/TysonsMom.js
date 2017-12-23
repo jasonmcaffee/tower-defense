@@ -13,7 +13,6 @@ let style ={
   }
 };
 
-let moveClock = new Clock();
 let standardGeomatry = new CubeGeometry(2, 2, 2);
 standardGeomatry.computeBoundingBox();
 
@@ -31,6 +30,7 @@ export default class TysonsMom {
   audioListeners = [] //for positional sounds
   positionalSounds = []
   targets = [] //{componentId, x, y, z} all targets that move
+  moveClock = new Clock()
   constructor({x = grn({min, max}), y = grn({min, max}), z = grn({min, max}), hitPoints=100, bulletDistancePerSecond=100, moveDistancePerSecond=9, damage=1} = {}) {
     let geometry = standardGeomatry;
     this.hitPoints = hitPoints;
@@ -57,6 +57,8 @@ export default class TysonsMom {
 
     this.createSounds();
     signal.registerSignals(this);
+
+    console.log(`tyson's mom starting at position x: ${x} y: ${y} z: ${z}`);
   }
 
   createSounds({threejsObject=this.threejsObject, positionalSounds=this.positionalSounds, audioListeners=this.audioListeners}={}){
@@ -166,7 +168,7 @@ export default class TysonsMom {
     }
     return false;
   }
-  followNearestTarget({nearestTargetVector=this.nearestTargetVector, delta=moveClock.getDelta(), moveDistancePerSecond=this.moveDistancePerSecond}={}){
+  followNearestTarget({nearestTargetVector=this.nearestTargetVector, delta=this.moveClock.getDelta(), moveDistancePerSecond=this.moveDistancePerSecond}={}){
     if(!nearestTargetVector){ return;}
     if(this.stopMovingIfYouHitEarth()){return;}
 
@@ -182,6 +184,7 @@ export default class TysonsMom {
     let newPosition = new Vector3().copy(direction).normalize().multiplyScalar(distance);
     this.threejsObject.position.add(newPosition);
     this.hitBox = new Box3().setFromObject(this.threejsObject);
+
     signal.trigger(ec.hitTest.updateComponentHitBox, {component:this});
 
     this.performHitTest();
@@ -237,6 +240,7 @@ export default class TysonsMom {
 
   //when we run into something.
   moveInOppositeDirection({currentDirection=this.currentDirection, currentPosition=this.threejsObject.position, distance=-2}={}){
+    console.log(`tysons mom moving in opposite direction`);
     let newPosition = new Vector3().copy(currentDirection).normalize().multiplyScalar(distance);
     this.threejsObject.position.add(newPosition);
     this.hitBox = new Box3().setFromObject(this.threejsObject);
@@ -250,7 +254,7 @@ export default class TysonsMom {
   render() {
     this.threejsObject.rotation.x += 0.01;
     this.threejsObject.rotation.y += 0.02;
-    this.hitBox = new Box3().setFromObject(this.threejsObject); //allow for moving box
+    //this.hitBox = new Box3().setFromObject(this.threejsObject); //allow for moving box
     this.followNearestTarget();
   }
 
