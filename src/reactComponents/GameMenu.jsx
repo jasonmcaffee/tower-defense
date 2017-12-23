@@ -64,13 +64,13 @@ export default class GameMenu extends React.Component {
 
   createStartMenuModal(){
     let fullTextToType=`
-      In the year 1994, Tyson's Mom was exposed to radioactive slime while touring a Mcdonald's factory in South East Asia.
+      In the year 1994, Tyson's Mom was exposed to radioactive slime while touring Kumkop General Foodstuff Factory in North Korea.
       <br/>
       She subsequently became an evil space cube and disappeared into the dark web.
       <br/>
-      24 years later, people of Earth watched helplessly as she returned and destroyed the Moon.  Many are calling it the End of Days.
+      24 years later, she has returned. The people of Earth watched helplessly as she destroyed the Moon, and began heading towards Earth.
       <br/>
-      Armed only with laser weapons, bravery, and the hope of planet Earth, you must defeat her and save the world from utter destruction.
+      Armed only with laser weapons, bravery, and the hope of planet Earth, you must defeat her and save the world from annihilation.
       <br/>
       Pro Tip: Try luring her into the moon debris, where explosions from asteroids inflict severe damage.
     `;
