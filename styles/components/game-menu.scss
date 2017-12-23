@@ -12,8 +12,12 @@
 
 .game-menu-message{
   font-family: 'modalfont';
-  font-size: 30px;
-  line-height: 50px;
+
+  //font-size: 30px;
+  //line-height: 50px;
+  font-size: 1.8vw;
+  line-height: 2.6vw;
+
   //text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 20px #ff0080, 0 0 30px #ff0080, 0 0 40px #ff0080, 0 0 55px #ff0080, 0 0 75px #ff0080;
   text-shadow: 0 0 3px black, 0 0 10px rgba(255,255,255,1) , 0 0 15px rgba(255,255,255,1) , 0 0 25px rgba(255,255,255,1) , 0 0 30px #0033ff , 0 0 40px #0065ff , 0 0 50px #00b6ff , 0 0 60px #00ffdd ;
   //color: rgba(255,255,255,1);
@@ -30,10 +34,10 @@
   font-family: 'press-start';
   text-align: center;
   vertical-align: middle;
-  margin-left: calc(50% - 75px);
+  //margin-left: calc(50% - 5.0vw);
   cursor:pointer;
-  font-size: 75px;
-
+  //font-size: 75px;
+  font-size: 5.0vw;
 
   //width: 75px;
   //height: 40px;

@@ -32,12 +32,12 @@ module.exports = [
   {
     test: /\.gif/,
     exclude: /(node_modules|bower_components)/,
-    loader: "url-loader?limit=10000&mimetype=image/gif"
+    loader: "base64-inline-loader?limit=10000000&name=[name].[ext]" //limit=10000000&
   },
   {
     test: /\.jpg/,
     exclude: /(node_modules|bower_components)/,
-    loader: "base64-inline-loader?limit=10000000&name=[name].[ext]"
+    loader: "base64-inline-loader?name=[name].[ext]" //limit=10000000&
   },
   {
     test: /\.png/,
