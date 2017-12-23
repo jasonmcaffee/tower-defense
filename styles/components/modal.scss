@@ -31,10 +31,6 @@
 
 }
 
-@font-face {
-  font-family: 'modalfont';
-  src: url('../src/fonts/alienencounters.ttf')  format('truetype')
-}
 
 .modal-component{
   @extend %modal-component;
@@ -42,7 +38,7 @@
 
 .modal-content{
 
-  font-family: 'modalfont';
+
 
 
   //background: radial-gradient(ellipse at center, rgba(157,187,204,1) 0%,rgba(124,142,165,1) 76%,rgba(124,142,165,1) 76%,rgba(105,121,147,1) 100%);
@@ -76,6 +72,3 @@
   }
 }
 
-#bg{
-
-}

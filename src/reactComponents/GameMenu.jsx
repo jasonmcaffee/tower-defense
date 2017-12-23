@@ -67,7 +67,7 @@ export default class GameMenu extends React.Component {
     return (
       <Modal>
         <TypeWriterText fullTextToType={fullTextToType} textClassName="game-menu-message"/>
-        <Button className="start-game-button" label="start" onClick={this.handleStartGameClick.bind(this)}/>
+        <Button className="start-game-button" label="Press Start" onClick={this.handleStartGameClick.bind(this)}/>
       </Modal>
     );
   }
@@ -89,7 +89,7 @@ export default class GameMenu extends React.Component {
     return (
       <Modal>
         <TypeWriterText fullTextToType={fullTextToType} textClassName="game-menu-message"/>
-        <Button className="start-game-button" label="start" onClick={this.handleStartGameClick.bind(this)}/>
+        <Button className="start-game-button" label="Press Start" onClick={this.handleStartGameClick.bind(this)}/>
       </Modal>
     );
   }
