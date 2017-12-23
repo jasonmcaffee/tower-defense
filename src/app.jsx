@@ -8,10 +8,11 @@ import TopBar from 'reactComponents/TopBar';
 import GameMenu from 'reactComponents/GameMenu';
 import Game from 'Game';
 
+
 export default class App extends React.Component {
   render() {
     return (
-      <div>
+      <div id="bg">
         <TopBar/>
         {/*<div id="follower">*/}
           {/*<div id="circle1"></div>*/}

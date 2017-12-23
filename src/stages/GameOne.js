@@ -126,7 +126,7 @@ function createRandomAsteroids({centerPosition, numberToCreate, radius}){
   let randomCubeVectors = createRandomSphereVectors({centerPosition, numberToCreate, radius});
   let randomAsteroids = randomCubeVectors.map((v)=>{
     let {x, y, z} = v;
-    let component = new AsteroidMine({ rotationEnabled:true, x, y, z});
+    let component = new AsteroidMine({ rotationEnabled:false, x, y, z});
     signal.trigger(ec.stage.addComponent, {component});
     return component;
   });

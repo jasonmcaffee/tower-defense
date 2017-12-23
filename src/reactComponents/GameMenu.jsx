@@ -86,9 +86,6 @@ export default class GameMenu extends React.Component {
       <br/>
       <br/>
     `;
-
-
-
     return (
       <Modal>
         <TypeWriterText fullTextToType={fullTextToType} textClassName="game-menu-message"/>
