@@ -9,6 +9,9 @@ import TypeWriterText from "./TypeWriterText";
 const modalIdForWelcomeScreen = "modal1";
 const modalIdForResultsScreen = "modal2";
 
+//https://vectorseven.bandcamp.com/
+import startMenuAudioSource from 'sounds/hyperion-vector-seven.mp3';
+
 export default class GameMenu extends React.Component {
   constructor(){
     super();
@@ -17,14 +20,23 @@ export default class GameMenu extends React.Component {
       resultMessage:'',
       didPlayerWin: false,
     };
+
+    this.startMenuAudio = new Audio(startMenuAudioSource);
+    this.startMenuAudio.loop = true;
   }
 
   componentWillMount(){
     signal.registerSignals(this);
     this.createModalMap();
   }
+  componentDidMount(){
+    this.startMenuAudio.play();
+  }
   componentWillUnmount(){
     signal.unregisterSignals(this);
+
+    this.startMenuAudio.currentTime = 0;
+    this.startMenuAudio.pause();
   }
 
   signals = {
@@ -95,7 +107,9 @@ export default class GameMenu extends React.Component {
   handleStartGameClick(){
     console.log('start game');
     signal.trigger(ec.game.startGame);
-    this.setState({modalIdToDisplay:'none'})
+    this.setState({modalIdToDisplay:'none'});
+    this.startMenuAudio.currentTime = 0;
+    this.startMenuAudio.pause();
   }
 
   createModalMap(){
