@@ -1,0 +1,16 @@
+%typewritertext-component{
+  position:relative;
+}
+
+.typewritertext-component{
+  @extend %typewritertext-component;
+}
+
+.textwritertext-hidden-text{
+  visibility: hidden;
+}
+
+.typewritertext-text-overlay{
+  position:absolute;
+  top:0;
+}

@@ -3,6 +3,8 @@ import 'styles/index.scss';
 import {signal, eventConfig as ec} from "core/core";
 import Modal from 'reactComponents/Modal';
 import Button from 'reactComponents/Button';
+import TextWriterText from 'reactComponents/TypeWriterText';
+import TypeWriterText from "./TypeWriterText";
 
 const modalIdForWelcomeScreen = "modal1";
 const modalIdForResultsScreen = "modal2";
@@ -49,20 +51,22 @@ export default class GameMenu extends React.Component {
   }
 
   createStartMenuModal(){
+    let fullTextToType=`
+      In the year 1994, Tyson's Mom was exposed to radioactive slime while touring a Mcdonald's factory in South East Asia.
+      <br/>
+      She subsequently became an evil space cube and vanished for years.
+      <br/>
+      23 years later, people of Earth watched helplessly as she returned and destroyed the Moon.  Many are calling it the End of Days.
+      <br/>
+      You have been deployed into space in attempt to stop her from destroying planet Earth.
+      <br/>
+      Armed only with laser weapons, bravery, and the hope of planet Earth, you must defeat her and save the world from utter destruction.
+      <br/>
+      Pro Tip: Try luring her into the moon debris, where explosions from asteroids inflict severe damage.
+    `;
     return (
       <Modal>
-        <div className="game-menu-message">You must save the galaxy from a dystopian future terrorized by Tyson's mom.</div>
-        <br/>
-        <div className="game-menu-message">Defeat her in this 3 dimensional world by shooting lasers and using mines to your advantage.</div>
-        <br/>
-        <div className="game-menu-message">Use headphones to experience 3d sound.</div>
-        <br/>
-        <div className="game-menu-message">The fate of the galaxy lies in your hands.  Good luck!</div>
-        <br/>
-        <div className="game-menu-message">Pro Tip: you can move faster by moving in 3 directions at once (e.g. press left-shift + w + d at the same time)</div>
-        <br/>
-        <br/>
-        <br/>
+        <TypeWriterText fullTextToType={fullTextToType} textClassName="game-menu-message"/>
         <Button className="start-game-button" label="start" onClick={this.handleStartGameClick.bind(this)}/>
       </Modal>
     );
@@ -70,15 +74,24 @@ export default class GameMenu extends React.Component {
 
   createShowGameResultsModal(){
     let {didPlayerWin, resultMessage} = this.state;
+    let fullTextToType=`
+      ${resultMessage}
+      <br/>
+      <br/>
+      <br/>
+      <br/>
+      <br/>
+      <br/>
+      <br/>
+      <br/>
+      <br/>
+    `;
+
+
+
     return (
       <Modal>
-        <div className="game-menu-message">{resultMessage}</div>
-        <br/>
-        <br/>
-        <br/>
-        <br/>
-        <br/>
-        <br/>
+        <TypeWriterText fullTextToType={fullTextToType} textClassName="game-menu-message"/>
         <Button className="start-game-button" label="start" onClick={this.handleStartGameClick.bind(this)}/>
       </Modal>
     );
