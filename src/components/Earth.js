@@ -5,10 +5,15 @@ import Bullet from 'components/Bullet';
 let standardGeomatry = new SphereGeometry(20, 32, 32);
 standardGeomatry.computeBoundingBox();
 
-import earthSurfaceImageSource from 'images/earth/earthSurface.jpg';
+// import earthSurfaceImageSource from 'images/earth/earthSurface.jpg';
+import earthSurfaceImageSource from 'images/earth/earthhdsurface-smaller.jpg';
+
+
 //import earthBumpMapImageSource from 'images/earth/earthhdbumpmap.jpg';
-import earthAtmosphereImageSource from 'images/earth/earthAtmosphere.png';
-import earthSurfaceSpecularImageSource from 'images/earth/earthSurfaceSpecular.jpg';
+// import earthAtmosphereImageSource from 'images/earth/earthAtmosphere.png';
+import earthAtmosphereImageSource from 'images/earth/earthcloudshd-smaller.png';
+
+// import earthSurfaceSpecularImageSource from 'images/earth/earthSurfaceSpecular.jpg';
 
 import earthExplosionSoundSource from 'sounds/earth-exploding.mp3';
 
