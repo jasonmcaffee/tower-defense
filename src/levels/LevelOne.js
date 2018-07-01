@@ -2,6 +2,8 @@ import {Vector3, Sphere} from 'three';
 import {signal, eventConfig as ec, generateRandomNumber as grn} from "core/core";
 import RotatingBox from 'components/RotatingBox';
 import Floor from 'components/Floor';
+import Path from 'components/Path';
+
 import TysonsMom from 'components/TysonsMom';
 import Player from 'components/Player';
 import Cursor from 'components/Cursor';
@@ -10,7 +12,7 @@ import Galaxy from 'components/Galaxy';
 import AsteroidMine from 'components/AsteroidMine'
 import SunLight from 'components/SunLight';
 
-export default class GameOne{
+export default class LevelOne{
   onDestroyFuncs = [] //stuff to run when we destroy.
   enemies = []
   constructor(){
@@ -55,22 +57,21 @@ export default class GameOne{
     //tell the camera where to look
     signal.trigger(ec.controls.reset, {lat:-40, lon:-40});
 
-    let moonPosition = new Vector3(134, 140, -50);
-    createRandomAsteroids({centerPosition:moonPosition, numberToCreate:3000, radius: 100});
-
-
-    let component = new Floor({numberOfLines:0, distanceBetweenLines:100});
+    let component = new Floor({numberOfLines:1000, distanceBetweenLines:100});
     signal.trigger(ec.stage.addComponent, {component});
 
-    this.addEnemyAndRegisterWithStage(new TysonsMom({hitPoints:100, x:5.3, y: 56, z:8.6}));
-    // this.addEnemyAndRegisterWithStage(new TysonsMom({hitPoints:100}));
-    // this.addEnemyAndRegisterWithStage(new TysonsMom({hitPoints:100}));
-    // this.addEnemyAndRegisterWithStage(new TysonsMom({hitPoints:100}));
-    signal.trigger(ec.stage.addComponent, {component: new Player({hitPoints:10, x: -153, y:158, z:40 })});
-    signal.trigger(ec.stage.addComponent, {component: new Cursor()});
-    signal.trigger(ec.stage.addComponent, {component: new Earth({radius:earthRadius})});
-    signal.trigger(ec.stage.addComponent, {component: new Galaxy()});
-    signal.trigger(ec.stage.addComponent, {component: new SunLight({x: 100, y:100, z:700})})
+
+    const pathVectors = [
+      {x: 0, y: 0, z: 0, x2:100, y2:0, z2:0},
+      {x: 100, y: 0, z: 0, x2:100, y2:200, z2:0},
+      {x: 100, y: 200, z: 0, x2:200, y2:200, z2:0},
+    ];
+    signal.trigger(ec.stage.addComponent, {component: new Path({pathVectors}) });
+    signal.trigger(ec.stage.addComponent, {component: new Player({hitPoints:10, x: 100, y:75, z:175 })});
+    // signal.trigger(ec.stage.addComponent, {component: new Cursor()});
+    // signal.trigger(ec.stage.addComponent, {component: new Earth({radius:earthRadius})});
+    // signal.trigger(ec.stage.addComponent, {component: new Galaxy()});
+     signal.trigger(ec.stage.addComponent, {component: new SunLight({x: 100, y:100, z:700})});
   }
 
 

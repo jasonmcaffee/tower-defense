@@ -33,7 +33,7 @@ module.exports = {
     loaders
   },
   devServer: {
-    contentBase: "./public",
+    contentBase: "./src",
     // do not print bundle build stats
     noInfo: true,
     // enable HMR

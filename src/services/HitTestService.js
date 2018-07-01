@@ -14,7 +14,7 @@ let webWorkerCommands = {
 
 let webWorkerResultCommands = {
   hitTestResult: 'hitTestResult',
-}
+};
 
 export default class HitTestService{
   hitTestWorkers=[]

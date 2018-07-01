@@ -42,7 +42,7 @@ export default class Floor {
   }
 
   renderChildren({children = this.children} = {}) {
-    //children.forEach(c => c.render());
+    children.forEach(c => c.render());
   }
 
   addToScene({scene}){

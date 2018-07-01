@@ -2,17 +2,16 @@
 import StageOne from 'stages/StageOne';
 import {signal} from "core/core";
 import {eventConfig as ec} from 'core/eventConfig';
-import GameOne from 'stages/GameOne';
-import GameTwo from 'stages/GameTwo';
+import LevelOne from 'levels/LevelOne';
 
-import ohyeahfullsong from 'sounds/ohyeahfullsong.mp3';
 
+/**
+ * Handles starting/ending game, level progression.
+ */
 export default class Game{
-  constructor({gameConfig=new GameOne(), threeJsRenderDiv}={}){
+  constructor({gameConfig=new LevelOne(), threeJsRenderDiv}={}){
     this.gameConfig = gameConfig;
     this.threeJsRenderDiv = threeJsRenderDiv;
-
-    this.ohyeahfullsongAudio = createAudio({src:ohyeahfullsong});
 
     signal.registerSignals(this);
   }
@@ -22,8 +21,6 @@ export default class Game{
       if(this.stage){
         this.stage.destroy();
       }
-      this.ohyeahfullsongAudio.pause();
-      this.ohyeahfullsongAudio.currentTime = 0;
 
       this.stage = new StageOne();
       gameConfig.registerComponentsWithStage();
@@ -34,14 +31,11 @@ export default class Game{
     [ec.game.gameEnded]({resultMessage, didPlayerWin}){
       this.stage.destroy();
       this.gameConfig.destroy();
-      this.ohyeahfullsongAudio.play();
     }
   }
 
   destroy(){
     signal.unregisterSignals(this);
-    this.ohyeahfullsongAudio.pause();
-    this.ohyeahfullsongAudio.currentTime = 0;
     if(this.stage){
       this.stage.destroy();
     }
@@ -49,9 +43,9 @@ export default class Game{
   }
 }
 
-function createAudio({src}={}){
-  let audio = new Audio();
-  audio.src = src;
-  //audio.play();
-  return audio;
-}
+// function createAudio({src}={}){
+//   let audio = new Audio();
+//   audio.src = src;
+//   //audio.play();
+//   return audio;
+// }
