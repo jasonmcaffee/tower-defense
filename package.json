@@ -9,7 +9,7 @@
     "build-dist": "rm -r server/public && npm run build && npm run dist",
     "start": "webpack-dev-server --progress --profile --colors",
     "lint": "eslint --ext js --ext jsx src || exit 0",
-    "dev": " webpack-dashboard -- webpack-dev-server",
+    "dev": "webpack-dashboard -- webpack-dev-server",
     "test": "export NODE_ENV=test && jest"
   },
   "repository": {
