@@ -61,7 +61,7 @@ export default class StageOne {
       x += this.camera.position.x;
       y += this.camera.position.y;
       z += this.camera.position.z;
-      signal.trigger(ec.camera.setLookAt, {x,y,z});
+      // signal.trigger(ec.camera.setLookAt, {x,y,z});
     },
     [ec.camera.moveMultiDirection](multiMovesEventData){
       //let {x, y, z} = this.camera.position;

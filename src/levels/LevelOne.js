@@ -11,6 +11,7 @@ import Earth from 'components/Earth';
 import Galaxy from 'components/Galaxy';
 import AsteroidMine from 'components/AsteroidMine'
 import SunLight from 'components/SunLight';
+import TowerFoundation from 'components/towers/TowerFoundation';
 
 export default class LevelOne{
   onDestroyFuncs = [] //stuff to run when we destroy.
@@ -57,8 +58,6 @@ export default class LevelOne{
     //tell the camera where to look
     signal.trigger(ec.controls.reset, {lat:-40, lon:-40});
 
-    let component = new Floor({numberOfLines:1000, distanceBetweenLines:100});
-    signal.trigger(ec.stage.addComponent, {component});
 
 
     const pathVectors = [
@@ -66,9 +65,21 @@ export default class LevelOne{
       {x: 100, y: 0, z: 0, x2:100, y2:200, z2:0},
       {x: 100, y: 200, z: 0, x2:200, y2:200, z2:0},
     ];
+
+    const towerPositions = [
+      {x: 0, y: 0, z: 0},
+      {x: 100, y: 0, z: 0},
+      {x: 100, y: 200, z: 0},
+    ];
+
+    for(let towerPosition of towerPositions){
+      signal.trigger(ec.stage.addComponent, {component: new TowerFoundation(towerPosition)});
+    }
+
+    signal.trigger(ec.stage.addComponent, {component: new Floor({numberOfLines:1000, distanceBetweenLines:100}) });
     signal.trigger(ec.stage.addComponent, {component: new Path({pathVectors}) });
-    signal.trigger(ec.stage.addComponent, {component: new Player({hitPoints:10, x: 100, y:75, z:175 })});
-    // signal.trigger(ec.stage.addComponent, {component: new Cursor()});
+    signal.trigger(ec.stage.addComponent, {component: new Player({hitPoints:10, x: 100, y:100, z:200 })});
+    signal.trigger(ec.stage.addComponent, {component: new Cursor()}); //needed to fire bullets
     // signal.trigger(ec.stage.addComponent, {component: new Earth({radius:earthRadius})});
     // signal.trigger(ec.stage.addComponent, {component: new Galaxy()});
      signal.trigger(ec.stage.addComponent, {component: new SunLight({x: 100, y:100, z:700})});

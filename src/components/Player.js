@@ -83,7 +83,7 @@ export default class Player {
     },
     [ec.cursor.mousexyzChanged]({x, y, z, direction}){
       this.mouseVector = new Vector3(x, y, z);
-      this.mouseDirection = direction;
+      this.mouseDirection = direction; //so we can fire bullets.
     }
   }
 
