@@ -1,15 +1,41 @@
 import {CubeGeometry, BoxGeometry, SphereGeometry, MeshNormalMaterial, MeshLambertMaterial, Mesh, Box3, Vector3, Texture, Object3D,  Sphere} from 'three';
 import {signal, eventConfig as ec, generateUniqueId, generateRandomNumber as grn} from "core/core";
 
+const towerTypes = {
+  fire: {
+    type: 'fire',
+    damage: 1,
+    maxUpgrades: 2,
+    level: 1,
+    bulletCausesSlownessModifier: 0,
+  },
+  ice: {
+    type: 'fire',
+    damage: 1,
+    maxUpgrades: 2,
+    level: 1,
+    bulletCausesSlownessModifier: 0,
+  },
+  none: {
+    type: 'none',
+    damage: 0,
+    maxUpgrades: 0,
+    level: 0,
+    bulletCausesSlownessModifier: 0,
+  },
+
+};
 /**
  * ${NAME} -
  */
 export default class TowerFoundation{
-  componentId = generateUniqueId({name:'${NAME}'})
+  componentId = generateUniqueId({name:'TowerFoundation'})
   threejsObject
   hitBox
+  level = 1
+  type = towerTypes.fire.type
 
-  constructor({x=0, y=0, z=0, size=7}={}){
+  constructor({x=0, y=0, z=0, size=7, type=towerTypes.fire.type}={}){
     const {threejsObject, hitBox} = createThreejsObjectAndHitbox({x, y, z, componentId: this.componentId, size});
     this.threejsObject = threejsObject;
     this.hitBox = hitBox;
@@ -20,6 +46,7 @@ export default class TowerFoundation{
     [ec.player.selectedComponent]({selectedComponent}){
       if(this.componentId !== selectedComponent.componentId){return;}
       console.log(`player selected tower foundation`);
+      //let PlayerItems know we've been selected
       signal.trigger(ec.towerFoundation.selectedByPlayer, {towerFoundation:this});
     }
   }

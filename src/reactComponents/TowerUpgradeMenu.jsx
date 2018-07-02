@@ -8,6 +8,7 @@ export default class TowerUpgradeMenu extends React.Component {
     this.state = {
       visible: false,
       purchasableTowers: [],
+      towerFoundation: undefined, //currently selected towerFoundation
     };
   }
 
@@ -18,8 +19,8 @@ export default class TowerUpgradeMenu extends React.Component {
      signal.unregisterSignals(this);
   }
   signals = {
-    [ec.towerUpgradeMenu.show](){
-      this.setState({visible: true});
+    [ec.towerUpgradeMenu.show]({towerFoundation, purchasableTowers}){
+      this.setState({visible: true, towerFoundation, purchasableTowers});
     },
     [ec.towerUpgradeMenu.hide](){
       this.setState({visible: false});
@@ -59,7 +60,12 @@ export default class TowerUpgradeMenu extends React.Component {
   }
   createPurchasableTowerElements({purchasableTowers}){
     const items = purchasableTowers.map(pt=>{
-      return (<span onClick={this.handlePurchaseTowerButtonClick.bind(this, pt)}>{pt.cost} {pt.label} {pt.type} </span>)
+      return (
+        <purchasable-tower onClick={this.handlePurchaseTowerButtonClick.bind(this, pt)}>
+          <label>{pt.label}</label>
+          <cost>{pt.cost}</cost>
+          <type>{pt.type}</type>
+        </purchasable-tower>)
     });
     return items;
   }

@@ -19,7 +19,17 @@ upgrade-tower-button{
 
 purchasable-towers{
   display: block;
-  > span {
-    background-color: cadetblue;
+}
+
+purchasable-tower{
+  display: block;
+  cost {
+    display: block;
+  }
+  label{
+    display: block;
+  }
+  type{
+    display: block;
   }
 }
