@@ -40,7 +40,10 @@ export default class LevelOne{
     },
     [ec.earth.doneExploding](){
       signal.trigger(ec.game.gameEnded, {resultMessage:"All those you loved are now dead.", didPlayerWin:false});
-    }
+    },
+    [ec.player.selectedComponent]({selectedComponent}){
+
+    },
   }
 
   removeEnemy({componentId, enemies=this.enemies}={}){

@@ -17,9 +17,14 @@ export default class TowerFoundation{
   }
 
   signals = {
-    [ec.hitTest.hitComponent]({hitComponent, damage}){
-      const componentId = hitComponent.componentId;
-      if(this.componentId !== componentId){return;}
+    // [ec.hitTest.hitComponent]({hitComponent, damage}){
+    //   const componentId = hitComponent.componentId;
+    //   if(this.componentId !== componentId){return;}
+    // },
+    [ec.player.selectedComponent]({selectedComponent}){
+      if(this.componentId !== selectedComponent.componentId){return;}
+      console.log(`player selected tower foundation`);
+      signal.trigger(ec.towerFoundation.selectedByPlayer, {towerFoundation:this});
     }
   }
 

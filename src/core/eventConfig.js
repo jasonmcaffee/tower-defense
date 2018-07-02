@@ -59,6 +59,9 @@ export const eventConfig = {
     scoreChanged:'player.scoreChanged',
     selectedComponent: 'player.selectedComponent', //when player clicks on screen in order to select TowerFoundation, etc. {selectedComponent}
   },
+  towerFoundation:{
+    selectedByPlayer: 'towerFoundation.selectedByPlayer', //when player.selectedComponent is towerFoundation. {towerFoundation}
+  },
   earth:{
     hitPointsChanged: 'earth.hitPointsChanged',
     died: 'earth.died',
