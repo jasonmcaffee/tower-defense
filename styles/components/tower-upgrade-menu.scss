@@ -1,0 +1,12 @@
+.tower-upgrade-menu{
+  @extend %tower-upgrade-menu;
+}
+%tower-upgrade-menu{
+  position: absolute;
+  right: 0; //position on right of screen
+  height: 50%;
+  top: 25%; //position in middle of screen.
+  width: 100px;
+  background-color: green;
+  color: white;
+}

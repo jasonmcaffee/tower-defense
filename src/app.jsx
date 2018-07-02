@@ -7,7 +7,7 @@ import PlayerControls from 'reactComponents/PlayerControls';
 import TopBar from 'reactComponents/TopBar';
 import GameMenu from 'reactComponents/GameMenu';
 import Game from 'Game';
-
+import TowerUpgradeMenu from 'reactComponents/TowerUpgradeMenu';
 
 export default class App extends React.Component {
   render() {
@@ -22,6 +22,7 @@ export default class App extends React.Component {
         </div>
         <PlayerControls/>
         <GameMenu/>
+        <TowerUpgradeMenu/>
       </div>
 
     )

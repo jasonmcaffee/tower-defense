@@ -62,6 +62,10 @@ export const eventConfig = {
   towerFoundation:{
     selectedByPlayer: 'towerFoundation.selectedByPlayer', //when player.selectedComponent is towerFoundation. {towerFoundation}
   },
+  towerUpgradeMenu:{
+    show: 'towerUpgradeMenu.show',
+    hide: 'towerUpgradeMenu.hide',
+  },
   earth:{
     hitPointsChanged: 'earth.hitPointsChanged',
     died: 'earth.died',

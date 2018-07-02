@@ -9,6 +9,9 @@ export default class PlayerItems{
   }
 
   signals = {
-    
+    [ec.towerFoundation.selectedByPlayer]({towerFoundation}){
+      console.log(`PlayerItems towerFoundation.selectedByPlayer. displaying upgrade menu`);
+      signal.trigger(ec.towerUpgradeMenu.show, {towerFoundation, coins: this.coins});
+    }
   }
 }
