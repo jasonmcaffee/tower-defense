@@ -6,7 +6,7 @@ export default class TowerUpgradeMenu extends React.Component {
   constructor(){
     super();
     this.state = {
-      visible: true,
+      visible: false,
     };
   }
 
@@ -22,9 +22,16 @@ export default class TowerUpgradeMenu extends React.Component {
     },
     [ec.towerUpgradeMenu.hide](){
       this.setState({visible: false});
-    }
+    },
   }
 
+  handleUpgradeButtonClick(e){
+    console.log(`handleUpgradeButtonClick`);
+    signal.trigger(ec.towerUpgradeMenu.upgradeTowerButtonClicked, {});
+  }
+  handleSellButtonClick(e){
+    signal.trigger(ec.towerUpgradeMenu.sellTowerButtonClicked, {});
+  }
   render(){
     let {label, onClick, className} = this.props;
     let {visible} = this.state;
@@ -33,6 +40,8 @@ export default class TowerUpgradeMenu extends React.Component {
     return(
       <div className={className}>
         Tower Upgrade Menu
+        <upgrade-tower-button onClick={this.handleUpgradeButtonClick.bind(this)}>Upgrade</upgrade-tower-button>
+        <sell-tower-button onClick={this.handleSellButtonClick.bind(this)} >Sell</sell-tower-button>
       </div>
     );
   }

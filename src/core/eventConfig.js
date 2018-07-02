@@ -65,6 +65,8 @@ export const eventConfig = {
   towerUpgradeMenu:{
     show: 'towerUpgradeMenu.show',
     hide: 'towerUpgradeMenu.hide',
+    upgradeTowerButtonClicked: 'towerUpgradeMenu.upgradeTowerButtonClicked',
+    sellTowerButtonClicked: 'towerUpgradeMenu.sellTowerButtonClicked',
   },
   earth:{
     hitPointsChanged: 'earth.hitPointsChanged',

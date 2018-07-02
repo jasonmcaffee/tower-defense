@@ -3,16 +3,17 @@ import StageOne from 'stages/StageOne';
 import {signal} from "core/core";
 import {eventConfig as ec} from 'core/eventConfig';
 import LevelOne from 'levels/LevelOne';
-
+import PlayerItems from 'services/PlayerItems';
 
 /**
  * Handles starting/ending game, level progression.
  */
 export default class Game{
-  constructor({gameConfig=new LevelOne(), threeJsRenderDiv}={}){
+  playerItems //keep track of coins, towers, etc.
+  constructor({gameConfig=new LevelOne(), threeJsRenderDiv, playerItems=new PlayerItems() }={}){
     this.gameConfig = gameConfig;
     this.threeJsRenderDiv = threeJsRenderDiv;
-
+    this.playerItems = playerItems;
     signal.registerSignals(this);
   }
 
