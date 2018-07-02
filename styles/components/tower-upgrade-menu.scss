@@ -9,4 +9,17 @@
   width: 100px;
   background-color: green;
   color: white;
+
+}
+
+upgrade-tower-button{
+  display:block;
+  padding: 10px;
+}
+
+purchasable-towers{
+  display: block;
+  > span {
+    background-color: cadetblue;
+  }
 }
