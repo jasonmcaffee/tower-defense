@@ -8,8 +8,9 @@ export default class TowerFoundation{
   componentId = generateUniqueId({name:'${NAME}'})
   threejsObject
   hitBox
-  constructor({x=0, y=0, z=0}={}){
-    const {threejsObject, hitBox} = createThreejsObjectAndHitbox({x, y, z, componentId: this.componentId});
+
+  constructor({x=0, y=0, z=0, size=7}={}){
+    const {threejsObject, hitBox} = createThreejsObjectAndHitbox({x, y, z, componentId: this.componentId, size});
     this.threejsObject = threejsObject;
     this.hitBox = hitBox;
     signal.registerSignals(this);
@@ -39,9 +40,9 @@ export default class TowerFoundation{
   }
 }
 
-function createThreejsObjectAndHitbox({componentId, x, y, z}){
+function createThreejsObjectAndHitbox({componentId, x, y, z, size=7}){
   const material = new MeshNormalMaterial();
-  const geometry = new CubeGeometry(2, 2, 2);
+  const geometry = new CubeGeometry(size, size, size);
   geometry.computeBoundingBox();
   const threejsObject = new Mesh(geometry, material);
   threejsObject.position.set(x, y, z);

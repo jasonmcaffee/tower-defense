@@ -5,6 +5,9 @@ import RotatingBox from 'components/RotatingBox';
 import Floor from 'components/Floor';
 import HitTestService from 'services/HitTestService';
 
+
+const mouseLookingEnabled = false;
+
 export default class StageOne {
   camera
   scene
@@ -54,6 +57,7 @@ export default class StageOne {
     },
     [ec.camera.setLookAt]({x, y, z}){
       //console.log(`looking at x: ${x} y: ${y} z: ${z}`);
+      if(!mouseLookingEnabled){return;}
       this.camera.lookAt(new Vector3(x, y, z));
     },
     [ec.camera.setLookAtFromMouseMovement]({x, y, z}){
@@ -61,7 +65,7 @@ export default class StageOne {
       x += this.camera.position.x;
       y += this.camera.position.y;
       z += this.camera.position.z;
-      // signal.trigger(ec.camera.setLookAt, {x,y,z});
+      signal.trigger(ec.camera.setLookAt, {x,y,z});
     },
     [ec.camera.moveMultiDirection](multiMovesEventData){
       //let {x, y, z} = this.camera.position;
@@ -131,9 +135,10 @@ export default class StageOne {
         if(!component){return;} //same componentId over and over.
         component.destroy({scene});
       }.bind(this), 0)
+    },
 
-    }
   }
+
 
   removeChild({componentId, children=this.children}){
     let componentIndex = children.findIndex((element)=>{

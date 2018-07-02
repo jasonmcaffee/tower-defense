@@ -27,14 +27,12 @@ export default class Player {
   score = 0 //how many points the player has earned.
   constructor({x = 0, y = 0, z = 0, hitPoints=10, lookAtX=0, lookAtY=0, lookAtZ=0} = {}) {
     let geometry = standardGeomatry;
-    this.hitPoints = hitPoints;
     this.threejsObject = new Mesh(geometry, material);
     this.threejsObject.position.set(x, y, z);
     this.threejsObject.name = this.componentId;//needed for removing from scene
     this.hitBox = new Box3().setFromObject(this.threejsObject);
     signal.registerSignals(this);
 
-    signal.trigger(ec.player.hitPointsChanged, {hitPoints});
     signal.trigger(ec.camera.setPosition, {x, y, z});//move the camera to where the player is. a bit messy right now..
     //signal.trigger(ec.camera.setLookAt, {x: lookAtX, y:lookAtY, z:lookAtZ}); //todo: NOT WORKING
 
@@ -42,23 +40,19 @@ export default class Player {
   }
 
   signals = {
-    //when player gets hit by something or one of their bullets hits something.
-    [ec.hitTest.hitComponent]({hitComponent, damage, ownerComponentId}) {
+    //when player clicks on the screen, we fire a selection bullet. if the selection bullet hits hittable components we send a new signal
+    //to indicate the player has selected something.
+    [ec.hitTest.hitComponent]({hitComponent, damage, ownerComponentId, hitByComponent}) {
       let componentId = hitComponent.componentId;
       //check
       if (this.componentId !== componentId) {
         if(ownerComponentId != this.componentId){return;}
-        console.log(`player bullet hit something!`);
-        this.score += 100;
-        signal.trigger(ec.player.scoreChanged, {score:this.score});
+
+        if(hitByComponent.isPlayerSelectItem){ //bullets fired on click get this property added to them.
+          console.log(`player selected item: `, hitComponent);
+          signal.trigger(ec.player.selectedComponent, {selectedComponent: hitComponent});
+        }
         return;
-      }
-      this.hitPoints -= damage;
-      this.playHitAnimation();
-      signal.trigger(ec.player.hitPointsChanged, {hitPoints:this.hitPoints});
-      if(this.hitPoints <= 0){
-        signal.trigger(ec.stage.destroyComponent, {componentId});
-        signal.trigger(ec.player.died);
       }
     },
     //see if we hit anything while moving.e.g earth
@@ -79,8 +73,9 @@ export default class Player {
       this.performHitTest();
     },
     [ec.stage.mouseClickedOnStage]({camera, cameraPosition, clientX, clientY, projector, width, height, cursorX, cursorY}){
-      this.fireBullet({camera, cameraPosition, projector, clientX, clientY, width, height, cursorX, cursorY});
+      this.fireSelectItemBullet();
     },
+    //keep track of which direction the mouse is pointing so we can cast rays in that direction and determine if the player selected something
     [ec.cursor.mousexyzChanged]({x, y, z, direction}){
       this.mouseVector = new Vector3(x, y, z);
       this.mouseDirection = direction; //so we can fire bullets.
@@ -99,31 +94,14 @@ export default class Player {
     if(this.playingHitAnimation){return;}
     this.playingHitAnimation = true;
     console.log('player hit animation');
-
-    let originalColor = threejsObject.material.color.getHex();
-    let intervalCount = 0;
-    let intervalId = setInterval(function(){
-      ++intervalCount;
-      if(intervalCount >= maxIntervalCount){
-        clearInterval(intervalId);
-        this.playingHitAnimation = false;
-        intervalCount = 0;
-      }
-      let color = intervalCount % 2 == 0 ? originalColor : hitColor;
-      let transparent = intervalCount % 2 == 0 ? true : false;
-      let opacity = intervalCount % 2 == 0 ? 0: .25;
-      threejsObject.material.color.setHex(color);
-      threejsObject.material.transparent = transparent;
-      threejsObject.material.opacity = opacity;  //doesn't work?
-    }.bind(this), intervalMs);
   }
-
-  fireBullet({camera, cameraPosition, projector, clientX, clientY, width, height, cursorX, cursorY}){
+  fireSelectItemBullet(){
     if(!this.mouseDirection){return;}
     let direction = this.mouseDirection;
     let startPosition = this.mouseVector;
 
-    let bullet = new Bullet({direction, startPosition, hitExclusionComponentId:this.componentId, ownerComponentId:this.componentId});
+    let bullet = new Bullet({direction, startPosition, hitExclusionComponentId:this.componentId, ownerComponentId:this.componentId, playSound: false, distancePerSecond:3000});
+    bullet.isPlayerSelectItem = true;
     signal.trigger(ec.stage.addComponent, {component:bullet});
   }
 
