@@ -1,4 +1,4 @@
-import {Clock, CubeGeometry, BoxGeometry, SphereGeometry, MeshNormalMaterial, MeshLambertMaterial, Mesh, Box3, Vector3, Texture, Object3D,  Sphere} from 'three';
+import {Raycaster, Clock, CubeGeometry, BoxGeometry, SphereGeometry, MeshNormalMaterial, MeshLambertMaterial, Mesh, Box3, Vector3, Texture, Object3D,  Sphere} from 'three';
 import {signal, eventConfig as ec, generateUniqueId, generateRandomNumber as grn} from "core/core";
 
 /**
@@ -70,7 +70,6 @@ export default class Enemy{
     //direction we're going
     let direction = new Vector3();
     direction.subVectors(pathPointVector, startPosition);
-    this.currentDirection = direction;//needed so when we run into something we can back up.
 
     //how far we've traveled
     let distance = (moveDistancePerSecond * delta);
@@ -81,6 +80,24 @@ export default class Enemy{
     this.hitBox = new Box3().setFromObject(this.threejsObject);
     signal.trigger(ec.hitTest.updateComponentHitBox, {component:this});
 
+    //if we've hit the path vector, increase the index so we start traveling towards the next.
+    let oppositeDirection = new Vector3();
+    oppositeDirection.subVectors(startPosition, pathPointVector);
+    const raycaster = new Raycaster(pathPointVector, oppositeDirection);
+    const intersects = raycaster.intersectObject(this.threejsObject);
+    if(intersects.length > 0){
+      console.log(`intersects: `, intersects);
+      this.startMovingTowardsNextPathVector();
+    }
+
+  }
+
+  startMovingTowardsNextPathVector({pathVectors=this.pathVectors, currentPathVectorsIndex=this.currentPathVectorsIndex}={}){
+    if(currentPathVectorsIndex >= pathVectors.length - 1){
+      console.warn(`no other path vectors for enemy to travel to`);
+      return;
+    }
+    this.currentPathVectorsIndex++;
   }
 
   //called on when ec.stage.addComponent is triggered with this as the component. (typically done by Level)
