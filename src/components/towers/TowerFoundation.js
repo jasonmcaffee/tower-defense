@@ -56,6 +56,13 @@ export default class TowerFoundation{
 
   }
 
+  getTowerUpgradeInfo({tower=this.tower}={}){
+    if(!tower){
+      return {isUpgradable: false, upgradeCost: 0, level: 0, sellValue: 0, missingTower: true};
+    }
+    return tower.getUpgradeInfo();
+  }
+
   //called on when ec.stage.addComponent is triggered with this as the component. (typically done by Level)
   addToScene({scene}) {
     scene.add(this.threejsObject);

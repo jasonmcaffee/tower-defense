@@ -2,8 +2,8 @@ import {signal, eventConfig as ec} from "core/core";
 
 
 const purchasableTowersConfig = [
-  {cost: 20, label:'fire', type: 'fire'},
-  {cost: 30, label:'ice', type: 'ice'},
+  {cost: 20, label:'fire', type: 'fire', enabled: true},
+  {cost: 30, label:'ice', type: 'ice', enabled: true},
 ];
 
 /**
@@ -22,8 +22,9 @@ export default class PlayerItems{
 
   signals = {
     [ec.towerFoundation.selectedByPlayer]({towerFoundation, purchasableTowers=this.purchasableTowers}){
-      console.log(`PlayerItems towerFoundation.selectedByPlayer. displaying upgrade menu`);
-      signal.trigger(ec.towerUpgradeMenu.show, {towerFoundation, purchasableTowers});
+      console.log(`PlayerItems towerFoundation.selectedByPlayer. displaying upgrade menu`, towerFoundation.getTowerUpgradeInfo());
+      const towerUpgradeInfo = towerFoundation.getTowerUpgradeInfo();
+      signal.trigger(ec.towerUpgradeMenu.show, {towerFoundation, purchasableTowers, towerUpgradeInfo});
     },
     [ec.towerUpgradeMenu.upgradeTowerButtonClicked]({towerFoundation}){
 

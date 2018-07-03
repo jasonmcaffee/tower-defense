@@ -11,13 +11,17 @@ export default class FireTower {
   hitPoints = 10
   fireIntervalMs = 1000
   threejsObject //used by TowerFoundation to display
-  constructor({x = 0, y = 0, z = 0, active=true, hitPoints=10, fireIntervalMs=1000} = {}) {
+  level = 1
+  maxLevel = 10
+  upgradeCost = 10
+  constructor({x = 0, y = 0, z = 0, active=true, hitPoints=10, fireIntervalMs=1000, cost=1} = {}) {
     this.active = active; //whether we are shooting bullets.
     this.position = {x, y, z}; //so we know where bullets fire from.
     this.hitPoints = hitPoints;
     this.fireIntervalMs = fireIntervalMs;
     const {threejsObject} = createThreejsObject({componentId: this.componentId, x, y, z});
     this.threejsObject = threejsObject;
+    this.cost = cost;
     signal.registerSignals(this);
     this.startFiring();
   }
@@ -35,6 +39,22 @@ export default class FireTower {
         console.log(`fire tower hit something.`);
       }
     },
+  }
+
+  isUpgradable({level=this.level, maxLevel=this.maxLevel}={}){
+    return level < maxLevel;
+  }
+  getUpgradeInfo(){
+    return {
+      isUpgradable: this.isUpgradable(),
+      upgradeCost: this.upgradeCost,
+      level: this.level,
+      sellValue: this.cost / 2,
+    };
+  }
+
+  upgrade(){
+    this.level++;//todo: fireinterval, bullet damage, etc
   }
 
   startFiring(){

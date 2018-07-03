@@ -9,6 +9,7 @@ export default class TowerUpgradeMenu extends React.Component {
       visible: false,
       purchasableTowers: [],
       towerFoundation: undefined, //currently selected towerFoundation
+      towerUpgradeInfo: {sellValue: 0, upgradeCost:0, level: 0, isUpgradable: false},
     };
   }
 
@@ -19,8 +20,8 @@ export default class TowerUpgradeMenu extends React.Component {
      signal.unregisterSignals(this);
   }
   signals = {
-    [ec.towerUpgradeMenu.show]({towerFoundation, purchasableTowers}){
-      this.setState({visible: true, towerFoundation, purchasableTowers});
+    [ec.towerUpgradeMenu.show]({towerFoundation, purchasableTowers, towerUpgradeInfo}){
+      this.setState({visible: true, towerFoundation, purchasableTowers, towerUpgradeInfo});
     },
     [ec.towerUpgradeMenu.hide](){
       this.setState({visible: false});
@@ -42,16 +43,20 @@ export default class TowerUpgradeMenu extends React.Component {
   }
   render(){
     let {label, onClick, className} = this.props;
-    let {visible, purchasableTowers} = this.state;
+    const {visible, purchasableTowers, towerUpgradeInfo} = this.state;
+    const {isUpgradable, missingTower, upgradeCost, sellValue} = towerUpgradeInfo;
     if(!visible){return null;}
     className = className || "tower-upgrade-menu";
+    let upgradeButtonClassName = isUpgradable ? "" : "disabled";
+    const sellButtonClassName = missingTower ? "disabled" : "";
+
     const purchasableTowerElements = this.createPurchasableTowerElements({purchasableTowers});
 
     return(
       <div className={className}>
         Tower Upgrade Menu
-        <upgrade-tower-button onClick={this.handleUpgradeButtonClick.bind(this)}>Upgrade</upgrade-tower-button>
-        <sell-tower-button onClick={this.handleSellButtonClick.bind(this)} >Sell</sell-tower-button>
+        <upgrade-tower-button class={upgradeButtonClassName} onClick={this.handleUpgradeButtonClick.bind(this)}>Upgrade {upgradeCost}</upgrade-tower-button>
+        <sell-tower-button class={sellButtonClassName} onClick={this.handleSellButtonClick.bind(this)} >Sell {sellValue}</sell-tower-button>
         <purchasable-towers>
           {purchasableTowerElements}
         </purchasable-towers>
@@ -64,7 +69,6 @@ export default class TowerUpgradeMenu extends React.Component {
         <purchasable-tower onClick={this.handlePurchaseTowerButtonClick.bind(this, pt)}>
           <label>{pt.label}</label>
           <cost>{pt.cost}</cost>
-          <type>{pt.type}</type>
         </purchasable-tower>)
     });
     return items;
