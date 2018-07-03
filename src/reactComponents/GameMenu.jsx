@@ -20,9 +20,9 @@ export default class GameMenu extends React.Component {
       resultMessage:'',
       didPlayerWin: false,
     };
-
-    this.startMenuAudio = new Audio(startMenuAudioSource);
-    this.startMenuAudio.loop = true;
+    //
+    // this.startMenuAudio = new Audio(startMenuAudioSource);
+    // this.startMenuAudio.loop = true;
   }
 
   componentWillMount(){
@@ -30,13 +30,13 @@ export default class GameMenu extends React.Component {
     this.createModalMap();
   }
   componentDidMount(){
-    this.startMenuAudio.play();
+    // this.startMenuAudio.play();
   }
   componentWillUnmount(){
     signal.unregisterSignals(this);
 
-    this.startMenuAudio.currentTime = 0;
-    this.startMenuAudio.pause();
+    // this.startMenuAudio.currentTime = 0;
+    // this.startMenuAudio.pause();
   }
 
   signals = {
@@ -108,8 +108,8 @@ export default class GameMenu extends React.Component {
     console.log('start game');
     signal.trigger(ec.game.startGame);
     this.setState({modalIdToDisplay:'none'});
-    this.startMenuAudio.currentTime = 0;
-    this.startMenuAudio.pause();
+    // this.startMenuAudio.currentTime = 0;
+    // this.startMenuAudio.pause();
   }
 
   createModalMap(){

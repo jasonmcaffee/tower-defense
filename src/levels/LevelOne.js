@@ -85,7 +85,8 @@ export default class LevelOne{
     // signal.trigger(ec.stage.addComponent, {component: new Galaxy()});
     signal.trigger(ec.stage.addComponent, {component: new SunLight({x: 100, y:100, z:700})});
 
-    signal.trigger(ec.stage.addComponent, {component: new Enemy({pathVectors, towerPositions}) });
+    //enemies
+    this.addEnemyAndRegisterWithStage(new Enemy({pathVectors, towerPositions}));
   }
 
 

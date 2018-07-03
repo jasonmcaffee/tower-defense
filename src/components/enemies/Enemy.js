@@ -1,4 +1,4 @@
-import {CubeGeometry, BoxGeometry, SphereGeometry, MeshNormalMaterial, MeshLambertMaterial, Mesh, Box3, Vector3, Texture, Object3D,  Sphere} from 'three';
+import {Clock, CubeGeometry, BoxGeometry, SphereGeometry, MeshNormalMaterial, MeshLambertMaterial, Mesh, Box3, Vector3, Texture, Object3D,  Sphere} from 'three';
 import {signal, eventConfig as ec, generateUniqueId, generateRandomNumber as grn} from "core/core";
 
 /**
@@ -8,6 +8,7 @@ export default class Enemy{
   componentId = generateUniqueId({name:'Enemy'})
   threejsObject
   hitBox
+  moveClock = new Clock()
   constructor({x=0, y=0, z=0, hitPoints=10, speed=1, fireIntervalMs=1000, firingRange=10, pathVectors=[], towerPositions=[]}={}){
     const {threejsObject, hitBox} = createThreejsObjectAndHitbox({x, y, z, componentId: this.componentId});
     this.threejsObject = threejsObject;
@@ -33,6 +34,7 @@ export default class Enemy{
 
   render(){
     //todo: move along the path.
+    this.travelPath();
     //todo: find closest enemy
   }
 
@@ -49,6 +51,29 @@ export default class Enemy{
   fireBullet({direction}={}){
     console.log(`Enemy firing bullet in direction: `, direction);
   }
+
+  travelPath({nearestTargetVector=this.nearestTargetVector, delta=this.moveClock.getDelta(), moveDistancePerSecond=this.moveDistancePerSecond}={}){
+    if(!nearestTargetVector){ return;}
+    if(this.stopMovingIfYouHitEarth()){return;}
+
+    let playerPositionVector = new Vector3(nearestTargetVector.x, nearestTargetVector.y, nearestTargetVector.z);
+
+    let startPosition = this.threejsObject.position;
+    let direction = new Vector3();
+    direction.subVectors(nearestTargetVector, startPosition);
+    this.currentDirection = direction;//needed so when we run into something we can back up.
+
+    let distance = (moveDistancePerSecond * delta);
+
+    let newPosition = new Vector3().copy(direction).normalize().multiplyScalar(distance);
+    this.threejsObject.position.add(newPosition);
+    this.hitBox = new Box3().setFromObject(this.threejsObject);
+
+    signal.trigger(ec.hitTest.updateComponentHitBox, {component:this});
+
+    this.performHitTest();
+  }
+
   //called on when ec.stage.addComponent is triggered with this as the component. (typically done by Level)
   addToScene({scene}) {
     scene.add(this.threejsObject);
@@ -61,6 +86,10 @@ export default class Enemy{
     signal.trigger(ec.hitTest.unregisterHittableComponent, {componentId});
   }
 }
+
+
+
+
 
 function createThreejsObjectAndHitbox({componentId, x, y, z}){
   const material = new MeshNormalMaterial();

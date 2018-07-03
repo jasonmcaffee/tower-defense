@@ -17,17 +17,17 @@ export default class TypeWriterText extends React.Component {
   componentWillMount({props=this.props}={}){
     // signal.registerSignals(this);
     this.setState(props);
-    this.typeWriterAudio = new Audio(typewriterSoundSource);
-    this.typeWriterAudio.loop = true;
-    this.typeWriterAudio.volume = 0.3;
+    // this.typeWriterAudio = new Audio(typewriterSoundSource);
+    // this.typeWriterAudio.loop = true;
+    // this.typeWriterAudio.volume = 0.3;
 
   }
   componentDidMount(){
     this.startTyping();
   }
   startTyping({state=this.state}={}){
-    this.typeWriterAudio.currentTime = 0;
-    this.typeWriterAudio.play();
+    // this.typeWriterAudio.currentTime = 0;
+    // this.typeWriterAudio.play();
     let {typeIntervalMs} = state;
     let self = this;
     this.typeIntervalId = setInterval(()=>{
@@ -47,7 +47,7 @@ export default class TypeWriterText extends React.Component {
   componentWillUnmount(){
     // signal.unregisterSignals(this);
     clearInterval(this.typeIntervalId);
-    this.typeWriterAudio.pause();
+    // this.typeWriterAudio.pause();
   }
   render(){
     let {className, fullTextToType, currentTextDisplayed, textClassName} = this.state;
