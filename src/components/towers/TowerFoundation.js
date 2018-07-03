@@ -26,23 +26,24 @@ const towerTypes = {
 
 };
 /**
- * ${NAME} -
+ * Is what enemies shoot at.
+ * Gets towers placed on it.
  */
 export default class TowerFoundation{
   componentId = generateUniqueId({name:'TowerFoundation'})
   threejsObject
   hitBox
-  level = 1
-  type = towerTypes.fire.type
-
-  constructor({x=0, y=0, z=0, size=7, type=towerTypes.fire.type}={}){
+  tower //various tower types are placed on the foundation
+  constructor({x=0, y=0, z=0, size=7, type=towerTypes.fire.type, tower}={}){
     const {threejsObject, hitBox} = createThreejsObjectAndHitbox({x, y, z, componentId: this.componentId, size});
-    this.threejsObject = threejsObject;
     this.hitBox = hitBox;
+    this.tower = tower;
+    this.threejsObject = tower ? tower.threejsObject : threejsObject;//use tower to display if present.
     signal.registerSignals(this);
   }
 
   signals = {
+    //fired when player fires select 'bullet' and determines it hit what it was aiming for
     [ec.player.selectedComponent]({selectedComponent}){
       if(this.componentId !== selectedComponent.componentId){return;}
       console.log(`player selected tower foundation`);
@@ -61,9 +62,12 @@ export default class TowerFoundation{
     signal.trigger(ec.hitTest.registerHittableComponent, {component:this});
   }
   //called on when ec.stage.destroyComponent is triggered.
-  destroy({scene, name=this.threejsObject.name, componentId=this.componentId}){
+  destroy({scene, name=this.threejsObject.name, componentId=this.componentId, tower=this.tower}){
     let object3d = scene.getObjectByName(name);
     scene.remove(object3d);
+    if(tower){
+      tower.destroy({scene});
+    }
     signal.trigger(ec.hitTest.unregisterHittableComponent, {componentId});
   }
 }

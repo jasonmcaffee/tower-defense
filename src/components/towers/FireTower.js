@@ -1,4 +1,4 @@
-import {CubeGeometry, BoxGeometry, SphereGeometry, MeshNormalMaterial, MeshLambertMaterial, Mesh, Box3, Vector3, Texture, Object3D, Sphere} from 'three';
+import {CubeGeometry, BoxGeometry, SphereGeometry, MeshNormalMaterial, MeshBasicMaterial, Mesh, Box3, Vector3, Texture, Object3D, Sphere} from 'three';
 import {signal, eventConfig as ec, generateUniqueId, generateRandomNumber as grn} from "core/core";
 
 /**
@@ -10,11 +10,14 @@ export default class FireTower {
   position = {x:0, y:0, z:0}
   hitPoints = 10
   fireIntervalMs = 1000
+  threejsObject //used by TowerFoundation to display
   constructor({x = 0, y = 0, z = 0, active=true, hitPoints=10, fireIntervalMs=1000} = {}) {
     this.active = active; //whether we are shooting bullets.
     this.position = {x, y, z}; //so we know where bullets fire from.
     this.hitPoints = hitPoints;
     this.fireIntervalMs = fireIntervalMs;
+    const {threejsObject} = createThreejsObject({componentId: this.componentId, x, y, z});
+    this.threejsObject = threejsObject;
     signal.registerSignals(this);
     this.startFiring();
   }
@@ -45,18 +48,20 @@ export default class FireTower {
     console.log(`fireTower firing from position: `, position);
   }
 
-  destroy(){
+  //called on by tower foundation
+  destroy({scene, name=this.threejsObject.name}){
+    let object3d = scene.getObjectByName(name);
+    scene.remove(object3d);
     signal.unregisterSignals(this);
   }
 }
 
-function createThreejsObjectAndHitbox({componentId, x, y, z}) {
-  const material = new MeshNormalMaterial();
-  const geometry = new CubeGeometry(2, 2, 2);
+function createThreejsObject({componentId, x, y, z, size=7}){
+  const material = new MeshBasicMaterial();
+  const geometry = new CubeGeometry(size, size, size);
   geometry.computeBoundingBox();
   const threejsObject = new Mesh(geometry, material);
   threejsObject.position.set(x, y, z);
   threejsObject.name = componentId;//needed for removing from scene
-  const hitBox = new Box3().setFromObject(threejsObject);
-  return {threejsObject, hitBox};
+  return {threejsObject};
 }
