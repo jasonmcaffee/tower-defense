@@ -64,6 +64,7 @@ export default class Player {
     },
     //follow the camera
     [ec.camera.positionChanged]({x, y, z, componentId=this.componentId}){
+      console.log(`player ec.camera.positionChanged`);
       this.threejsObject.position.set(x, y, z);
       this.hitBox = new Box3().setFromObject(this.threejsObject);
       signal.trigger(ec.player.positionChanged, {x, y, z});//move the galaxy
@@ -73,10 +74,12 @@ export default class Player {
       this.performHitTest();
     },
     [ec.stage.mouseClickedOnStage]({camera, cameraPosition, clientX, clientY, projector, width, height, cursorX, cursorY}){
+      console.log(`player ec.stage.mouseClickedOnStage`);
       this.fireSelectItemBullet();
     },
     //keep track of which direction the mouse is pointing so we can cast rays in that direction and determine if the player selected something
     [ec.cursor.mousexyzChanged]({x, y, z, direction}){
+      // console.log(`player ec.cursor.mousexyzChanged`);
       this.mouseVector = new Vector3(x, y, z);
       this.mouseDirection = direction; //so we can fire bullets.
     }
@@ -96,6 +99,7 @@ export default class Player {
     console.log('player hit animation');
   }
   fireSelectItemBullet(){
+    console.log(`player fire bullet. `, this.mouseDirection);
     if(!this.mouseDirection){return;}
     let direction = this.mouseDirection;
     let startPosition = this.mouseVector;

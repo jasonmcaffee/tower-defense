@@ -79,8 +79,9 @@ export default class LevelOne{
 
     signal.trigger(ec.stage.addComponent, {component: new Floor({numberOfLines:1000, distanceBetweenLines:100}) });
     signal.trigger(ec.stage.addComponent, {component: new Path({pathVectors}) });
-    signal.trigger(ec.stage.addComponent, {component: new Player({hitPoints:10, x: 100, y:100, z:200 })});
+
     signal.trigger(ec.stage.addComponent, {component: new Cursor()}); //needed to fire bullets
+    signal.trigger(ec.stage.addComponent, {component: new Player({hitPoints:10, x: 100, y:100, z:200 })});
     // signal.trigger(ec.stage.addComponent, {component: new Earth({radius:earthRadius})});
     // signal.trigger(ec.stage.addComponent, {component: new Galaxy()});
     signal.trigger(ec.stage.addComponent, {component: new SunLight({x: 100, y:100, z:700})});

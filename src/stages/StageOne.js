@@ -54,6 +54,8 @@ export default class StageOne {
   signals = {
     [ec.camera.setPosition]({x, y, z}){
       this.camera.position.set(x, y, z);
+      //allow player to start shooting immediately (needs mouse direction, which is calculated by cursor after this event)
+      signal.trigger(ec.camera.positionChanged, {x, y, z, camera:this.camera, xAmount:0, yAmount:0, zAmount:0});
     },
     [ec.camera.setLookAt]({x, y, z}){
       //console.log(`looking at x: ${x} y: ${y} z: ${z}`);
