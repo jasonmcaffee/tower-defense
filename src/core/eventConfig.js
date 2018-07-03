@@ -68,6 +68,9 @@ export const eventConfig = {
     upgradeTowerButtonClicked: 'towerUpgradeMenu.upgradeTowerButtonClicked',
     sellTowerButtonClicked: 'towerUpgradeMenu.sellTowerButtonClicked',
   },
+  level:{
+
+  },
   playerItems:{
     purchasableTowersChanged: 'playerItems.purchasableTowersChanged' //so menu knows what's available {purchasableTowers:[]}
   },

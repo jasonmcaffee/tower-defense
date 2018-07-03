@@ -12,6 +12,7 @@ import Galaxy from 'components/Galaxy';
 import AsteroidMine from 'components/AsteroidMine'
 import SunLight from 'components/SunLight';
 import TowerFoundation from 'components/towers/TowerFoundation';
+import Enemy from 'components/enemies/Enemy';
 
 export default class LevelOne{
   onDestroyFuncs = [] //stuff to run when we destroy.
@@ -41,9 +42,6 @@ export default class LevelOne{
     [ec.earth.doneExploding](){
       signal.trigger(ec.game.gameEnded, {resultMessage:"All those you loved are now dead.", didPlayerWin:false});
     },
-    [ec.player.selectedComponent]({selectedComponent}){
-
-    },
   }
 
   removeEnemy({componentId, enemies=this.enemies}={}){
@@ -70,7 +68,7 @@ export default class LevelOne{
     ];
 
     const towerPositions = [
-      {x: 0, y: 0, z: 0},
+      {x: 50, y: 50, z: 0},
       {x: 100, y: 0, z: 0},
       {x: 100, y: 200, z: 0},
     ];
@@ -85,7 +83,9 @@ export default class LevelOne{
     signal.trigger(ec.stage.addComponent, {component: new Cursor()}); //needed to fire bullets
     // signal.trigger(ec.stage.addComponent, {component: new Earth({radius:earthRadius})});
     // signal.trigger(ec.stage.addComponent, {component: new Galaxy()});
-     signal.trigger(ec.stage.addComponent, {component: new SunLight({x: 100, y:100, z:700})});
+    signal.trigger(ec.stage.addComponent, {component: new SunLight({x: 100, y:100, z:700})});
+
+    signal.trigger(ec.stage.addComponent, {component: new Enemy({pathVectors, towerPositions}) });
   }
 
 
@@ -100,82 +100,4 @@ export default class LevelOne{
     this.runDestroyFuncs();
     this.enemies = [];
   }
-}
-
-function createRandomCubeVectors({centerPosition, radius, numberToCreate=3000}){
-  let {x, y, z} = centerPosition;
-  let minX = x - radius;
-  let maxX = x + radius;
-  let minY = y - radius;
-  let maxY = y + radius;
-  let minZ = z - radius;
-  let maxZ = z + radius;
-
-  let vectors = [];
-  for(let i=1; i <= numberToCreate; ++i){
-    let vector = new Vector3( grn({min:minX, max:maxX}), grn({min:minY, max:maxY}), grn({min:minZ, max:maxZ}) );
-    vectors.push(vector);
-  }
-
-  return vectors;
-}
-
-function createRandomSphereVectors({centerPosition, radius, numberToCreate=3000}){
-  let cubeVectors = createRandomCubeVectors({centerPosition, radius, numberToCreate});
-  let sphereVectors = [];
-  let sphere = new Sphere(new Vector3(centerPosition.x, centerPosition.y, centerPosition.z), radius);
-  for(let i = 0, len=cubeVectors.length; i < len; ++i){
-    let cubeVector = cubeVectors[i];
-    let {x, y, z} = cubeVector;
-    let s = new Sphere(new Vector3(x, y, z), .1);
-    if(sphere.intersectsSphere(s)){
-      sphereVectors.push(cubeVector);
-    }
-  }
-  return sphereVectors;
-}
-
-
-function createRandomAsteroids({centerPosition, numberToCreate, radius}){
-
-  let randomCubeVectors = createRandomSphereVectors({centerPosition, numberToCreate, radius});
-  let randomAsteroids = randomCubeVectors.map((v)=>{
-    let {x, y, z} = v;
-    let component = new AsteroidMine({ rotationEnabled:false, x, y, z});
-    signal.trigger(ec.stage.addComponent, {component});
-    return component;
-  });
-  return randomAsteroids;
-
-}
-
-function randomSpherePointSameAs2({centerPosition, radius}){
-  var newPos = new Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5 ).normalize().multiplyScalar( radius * Math.random() );
-  return newPos;
-}
-/*
- https://stackoverflow.com/questions/5531827/random-point-on-a-given-sphere
- Returns a random point of a sphere, evenly distributed over the sphere.
- The sphere is centered at (x0,y0,z0) with the passed in radius.
- The returned point is returned as a three element array [x,y,z].
- */
-function randomSpherePointBad2({centerPosition,radius}){
-  let {x, y, z} = centerPosition;
-  var u = Math.random();
-  var v = Math.random();
-  var theta = 2 * Math.PI * u;
-  var phi = Math.acos(2 * v - 1);
-  var xResult = x + (radius * Math.sin(phi) * Math.cos(theta));
-  var yResult = y + (radius * Math.sin(phi) * Math.sin(theta));
-  var zResult = z + (radius * Math.cos(phi));
-  return new Vector3(xResult, yResult, zResult);
-}
-
-
-
-function radomSpherePointBad({min, max, radius}){
-  let vector = new Vector3( grn({min, max}), grn({min, max}), grn({min, max}) );
-  vector.normalize();
-  vector.multiplyScalar(radius);
-  return vector;
 }
