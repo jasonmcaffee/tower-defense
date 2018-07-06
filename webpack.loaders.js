@@ -5,6 +5,11 @@ module.exports = [
     loader: "babel-loader"
   },
   {
+    test: /\three.js$/,
+    exclude: /(node_modules|bower_components)/,
+    loader: "url-loader"
+  },
+  {
     test: /\.css$/,
     loaders: ['style-loader', 'css-loader?importLoaders=1'],
     exclude: ['node_modules']

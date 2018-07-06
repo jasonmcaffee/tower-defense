@@ -9,7 +9,7 @@ export default class Enemy{
   threejsObject
   hitBox
   moveClock = new Clock()
-  constructor({x=0, y=0, z=0, hitPoints=10, moveDistancePerSecond=9, fireIntervalMs=1000, firingRange=10, pathVectors=[], towerPositions=[]}={}){
+  constructor({x=0, y=0, z=0, hitPoints=10, moveDistancePerSecond=9, fireIntervalMs=1000, firingRange=10, damage=1, pathVectors=[], towerPositions=[]}={}){
     const {threejsObject, hitBox} = createThreejsObjectAndHitbox({x, y, z, componentId: this.componentId});
     this.threejsObject = threejsObject;
     this.hitBox = hitBox;
@@ -17,6 +17,7 @@ export default class Enemy{
     this.moveDistancePerSecond = moveDistancePerSecond;
     this.firingRange = firingRange;
     this.fireIntervalMs = fireIntervalMs;
+    this.damage = damage;
     this.position = {x, y, z};
     this.pathVectors = pathVectors;
     this.towerPositions = towerPositions;

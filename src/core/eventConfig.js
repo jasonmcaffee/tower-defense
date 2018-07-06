@@ -71,6 +71,12 @@ export const eventConfig = {
   level:{
 
   },
+  enemyWave:{
+    beginWave: 'enemyWave.beginWave',
+    endWave: 'enemyWave.endWave',
+    waveEnded: 'enemyWave.waveEnded',
+    waveBegan: 'enemyWave.waveBegan',
+  },
   playerItems:{
     purchasableTowersChanged: 'playerItems.purchasableTowersChanged' //so menu knows what's available {purchasableTowers:[]}
   },
