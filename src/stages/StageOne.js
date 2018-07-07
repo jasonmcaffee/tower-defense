@@ -6,7 +6,7 @@ import Floor from 'components/Floor';
 import HitTestService from 'services/HitTestService';
 
 
-const mouseLookingEnabled = true;
+const mouseLookingEnabled = false;
 
 export default class StageOne {
   camera
@@ -133,6 +133,7 @@ export default class StageOne {
     [ec.stage.destroyComponent]({componentId, scene=this.scene}){
       //since this is done while iterating over children, don't modify the array while looping. wait until next tick
       setTimeout(function(){
+        console.log(`stage destroying componentId: ${componentId}`);
         let component = this.removeChild({componentId});
         if(!component){return;} //same componentId over and over.
         component.destroy({scene});

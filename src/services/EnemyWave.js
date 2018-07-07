@@ -37,14 +37,14 @@ export default class EnemyWave{
 
   beginWave(){
     this.createEnemies();
-    signal.trigger(ec.enemyWave.waveBegan, {});
+    signal.trigger(ec.enemyWave.waveBegan, {waveName: this.name});
   }
 
   //called when all enemies die
   endWave({didPlayerWin=true, resultMessage="wave complete"}={}){
     clearInterval(this.startEnemyIntervalId);
     this.destroy();
-    signal.trigger(ec.enemyWave.waveEnded, {resultMessage, didPlayerWin});
+    signal.trigger(ec.enemyWave.waveEnded, {resultMessage, didPlayerWin, waveName: this.name});
   }
 
   createEnemies({enemyCount=this.enemyCount, enemyConfig=this.enemyConfig, startEnemyIntervalMs=this.startEnemyIntervalMs}={}){

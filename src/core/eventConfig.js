@@ -69,7 +69,7 @@ export const eventConfig = {
     sellTowerButtonClicked: 'towerUpgradeMenu.sellTowerButtonClicked',
   },
   level:{
-
+    completed: 'level.completed',
   },
   enemyWave:{
     beginWave: 'enemyWave.beginWave',

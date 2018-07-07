@@ -24,29 +24,28 @@ const pathVectors = [
 ];
 
 const towerPositions = [
-  // {x: 50, y: 50, z: 0},
-  // {x: 100, y: 0, z: 0},
-  // {x: 100, y: 200, z: 0},
+  {x: 50, y: 50, z: 0},
+  {x: 100, y: 0, z: 0},
+  {x: 100, y: 200, z: 0},
 ];
 
 const enemyWavesConfig = [
   {
-    name: 'Wave 1', x: 0, y: 0, z: 0, hitPoints: 10, damage: 1, enemyCount: 1, startEnemyIntervalMs: 500, towerPositions, pathVectors,
-    enemyConfig: {moveDistancePerSecond: 58, fireIntervalMs: 1000, firingRange: 10, },
+    name: 'Wave 1', x: 0, y: 0, z: 0, enemyCount: 1, startEnemyIntervalMs: 500, towerPositions, pathVectors,
+    enemyConfig: {moveDistancePerSecond: 58, fireIntervalMs: 1000, firingRange: 10, hitPoints: 10, damage: 1,},
   },
   {
-    name: 'Wave 2', x: 0, y: 0, z: 0, hitPoints: 10, damage: 1, enemyCount: 15, startEnemyIntervalMs: 500, towerPositions, pathVectors,
-    enemyConfig: {moveDistancePerSecond: 9, fireIntervalMs: 1000, firingRange: 10, },
+    name: 'Wave 2', x: 0, y: 0, z: 0, enemyCount: 15, startEnemyIntervalMs: 500, towerPositions, pathVectors,
+    enemyConfig: {moveDistancePerSecond: 9, fireIntervalMs: 1000, firingRange: 10, hitPoints: 10, damage: 1, },
   },
 ];
 
-
-
-
 export default class LevelOne{
   onDestroyFuncs = [] //stuff to run when we destroy.
-  enemies = []
-  constructor(){
+  constructor({currentWaveIndex=0, name='Level One'}={}){
+    this.currentWaveIndex = currentWaveIndex;
+    this.name = name;
+    this.components = [];//so we can unregister when level is completed.
     signal.registerSignals(this);
     this.addDestroy(function(){signal.unregisterSignals(this)});
   }
@@ -55,61 +54,53 @@ export default class LevelOne{
     [ec.player.died](){
       //let game menu know. let game know so it can destroy the stage.
       signal.trigger(ec.game.gameEnded, {resultMessage:"You died in agonizing pain.", didPlayerWin:false});
-      this.enemies = [];
     },
-    [ec.enemy.died]({componentId}){
-      this.removeEnemy({componentId});
-      if(this.enemies.length <= 0){
-        signal.trigger(ec.game.gameEnded, {resultMessage:"YOU HAVE DEFEATED HER!!!!.  THE EARTH IS SAVED!!!!", didPlayerWin:true});
-      }
+    [ec.enemyWave.waveEnded]({resultMessage, didPlayerWin, waveName}){
+      console.log(`wave ended: ${waveName}`);
+      this.currentWaveIndex++;
+      this.startNextWave();
     },
-    [ec.earth.died]({enemies=this.enemies}={}){
-      enemies.forEach(e=>{
-        signal.trigger(ec.stage.destroyComponent, {componentId: e.componentId});
-      });
-    },
-    [ec.earth.doneExploding](){
-      signal.trigger(ec.game.gameEnded, {resultMessage:"All those you loved are now dead.", didPlayerWin:false});
-    },
+
   }
 
-  removeEnemy({componentId, enemies=this.enemies}={}){
-    let index = enemies.findIndex(e=>e.componentId == componentId);
-    if(index < 0){return;}
-    enemies.splice(index, 1);
-  }
-
-  addEnemyAndRegisterWithStage(enemy){
-    this.enemies.push(enemy);
-    signal.trigger(ec.stage.addComponent, {component: enemy});
-  }
-
-  registerComponentsWithStage({earthRadius=150}={}){
-    //tell the camera where to look
-    signal.trigger(ec.controls.reset, {lat:-40, lon:-40});
-
-
-    for(let towerPosition of towerPositions){
-      signal.trigger(ec.stage.addComponent, {component: new TowerFoundation(towerPosition)});
+  startNextWave(){
+    if(this.currentWaveIndex + 1 >= enemyWavesConfig.length){
+      console.log(`no more waves for level`);
+      this.completeLevel();
+      return;
     }
-
-    signal.trigger(ec.stage.addComponent, {component: new Floor({numberOfLines:1000, distanceBetweenLines:100}) });
-    signal.trigger(ec.stage.addComponent, {component: new Path({pathVectors}) });
-
-    signal.trigger(ec.stage.addComponent, {component: new Cursor()}); //needed to fire bullets
-    signal.trigger(ec.stage.addComponent, {component: new Player({hitPoints:10, x: 100, y:100, z:200 })});
-    // signal.trigger(ec.stage.addComponent, {component: new Player({hitPoints:10, x: 93, y:189, z:12.5 })});
-    // signal.trigger(ec.stage.addComponent, {component: new Earth({radius:earthRadius})});
-    // signal.trigger(ec.stage.addComponent, {component: new Galaxy()});
-    signal.trigger(ec.stage.addComponent, {component: new SunLight({x: 100, y:100, z:700})});
-
-    //enemies
-    // this.addEnemyAndRegisterWithStage(new Enemy({pathVectors, towerPositions}));
-    const enemyWaveConfig = enemyWavesConfig[0]; //todo: track waves ending.
+    const enemyWaveConfig = enemyWavesConfig[this.currentWaveIndex]; //todo: track waves ending.
     const enemyWave = new EnemyWave(enemyWaveConfig);
     signal.trigger(ec.enemyWave.beginWave, {waveName: enemyWaveConfig.name});
   }
 
+  completeLevel(){
+    this.destroy();
+    signal.trigger(ec.level.completed, {levelName: this.name});
+  }
+
+  registerComponentsWithStage({}={}){
+    //tell the camera where to look
+    signal.trigger(ec.controls.reset, {lat:-40, lon:-40});
+
+    for(let towerPosition of towerPositions){
+      this.addComponent({component: new TowerFoundation(towerPosition)});
+    }
+
+    this.addComponent({component: new Floor({numberOfLines:1000, distanceBetweenLines:100}) });
+    this.addComponent({component: new Path({pathVectors}) });
+    this.addComponent({component: new Cursor()}); //needed to fire bullets
+    this.addComponent({component: new Player({hitPoints:10, x: 100, y:100, z:200 })});
+    this.addComponent({component: new SunLight({x: 100, y:100, z:700})});
+
+    //enemies
+    this.startNextWave();
+  }
+
+  addComponent({component}){
+    this.components.push(component);
+    signal.trigger(ec.stage.addComponent, {component});
+  }
 
   addDestroy(func){
     func.bind(this);
@@ -119,7 +110,8 @@ export default class LevelOne{
     onDestroyFuncs.forEach(f=>f());
   }
   destroy(){
+    this.components.forEach(component=>signal.trigger(ec.stage.destroyComponent, component));
     this.runDestroyFuncs();
-    this.enemies = [];
+    this.components = [];
   }
 }

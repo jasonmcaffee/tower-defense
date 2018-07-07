@@ -8,6 +8,7 @@ const style ={
 };
 
 export default class Path{
+  componentId = generateUniqueId({name: 'Path'})
   constructor({pathVectors=[]}={}){
     this.lines = pathVectors.map(pv=>createLine(pv));
   }
@@ -24,6 +25,13 @@ export default class Path{
   addLinesToScene({lines = this.lines, scene}){
     console.log(`path adding lines to scene: `, lines);
     lines.forEach(l => scene.add(l));
+  }
+
+  destroy({scene}){
+    this.lines.forEach(l => {
+      let object3d = scene.getObjectByName(l.name);
+      scene.remove(object3d);
+    });
   }
 }
 

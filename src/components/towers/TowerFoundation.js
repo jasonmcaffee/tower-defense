@@ -72,6 +72,7 @@ export default class TowerFoundation{
   destroy({scene, name=this.threejsObject.name, componentId=this.componentId, tower=this.tower}){
     let object3d = scene.getObjectByName(name);
     scene.remove(object3d);
+    console.log(`destroy TowerFoundation called`, object3d);
     if(tower){
       tower.destroy({scene});
     }
