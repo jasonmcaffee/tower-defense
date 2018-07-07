@@ -9,7 +9,7 @@ export default class Enemy{
   threejsObject
   hitBox
   moveClock = new Clock()
-  constructor({x=0, y=0, z=0, hitPoints=10, moveDistancePerSecond=9, fireIntervalMs=1000, firingRange=10, damage=1, pathVectors=[], towerPositions=[]}={}){
+  constructor({x=0, y=0, z=0, hitPoints=10, moveDistancePerSecond=9, fireIntervalMs=1000, firingRange=10, damage=1, pathVectors=[], towerPositions=[], size=2}={}){
     const {threejsObject, hitBox} = createThreejsObjectAndHitbox({x, y, z, componentId: this.componentId});
     this.threejsObject = threejsObject;
     this.hitBox = hitBox;
@@ -78,6 +78,7 @@ export default class Enemy{
     //update position
     let newPosition = new Vector3().copy(direction).normalize().multiplyScalar(distance);
     this.threejsObject.position.add(newPosition);
+    // console.log(`enemy pos: x: ${this.threejsObject.position.x} y: ${this.threejsObject.position.y} `);
     this.hitBox = new Box3().setFromObject(this.threejsObject);
     signal.trigger(ec.hitTest.updateComponentHitBox, {component:this});
 
@@ -86,16 +87,32 @@ export default class Enemy{
     oppositeDirection.subVectors(startPosition, pathPointVector);
     const raycaster = new Raycaster(pathPointVector, oppositeDirection);
     const intersects = raycaster.intersectObject(this.threejsObject);
-    if(intersects.length > 0){
+    // if(intersects.length > 0){
+    //   console.log(`- intersects: ${intersects[0].distance}`);
+    // }
+    if(intersects.length > 0 ){ //&& intersects[0].distance < .1
       console.log(`intersects: `, intersects);
+      console.log(`enemy position: x: ${this.threejsObject.position.x}    y: ${this.threejsObject.position.y}   z: ${this.threejsObject.position.z}`);
       this.startMovingTowardsNextPathVector();
     }
 
+    // const raycaster = new Raycaster(pathPointVector, direction);
+    // const intersects = raycaster.intersectObject(this.threejsObject);
+    // if(intersects.length > 0){
+    //   const intersect = intersects[0];
+    //   console.log(`intersect : `, intersect);
+    //   if(intersect.distance < 1){
+    //     this.startMovingTowardsNextPathVector();
+    //   }
+    //
+    // }
   }
 
   startMovingTowardsNextPathVector({pathVectors=this.pathVectors, currentPathVectorsIndex=this.currentPathVectorsIndex}={}){
     if(currentPathVectorsIndex >= pathVectors.length - 1){
       console.warn(`no other path vectors for enemy to travel to`);
+      signal.trigger(ec.enemy.reachedEndOfPath, {componentId: this.componentId});
+      signal.trigger(ec.stage.destroyComponent, {componentId: this.componentId});
       return;
     }
     this.currentPathVectorsIndex++;
@@ -120,9 +137,9 @@ export default class Enemy{
 
 
 
-function createThreejsObjectAndHitbox({componentId, x, y, z}){
+function createThreejsObjectAndHitbox({componentId, x, y, z, size}){
   const material = new MeshNormalMaterial();
-  const geometry = new CubeGeometry(2, 2, 2);
+  const geometry = new CubeGeometry(size, size, size);
   geometry.computeBoundingBox();
   const threejsObject = new Mesh(geometry, material);
   threejsObject.position.set(x, y, z);

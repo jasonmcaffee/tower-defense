@@ -24,15 +24,15 @@ const pathVectors = [
 ];
 
 const towerPositions = [
-  {x: 50, y: 50, z: 0},
-  {x: 100, y: 0, z: 0},
-  {x: 100, y: 200, z: 0},
+  // {x: 50, y: 50, z: 0},
+  // {x: 100, y: 0, z: 0},
+  // {x: 100, y: 200, z: 0},
 ];
 
 const enemyWavesConfig = [
   {
-    name: 'Wave 1', x: 0, y: 0, z: 0, hitPoints: 10, damage: 1, enemyCount: 5, startEnemyIntervalMs: 500, towerPositions, pathVectors,
-    enemyConfig: {moveDistancePerSecond: 9, fireIntervalMs: 1000, firingRange: 10, },
+    name: 'Wave 1', x: 0, y: 0, z: 0, hitPoints: 10, damage: 1, enemyCount: 1, startEnemyIntervalMs: 500, towerPositions, pathVectors,
+    enemyConfig: {moveDistancePerSecond: 58, fireIntervalMs: 1000, firingRange: 10, },
   },
   {
     name: 'Wave 2', x: 0, y: 0, z: 0, hitPoints: 10, damage: 1, enemyCount: 15, startEnemyIntervalMs: 500, towerPositions, pathVectors,
@@ -98,6 +98,7 @@ export default class LevelOne{
 
     signal.trigger(ec.stage.addComponent, {component: new Cursor()}); //needed to fire bullets
     signal.trigger(ec.stage.addComponent, {component: new Player({hitPoints:10, x: 100, y:100, z:200 })});
+    // signal.trigger(ec.stage.addComponent, {component: new Player({hitPoints:10, x: 93, y:189, z:12.5 })});
     // signal.trigger(ec.stage.addComponent, {component: new Earth({radius:earthRadius})});
     // signal.trigger(ec.stage.addComponent, {component: new Galaxy()});
     signal.trigger(ec.stage.addComponent, {component: new SunLight({x: 100, y:100, z:700})});

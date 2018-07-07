@@ -26,6 +26,13 @@ export default class EnemyWave{
         this.endWave();
       }
     },
+    [ec.enemy.reachedEndOfPath]({componentId}){
+      console.log(`enemy.reachedEndOfPath: ${componentId}`);
+      this.removeEnemy({componentId});
+      if(this.enemies.length <= 0){
+        this.endWave();
+      }
+    },
   }
 
   beginWave(){
@@ -41,7 +48,7 @@ export default class EnemyWave{
   }
 
   createEnemies({enemyCount=this.enemyCount, enemyConfig=this.enemyConfig, startEnemyIntervalMs=this.startEnemyIntervalMs}={}){
-    let createdEnemyCount = 0;
+    let createdEnemyCount = 1;
     this.startEnemyIntervalId = setInterval(()=>{
       if(createdEnemyCount++ > enemyCount){
         clearInterval(this.startEnemyIntervalId);

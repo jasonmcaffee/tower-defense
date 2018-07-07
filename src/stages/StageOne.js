@@ -6,7 +6,7 @@ import Floor from 'components/Floor';
 import HitTestService from 'services/HitTestService';
 
 
-const mouseLookingEnabled = false;
+const mouseLookingEnabled = true;
 
 export default class StageOne {
   camera
