@@ -5,8 +5,8 @@ const fireType = 'fire';
 const iceType = 'ice';
 
 const purchasableTowersConfig = [
-  {cost: 20, label:'fire', type: fireType, enabled: true,},
-  {cost: 30, label:'ice', type: iceType, enabled: true},
+  {cost: 20, label:fireType, type: fireType, enabled: true,},
+  {cost: 30, label:iceType, type: iceType, enabled: true},
 ];
 
 /**
@@ -40,20 +40,15 @@ export default class PlayerItems{
     [ec.towerUpgradeMenu.sellTowerButtonClicked]({}){
 
     },
+
+    /**
+     * Trust that the purchasableTower is valid for now... (makes orchestration easier. otherwise need to validate)
+     * @param purchasableTower
+     * @param towerFoundationId
+     */
     [ec.towerUpgradeMenu.purchaseTowerClicked]({purchasableTower, towerFoundationId}){
       console.log(`PlayerItems received purchaseTowerClicked for: `, towerFoundationId);
+      signal.trigger(ec.towerFoundation.createAndPlaceTower, {towerFoundationId, towerType: purchasableTower.type});
     }
   }
-}
-
-function createTowerBasedOnPurchasableTowerConfig({cost, label, type}){
-  let result;
-  switch(type){
-    case fireType:
-      break;
-    default:
-      console.error(`unknown tower type: ${type}`);
-      break;
-  }
-  return result
 }

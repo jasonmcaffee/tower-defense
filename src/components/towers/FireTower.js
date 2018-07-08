@@ -17,6 +17,7 @@ export default class FireTower {
   constructor({x = 0, y = 0, z = 0, active=true, hitPoints=10, fireIntervalMs=1000, cost=1} = {}) {
     this.active = active; //whether we are shooting bullets.
     this.position = {x, y, z}; //so we know where bullets fire from.
+    console.log(`FireTower created at: `, this.position);
     this.hitPoints = hitPoints;
     this.fireIntervalMs = fireIntervalMs;
     const {threejsObject} = createThreejsObject({componentId: this.componentId, x, y, z});
@@ -65,7 +66,7 @@ export default class FireTower {
   }
 
   fireBullet({position=this.position}={}){
-    console.log(`fireTower firing from position: `, position);
+    // console.log(`fireTower firing from position: `, position);
   }
 
   //called on by tower foundation
@@ -76,7 +77,7 @@ export default class FireTower {
   }
 }
 
-function createThreejsObject({componentId, x, y, z, size=7}){
+function createThreejsObject({componentId, x, y, z, size=20}){
   const material = new MeshBasicMaterial();
   const geometry = new CubeGeometry(size, size, size);
   geometry.computeBoundingBox();

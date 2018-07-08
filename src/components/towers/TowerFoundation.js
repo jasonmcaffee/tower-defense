@@ -1,30 +1,10 @@
 import {CubeGeometry, BoxGeometry, SphereGeometry, MeshNormalMaterial, MeshLambertMaterial, Mesh, Box3, Vector3, Texture, Object3D,  Sphere} from 'three';
 import {signal, eventConfig as ec, generateUniqueId, generateRandomNumber as grn} from "core/core";
+import FireTower from 'components/towers/FireTower';
 
-const towerTypes = {
-  fire: {
-    type: 'fire',
-    damage: 1,
-    maxUpgrades: 2,
-    level: 1,
-    bulletCausesSlownessModifier: 0,
-  },
-  ice: {
-    type: 'fire',
-    damage: 1,
-    maxUpgrades: 2,
-    level: 1,
-    bulletCausesSlownessModifier: 0,
-  },
-  none: {
-    type: 'none',
-    damage: 0,
-    maxUpgrades: 0,
-    level: 0,
-    bulletCausesSlownessModifier: 0,
-  },
+const fireType = 'fire';
+const iceType = 'ice';
 
-};
 /**
  * Is what enemies shoot at.
  * Gets towers placed on it.
@@ -34,9 +14,9 @@ export default class TowerFoundation{
   threejsObject
   hitBox
   tower //various tower types are placed on the foundation
-  constructor({x=0, y=0, z=0, size=7, type=towerTypes.fire.type, tower}={}){
+  constructor({x=0, y=0, z=0, size=7,tower}={}){
     const {threejsObject, hitBox} = createThreejsObjectAndHitbox({x, y, z, componentId: this.componentId, size});
-    this.hitBox = hitBox;
+    this.hitBox = hitBox; //should always remain the same, based off the original threejsHitBox, so each tower doesn't have to define.
     this.tower = tower;
     this.threejsObject = tower ? tower.threejsObject : threejsObject;//use tower to display if present.
     signal.registerSignals(this);
@@ -49,15 +29,28 @@ export default class TowerFoundation{
       console.log(`player selected tower foundation`);
       //let PlayerItems know we've been selected
       signal.trigger(ec.towerFoundation.selectedByPlayer, {towerFoundationId:this.componentId, towerUpgradeInfo: this.getTowerUpgradeInfo() } );
-    }
+    },
+
+    [ec.towerFoundation.createAndPlaceTower]({towerFoundationId, towerType}={}){
+      if(towerFoundationId !== this.componentId){return;}
+      console.log(`towerFoundation placing new tower of type: ${towerType}`);
+      const towerToPlace = createTowerBasedOnPurchasableTowerConfig({towerType, x: this.threejsObject.position.x, y: this.threejsObject.position.y, z: this.threejsObject.position.z});
+      this.switchThreeJsObject({threejsObject: towerToPlace.threejsObject});
+    },
   }
 
   render(){
 
   }
 
+  switchThreeJsObject({threejsObject, componentId=this.componentId}){
+    signal.trigger(ec.stage.destroyComponent, {componentId}); //TODO: getting called after addComponent because of setTimeout
+    this.threejsObject = threejsObject;
+    signal.trigger(ec.stage.addComponent, {component: this});
+  }
+
   /**
-   * Called on by PlayerItems when displaying upgrade options to user.
+   * Called on when displaying upgrade options to user.
    * @param tower
    * @returns {*}
    */
@@ -70,11 +63,13 @@ export default class TowerFoundation{
 
   //called on when ec.stage.addComponent is triggered with this as the component. (typically done by Level)
   addToScene({scene}) {
+    console.log(`TowerFoundation addToScene for threejsObject: `, this.threejsObject);
     scene.add(this.threejsObject);
     signal.trigger(ec.hitTest.registerHittableComponent, {component:this});
   }
   //called on when ec.stage.destroyComponent is triggered.
   destroy({scene, name=this.threejsObject.name, componentId=this.componentId, tower=this.tower}){
+    console.log(`TowerFoundation destroy called`);
     let object3d = scene.getObjectByName(name);
     scene.remove(object3d);
     if(tower){
@@ -82,6 +77,22 @@ export default class TowerFoundation{
     }
     signal.trigger(ec.hitTest.unregisterHittableComponent, {componentId});
   }
+}
+
+
+function createTowerBasedOnPurchasableTowerConfig({towerType, x, y, z}){
+  let result;
+  switch(towerType){
+    case fireType:
+      result = new FireTower({x, y, z });
+      break;
+    case iceType:
+      break;
+    default:
+      console.error(`unknown tower type: ${towerType}`);
+      break;
+  }
+  return result
 }
 
 function createThreejsObjectAndHitbox({componentId, x, y, z, size=7}){
