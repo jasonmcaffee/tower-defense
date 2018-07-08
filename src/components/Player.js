@@ -46,7 +46,7 @@ export default class Player {
       let componentId = hitComponent.componentId;
       //check
       if (this.componentId !== componentId) {
-        if(ownerComponentId != this.componentId){return;}
+        if(ownerComponentId !== this.componentId){return;}
 
         if(hitByComponent.isPlayerSelectItem){ //bullets fired on click get this property added to them.
           console.log(`player selected item: `, hitComponent);
@@ -57,7 +57,7 @@ export default class Player {
     },
     //see if we hit anything while moving.e.g earth
     [ec.hitTest.hitTestResult]({doesIntersect, hitteeComponentId, hitComponentId, damage=this.damage}){
-      if(this.componentId != hitteeComponentId || this.hitExclusionComponentId == hitComponentId){return;}
+      if(this.componentId !== hitteeComponentId || this.hitExclusionComponentId === hitComponentId){return;}
       this.hasHit = true;
       console.log(`player has hit something ${hitteeComponentId}  ${hitComponentId}`);
       this.moveInOppositeDirection();

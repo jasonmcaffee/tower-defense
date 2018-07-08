@@ -96,6 +96,9 @@ export default class Enemy{
       this.startMovingTowardsNextPathVector();
     }
 
+    const {x, y, z} = this.threejsObject.position;
+    signal.trigger(ec.enemy.positionChanged, {componentId: this.componentId, x, y, z });//let towers know where we are.
+
     // const raycaster = new Raycaster(pathPointVector, direction);
     // const intersects = raycaster.intersectObject(this.threejsObject);
     // if(intersects.length > 0){

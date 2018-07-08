@@ -93,7 +93,8 @@ export const eventConfig = {
   enemy:{
     died: 'enemy.died', //so game config can determine if game ended.
     targetPositionChanged: 'enemy.target.positionChanged', //for earth, player, etc. lets enemies know where there targets are.
-    reachedEndOfPath: 'enemy.reachedEndOfPath' //let enemy wave know
+    reachedEndOfPath: 'enemy.reachedEndOfPath', //let enemy wave know
+    positionChanged: 'enemy.positionChanged',
   },
   game:{
     startGame:'game.startGame',

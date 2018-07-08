@@ -1,15 +1,12 @@
 import {LineSegments, LineBasicMaterial, EdgesGeometry, TetrahedronGeometry, MeshNormalMaterial, MeshBasicMaterial, Mesh, Box3, Vector3, Texture, Object3D, Sphere} from 'three';
 import {signal, eventConfig as ec, generateUniqueId, generateRandomNumber as grn} from "core/core";
+import Bullet from 'components/Bullet';
 
 /**
  * Should shoot fire bullets
  */
 export default class FireTower {
   componentId = generateUniqueId({name: 'FireTower'}) //needed for hit test ownerId on bullets.
-  active = true
-  position = {x:0, y:0, z:0}
-  hitPoints = 10
-  fireIntervalMs = 1000
   threejsObject //used by TowerFoundation to display
   level = 1
   maxLevel = 10
@@ -36,7 +33,7 @@ export default class FireTower {
       const componentId = hitComponent.componentId;
       //detect if we hit something
       if (this.componentId === componentId) {
-        console.log(`fire tower hit ${damage}!!`);
+        console.log(`fire tower was hit ${damage}!!`);
         this.hitPoints -= damage;
       }else if(ownerComponentId === this.componentId){
         console.log(`fire tower hit something.`);
@@ -69,8 +66,17 @@ export default class FireTower {
     }, this.fireIntervalMs);
   }
 
-  fireBullet({position=this.position}={}){
-    // console.log(`fireTower firing from position: `, position);
+  fireBullet({startPosition=this.position, hitExclusionComponentId=this.componentId, ownerComponentId=this.componentId}={}){
+    const enemyPosition = this.getNearestEnemyPosition();
+    const direction ={};
+
+
+    let bullet = new Bullet({direction, startPosition, hitExclusionComponentId, ownerComponentId, playSound: false, distancePerSecond:3000});
+    signal.trigger(ec.stage.addComponent, {component:bullet});
+  }
+
+  getNearestEnemyPosition(){
+
   }
 
   //called on by tower foundation
