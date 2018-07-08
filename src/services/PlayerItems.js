@@ -53,7 +53,7 @@ export default class PlayerItems{
         return console.warn(`tower costs more than player has`);
       }
       this.coins -= purchasableTower.cost;
-      signal.trigger(ec.towerFoundation.createAndPlaceTower, {towerFoundationId, towerType: purchasableTower.type});
+      signal.trigger(ec.towerFoundation.createAndPlaceTower, {towerFoundationId, towerType: purchasableTower.type, cost: purchasableTower.cost});
       signal.trigger(ec.playerItems.playerCoinsChanged, {playerCoins: this.coins});
     }
   }

@@ -31,10 +31,10 @@ export default class TowerFoundation{
       signal.trigger(ec.towerFoundation.selectedByPlayer, {towerFoundationId:this.componentId, towerUpgradeInfo: this.getTowerUpgradeInfo() } );
     },
 
-    [ec.towerFoundation.createAndPlaceTower]({towerFoundationId, towerType}={}){
+    [ec.towerFoundation.createAndPlaceTower]({towerFoundationId, towerType, cost}={}){
       if(towerFoundationId !== this.componentId){return;}
       console.log(`towerFoundation placing new tower of type: ${towerType}`);
-      const towerToPlace = createTowerBasedOnPurchasableTowerConfig({towerType, x: this.threejsObject.position.x, y: this.threejsObject.position.y, z: this.threejsObject.position.z});
+      const towerToPlace = createTowerBasedOnPurchasableTowerConfig({towerType, x: this.threejsObject.position.x, y: this.threejsObject.position.y, z: this.threejsObject.position.z, cost});
       this.tower = towerToPlace;
       this.switchThreeJsObject({threejsObject: towerToPlace.threejsObject});
       signal.trigger(ec.towerFoundation.towerUpgradeInfoChanged, {towerFoundationId:this.componentId, towerUpgradeInfo: this.getTowerUpgradeInfo() } );
