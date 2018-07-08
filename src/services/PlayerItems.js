@@ -4,10 +4,12 @@ import {signal, eventConfig as ec} from "core/core";
 const fireType = 'fire';
 const iceType = 'ice';
 
-const purchasableTowersConfig = [
-  {cost: 20, label:fireType, type: fireType, enabled: true,},
-  {cost: 30, label:iceType, type: iceType, enabled: true},
-];
+function getDefaultPurchasableTowers(){
+  return [
+    {cost: 20, label:fireType, type: fireType, enabled: true,},
+    {cost: 30, label:iceType, type: iceType, enabled: true},
+  ];
+}
 
 /**
  * Contains items for the player.
@@ -16,7 +18,7 @@ const purchasableTowersConfig = [
 export default class PlayerItems{
   coins = 0 //what player spends and earns
   purchasableTowers=[] //sent to TowerUpgradeMenu
-  constructor({coins=100, purchasableTowers=purchasableTowersConfig}={}){
+  constructor({coins=100, purchasableTowers=getDefaultPurchasableTowers()}={}){
     this.coins = coins;
     signal.trigger(ec.playerItems.playerCoinsChanged, {playerCoins: this.coins});
     this.purchasableTowers = purchasableTowers;
@@ -55,6 +57,13 @@ export default class PlayerItems{
       this.coins -= purchasableTower.cost;
       signal.trigger(ec.towerFoundation.createAndPlaceTower, {towerFoundationId, towerType: purchasableTower.type, cost: purchasableTower.cost});
       signal.trigger(ec.playerItems.playerCoinsChanged, {playerCoins: this.coins});
+      this.disablePurchasableTowers();
     }
+  }
+
+  //when a tower is purchased the upgrade menu should not allow you to buy more (should have to sell first)
+  disablePurchasableTowers({purchasableTowers=this.purchasableTowers}={}){
+    purchasableTowers.forEach(pt=>pt.enabled=false);
+    signal.trigger(ec.playerItems.purchasableTowersChanged, {purchasableTowers});
   }
 }

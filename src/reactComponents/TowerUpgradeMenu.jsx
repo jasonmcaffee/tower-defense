@@ -71,8 +71,9 @@ export default class TowerUpgradeMenu extends React.Component {
   }
   createPurchasableTowerElements({purchasableTowers, towerFoundationId}){
     const items = purchasableTowers.map(pt=>{
+      const className = pt.enabled ? "" : "disabled";
       return (
-        <purchasable-tower onClick={this.handlePurchaseTowerButtonClick.bind(this, pt, towerFoundationId)}>
+        <purchasable-tower class={className} onClick={this.handlePurchaseTowerButtonClick.bind(this, pt, towerFoundationId)}>
           <label>{pt.label}</label>
           <cost>{pt.cost}</cost>
         </purchasable-tower>)

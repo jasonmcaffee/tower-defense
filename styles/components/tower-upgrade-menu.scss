@@ -43,6 +43,10 @@ purchasable-tower{
   grid-template-areas:
           "label label"
           "cost cost";
+  &.disabled{
+    background-color: darkgray;
+    color: gray;
+  }
   cost {
     display: block;
     grid-area: cost;
