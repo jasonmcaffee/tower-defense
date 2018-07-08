@@ -38,19 +38,20 @@ export default class TowerUpgradeMenu extends React.Component {
   handleSellButtonClick(e){
     signal.trigger(ec.towerUpgradeMenu.sellTowerButtonClicked, {});
   }
-  handlePurchaseTowerButtonClick(purchasableTower, e){
-    console.log(`purchasable tower clicked: `, purchasableTower);
+  handlePurchaseTowerButtonClick(purchasableTower, towerFoundation, e){
+    console.log(`purchasable tower clicked: `, purchasableTower, towerFoundation);
+    signal.trigger(ec.towerUpgradeMenu.purchaseTowerClicked, {purchasableTower, towerFoundation}); //let player items know
   }
   render(){
     let {label, onClick, className} = this.props;
-    const {visible, purchasableTowers, towerUpgradeInfo} = this.state;
+    const {visible, purchasableTowers, towerUpgradeInfo, towerFoundation} = this.state;
     const {isUpgradable, missingTower, upgradeCost, sellValue} = towerUpgradeInfo;
     if(!visible){return null;}
     className = className || "tower-upgrade-menu";
     let upgradeButtonClassName = isUpgradable ? "" : "disabled";
     const sellButtonClassName = missingTower ? "disabled" : "";
 
-    const purchasableTowerElements = this.createPurchasableTowerElements({purchasableTowers});
+    const purchasableTowerElements = this.createPurchasableTowerElements({purchasableTowers, towerFoundation});
 
     return(
       <div className={className}>
@@ -63,10 +64,10 @@ export default class TowerUpgradeMenu extends React.Component {
       </div>
     );
   }
-  createPurchasableTowerElements({purchasableTowers}){
+  createPurchasableTowerElements({purchasableTowers, towerFoundation}){
     const items = purchasableTowers.map(pt=>{
       return (
-        <purchasable-tower onClick={this.handlePurchaseTowerButtonClick.bind(this, pt)}>
+        <purchasable-tower onClick={this.handlePurchaseTowerButtonClick.bind(this, pt, towerFoundation)}>
           <label>{pt.label}</label>
           <cost>{pt.cost}</cost>
         </purchasable-tower>)

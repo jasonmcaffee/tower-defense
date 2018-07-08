@@ -67,6 +67,7 @@ export const eventConfig = {
     hide: 'towerUpgradeMenu.hide',
     upgradeTowerButtonClicked: 'towerUpgradeMenu.upgradeTowerButtonClicked',
     sellTowerButtonClicked: 'towerUpgradeMenu.sellTowerButtonClicked',
+    purchaseTowerClicked: 'towerUpgradeMenu.purchaseTowerClicked'
   },
   level:{
     completed: 'level.completed',
@@ -78,7 +79,7 @@ export const eventConfig = {
     waveBegan: 'enemyWave.waveBegan',
   },
   playerItems:{
-    purchasableTowersChanged: 'playerItems.purchasableTowersChanged' //so menu knows what's available {purchasableTowers:[]}
+    purchasableTowersChanged: 'playerItems.purchasableTowersChanged', //so menu knows what's available {purchasableTowers:[]}
   },
   earth:{
     hitPointsChanged: 'earth.hitPointsChanged',

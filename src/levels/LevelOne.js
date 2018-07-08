@@ -40,6 +40,9 @@ const enemyWavesConfig = [
   },
 ];
 
+/**
+ * Coordinates EnemyWaves, tower positions, paths
+ */
 export default class LevelOne{
   onDestroyFuncs = [] //stuff to run when we destroy.
   constructor({currentWaveIndex=0, name='Level One'}={}){
@@ -75,8 +78,8 @@ export default class LevelOne{
   }
 
   completeLevel(){
-    this.destroy();
-    signal.trigger(ec.level.completed, {levelName: this.name});
+    // this.destroy();
+    // signal.trigger(ec.level.completed, {levelName: this.name});
   }
 
   registerComponentsWithStage({}={}){
