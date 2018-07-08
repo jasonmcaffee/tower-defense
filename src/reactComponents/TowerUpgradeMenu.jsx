@@ -23,6 +23,11 @@ export default class TowerUpgradeMenu extends React.Component {
     [ec.towerUpgradeMenu.show]({towerFoundationId, purchasableTowers, towerUpgradeInfo}){
       this.setState({visible: true, towerFoundationId, purchasableTowers, towerUpgradeInfo});
     },
+    //after tower has been upgraded, redisplay updated upgrade info.
+    [ec.towerFoundation.towerUpgradeInfoChanged]({towerFoundationId, towerUpgradeInfo}){
+      console.log(`UpgradeMenu tower upgrade info changed: `, towerUpgradeInfo);
+      this.setState({towerFoundationId, towerUpgradeInfo});
+    },
     [ec.towerUpgradeMenu.hide](){
       this.setState({visible: false});
     },

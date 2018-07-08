@@ -21,7 +21,7 @@ export default class PlayerItems{
     signal.trigger(ec.playerItems.playerCoinsChanged, {playerCoins: this.coins});
     this.purchasableTowers = purchasableTowers;
     signal.registerSignals(this);
-    signal.trigger(ec.playerItems.purchasableTowersChanged, {purchasableTowers});
+    signal.trigger(ec.playerItems.purchasableTowersChanged, {purchasableTowers});//not sure this is needed.
   }
 
   signals = {

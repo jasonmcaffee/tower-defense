@@ -35,7 +35,9 @@ export default class TowerFoundation{
       if(towerFoundationId !== this.componentId){return;}
       console.log(`towerFoundation placing new tower of type: ${towerType}`);
       const towerToPlace = createTowerBasedOnPurchasableTowerConfig({towerType, x: this.threejsObject.position.x, y: this.threejsObject.position.y, z: this.threejsObject.position.z});
+      this.tower = towerToPlace;
       this.switchThreeJsObject({threejsObject: towerToPlace.threejsObject});
+      signal.trigger(ec.towerFoundation.towerUpgradeInfoChanged, {towerFoundationId:this.componentId, towerUpgradeInfo: this.getTowerUpgradeInfo() } );
     },
   }
 
@@ -80,11 +82,11 @@ export default class TowerFoundation{
 }
 
 
-function createTowerBasedOnPurchasableTowerConfig({towerType, x, y, z}){
+function createTowerBasedOnPurchasableTowerConfig({towerType, x, y, z, cost}){
   let result;
   switch(towerType){
     case fireType:
-      result = new FireTower({x, y, z });
+      result = new FireTower({x, y, z, cost });
       break;
     case iceType:
       break;
