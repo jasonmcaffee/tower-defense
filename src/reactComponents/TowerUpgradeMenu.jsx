@@ -36,12 +36,11 @@ export default class TowerUpgradeMenu extends React.Component {
     },
   }
 
-  handleUpgradeButtonClick(e){
-    console.log(`handleUpgradeButtonClick`);
-    signal.trigger(ec.towerUpgradeMenu.upgradeTowerButtonClicked, {});
+  handleUpgradeButtonClick(towerFoundationId, towerUpgradeInfo, e){
+    signal.trigger(ec.towerUpgradeMenu.upgradeTowerButtonClicked, {towerFoundationId, towerUpgradeInfo});
   }
-  handleSellButtonClick(e){
-    signal.trigger(ec.towerUpgradeMenu.sellTowerButtonClicked, {});
+  handleSellButtonClick(towerFoundationId, towerUpgradeInfo, e){
+    signal.trigger(ec.towerUpgradeMenu.sellTowerButtonClicked, {towerFoundationId, towerUpgradeInfo});
   }
   handlePurchaseTowerButtonClick(purchasableTower, towerFoundationId, e){
     console.log(`purchasable tower clicked: `, purchasableTower, towerFoundationId);
@@ -61,8 +60,8 @@ export default class TowerUpgradeMenu extends React.Component {
     return(
       <div className={className}>
         Tower Upgrade Menu
-        <upgrade-tower-button class={upgradeButtonClassName} onClick={this.handleUpgradeButtonClick.bind(this)}>Upgrade {upgradeCost}</upgrade-tower-button>
-        <sell-tower-button class={sellButtonClassName} onClick={this.handleSellButtonClick.bind(this)} >Sell {sellValue}</sell-tower-button>
+        <upgrade-tower-button class={upgradeButtonClassName} onClick={this.handleUpgradeButtonClick.bind(this, towerFoundationId, towerUpgradeInfo)}>Upgrade {upgradeCost}</upgrade-tower-button>
+        <sell-tower-button class={sellButtonClassName} onClick={this.handleSellButtonClick.bind(this, towerFoundationId, towerUpgradeInfo)} >Sell {sellValue}</sell-tower-button>
         <purchasable-towers>
           {purchasableTowerElements}
         </purchasable-towers>

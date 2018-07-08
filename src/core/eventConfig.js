@@ -63,6 +63,7 @@ export const eventConfig = {
     selectedByPlayer: 'towerFoundation.selectedByPlayer', //when player.selectedComponent is towerFoundation. {towerFoundation}
     createAndPlaceTower: 'towerFoundation.createAndPlaceTower', //when user purchases a tower
     towerUpgradeInfoChanged: 'towerFoundation.towerUpgradeInfoChanged', //after we purchase/sell/upgrade, we want the upgrade menu to be updated.
+    destroyTower: 'towerFoundation.destroyTower', //when tower is sold
   },
   towerUpgradeMenu:{
     show: 'towerUpgradeMenu.show',

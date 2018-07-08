@@ -1,16 +1,5 @@
 import {signal, eventConfig as ec} from "core/core";
 
-
-const fireType = 'fire';
-const iceType = 'ice';
-
-function getDefaultPurchasableTowers(){
-  return [
-    {cost: 20, label:fireType, type: fireType, enabled: true,},
-    {cost: 30, label:iceType, type: iceType, enabled: true},
-  ];
-}
-
 /**
  * Contains items for the player.
  * Handles orchestration of upgrade tower menu selections (user clicks on tower, then is displayed menu, then clicks upgrade, etc)
@@ -18,12 +7,10 @@ function getDefaultPurchasableTowers(){
 export default class PlayerItems{
   coins = 0 //what player spends and earns
   purchasableTowers=[] //sent to TowerUpgradeMenu
-  constructor({coins=100, purchasableTowers=getDefaultPurchasableTowers()}={}){
+  constructor({coins=100}={}){
     this.coins = coins;
-    signal.trigger(ec.playerItems.playerCoinsChanged, {playerCoins: this.coins});
-    this.purchasableTowers = purchasableTowers;
     signal.registerSignals(this);
-    signal.trigger(ec.playerItems.purchasableTowersChanged, {purchasableTowers});//not sure this is needed.
+    signal.trigger(ec.playerItems.playerCoinsChanged, {playerCoins: this.coins});
   }
 
   signals = {
@@ -33,15 +20,18 @@ export default class PlayerItems{
      * @param towerFoundation
      * @param purchasableTowers
      */
-    [ec.towerFoundation.selectedByPlayer]({towerFoundationId, towerUpgradeInfo, purchasableTowers=this.purchasableTowers}){
+    [ec.towerFoundation.selectedByPlayer]({towerFoundationId, towerUpgradeInfo, purchasableTowers}){
       console.log(`PlayerItems towerFoundation.selectedByPlayer. displaying upgrade menu`, towerUpgradeInfo, towerFoundationId);
       signal.trigger(ec.towerUpgradeMenu.show, {towerFoundationId, purchasableTowers, towerUpgradeInfo});
     },
     [ec.towerUpgradeMenu.upgradeTowerButtonClicked]({}){
 
     },
-    [ec.towerUpgradeMenu.sellTowerButtonClicked]({}){
-
+    [ec.towerUpgradeMenu.sellTowerButtonClicked]({towerFoundationId, towerUpgradeInfo}){
+      console.log(`PlayerItems sellTowerButtonClicked handler: `, towerFoundationId, towerUpgradeInfo);
+      signal.trigger(ec.towerFoundation.destroyTower, {towerFoundationId});
+      this.coins += towerUpgradeInfo.sellValue;
+      signal.trigger(ec.playerItems.playerCoinsChanged, {playerCoins: this.coins});
     },
 
     /**
@@ -57,13 +47,6 @@ export default class PlayerItems{
       this.coins -= purchasableTower.cost;
       signal.trigger(ec.towerFoundation.createAndPlaceTower, {towerFoundationId, towerType: purchasableTower.type, cost: purchasableTower.cost});
       signal.trigger(ec.playerItems.playerCoinsChanged, {playerCoins: this.coins});
-      this.disablePurchasableTowers();
     }
-  }
-
-  //when a tower is purchased the upgrade menu should not allow you to buy more (should have to sell first)
-  disablePurchasableTowers({purchasableTowers=this.purchasableTowers}={}){
-    purchasableTowers.forEach(pt=>pt.enabled=false);
-    signal.trigger(ec.playerItems.purchasableTowersChanged, {purchasableTowers});
   }
 }

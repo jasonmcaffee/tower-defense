@@ -64,7 +64,7 @@ export default class FireTower {
 
   startFiring(){
     const self = this;
-    setInterval(()=>{
+    this.fireBulletIntervalId = setInterval(()=>{
       self.fireBullet();
     }, this.fireIntervalMs);
   }
@@ -75,9 +75,11 @@ export default class FireTower {
 
   //called on by tower foundation
   destroy({scene, name=this.threejsObject.name}){
+    console.log(`FireTower destroy called`);
     let object3d = scene.getObjectByName(name);
     scene.remove(object3d);
     signal.unregisterSignals(this);
+    clearInterval(this.fireBulletIntervalId);
   }
 }
 
