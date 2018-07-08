@@ -137,9 +137,8 @@ export default class StageOne {
       }
       //since this is done while iterating over children, don't modify the array while looping. wait until next tick
       setTimeout(function(){
-        // console.log(`stage destroying componentId: ${componentId}`);
-        let component = this.removeChild({componentId});
-      }.bind(this), 0)
+        this.removeChild({componentId});
+      }.bind(this), 0);
     },
 
   }

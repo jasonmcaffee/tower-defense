@@ -18,6 +18,7 @@ export default class PlayerItems{
   purchasableTowers=[] //sent to TowerUpgradeMenu
   constructor({coins=100, purchasableTowers=purchasableTowersConfig}={}){
     this.coins = coins;
+    signal.trigger(ec.playerItems.playerCoinsChanged, {playerCoins: this.coins});
     this.purchasableTowers = purchasableTowers;
     signal.registerSignals(this);
     signal.trigger(ec.playerItems.purchasableTowersChanged, {purchasableTowers});
@@ -48,7 +49,12 @@ export default class PlayerItems{
      */
     [ec.towerUpgradeMenu.purchaseTowerClicked]({purchasableTower, towerFoundationId}){
       console.log(`PlayerItems received purchaseTowerClicked for: `, towerFoundationId);
+      if(purchasableTower.cost > this.coins){
+        return console.warn(`tower costs more than player has`);
+      }
+      this.coins -= purchasableTower.cost;
       signal.trigger(ec.towerFoundation.createAndPlaceTower, {towerFoundationId, towerType: purchasableTower.type});
+      signal.trigger(ec.playerItems.playerCoinsChanged, {playerCoins: this.coins});
     }
   }
 }

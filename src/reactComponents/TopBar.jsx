@@ -14,8 +14,8 @@ export default class TopBar extends React.Component {
     [ec.player.positionChanged]({x,y,z}){
       this.setState({x, y, z});
     },
-    [ec.earth.hitPointsChanged]({hitPoints}){
-      this.setState({earthHitPoints: hitPoints});
+    [ec.playerItems.playerCoinsChanged]({playerCoins}){
+      this.setState({playerCoins});
     },
     [ec.player.scoreChanged]({score}){
       this.setState({playerScore:score});
@@ -28,7 +28,7 @@ export default class TopBar extends React.Component {
     signal.unregisterSignals(this);
   }
   render(){
-    let {playerHitPoints, x, y, z, earthHitPoints, playerScore} = this.state;
+    let {playerHitPoints, x, y, z, playerCoins, playerScore} = this.state;
     let precision = 4;
     x = x.toPrecision(precision);
     y = y.toPrecision(precision);
@@ -39,7 +39,7 @@ export default class TopBar extends React.Component {
           HP {playerHitPoints}
         </div>
         <div className="earth-hit-points">
-          Earth {earthHitPoints}
+          Coins {playerCoins}
         </div>
         <div className="player-score">
           Score {playerScore}

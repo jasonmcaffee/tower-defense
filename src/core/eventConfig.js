@@ -81,6 +81,7 @@ export const eventConfig = {
   },
   playerItems:{
     purchasableTowersChanged: 'playerItems.purchasableTowersChanged', //so menu knows what's available {purchasableTowers:[]}
+    playerCoinsChanged: 'playerItems.playerCoinsChanged',
   },
   earth:{
     hitPointsChanged: 'earth.hitPointsChanged',
