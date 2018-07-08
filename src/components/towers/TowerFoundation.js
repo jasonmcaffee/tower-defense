@@ -15,14 +15,14 @@ function getDefaultPurchasableTowers(){
 
 /**
  * Is what enemies shoot at.
- * Gets towers placed on it.
+ * Gets towers placed on it. this.threejsObject is switched out to use Tower.threejsObject, when applicable.
  */
 export default class TowerFoundation{
   componentId = generateUniqueId({name:'TowerFoundation'})
   threejsObject
   hitBox
   tower //various tower types are placed on the foundation
-  constructor({x=0, y=0, z=0, size=7,tower, purchasableTowers=getDefaultPurchasableTowers()}={}){
+  constructor({x=0, y=0, z=0, size=7, tower, purchasableTowers=getDefaultPurchasableTowers()}={}){
     this.size = size;
     const {threejsObject, hitBox} = createThreejsObjectAndHitbox({x, y, z, componentId: this.componentId, size: this.size});
     this.hitBox = hitBox; //should always remain the same, based off the original threejsHitBox, so each tower doesn't have to define.

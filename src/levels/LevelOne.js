@@ -24,9 +24,8 @@ const pathVectors = [
 ];
 
 const towerPositions = [
-  {x: 50, y: 50, z: 0},
-  {x: 100, y: 0, z: 0},
-  {x: 100, y: 200, z: 0},
+  {x: 125, y: 175, z: 0},
+  {x: 75, y: 25, z: 0},
 ];
 
 const enemyWavesConfig = [

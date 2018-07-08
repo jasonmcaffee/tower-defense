@@ -1,4 +1,4 @@
-import {CubeGeometry, BoxGeometry, SphereGeometry, MeshNormalMaterial, MeshBasicMaterial, Mesh, Box3, Vector3, Texture, Object3D, Sphere} from 'three';
+import {LineSegments, LineBasicMaterial, EdgesGeometry, TetrahedronGeometry, MeshNormalMaterial, MeshBasicMaterial, Mesh, Box3, Vector3, Texture, Object3D, Sphere} from 'three';
 import {signal, eventConfig as ec, generateUniqueId, generateRandomNumber as grn} from "core/core";
 
 /**
@@ -83,12 +83,21 @@ export default class FireTower {
   }
 }
 
-function createThreejsObject({componentId, x, y, z, size=20}){
-  const material = new MeshBasicMaterial();
-  const geometry = new CubeGeometry(size, size, size);
+function createThreejsObject({componentId, x, y, z, size=7, displayWireframe=true}){
+  const material = new MeshNormalMaterial();
+  // const geometry = new CubeGeometry(size, size, size);
+  const geometry = new TetrahedronGeometry(size, 2);
   geometry.computeBoundingBox();
   const threejsObject = new Mesh(geometry, material);
   threejsObject.position.set(x, y, z);
   threejsObject.name = componentId;//needed for removing from scene
+
+  if(displayWireframe){
+    // wireframe
+    const geo = new EdgesGeometry( geometry ); // or WireframeGeometry
+    const mat = new LineBasicMaterial( { color: 0xffffff, linewidth: 2 } );
+    const wireframe = new LineSegments( geo, mat );
+    threejsObject.add( wireframe );
+  }
   return {threejsObject};
 }
