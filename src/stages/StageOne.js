@@ -131,12 +131,14 @@ export default class StageOne {
 
     //bullet calls this when its finished its distance and after it hits something.
     [ec.stage.destroyComponent]({componentId, scene=this.scene}){
+      const component = this.getChildByComponentId({componentId});
+      if(component){
+        component.destroy({scene});
+      }
       //since this is done while iterating over children, don't modify the array while looping. wait until next tick
       setTimeout(function(){
         // console.log(`stage destroying componentId: ${componentId}`);
         let component = this.removeChild({componentId});
-        if(!component){return;} //same componentId over and over.
-        component.destroy({scene});
       }.bind(this), 0)
     },
 
@@ -151,6 +153,14 @@ export default class StageOne {
     let removedChild = children.splice(componentIndex, 1)[0];
     return removedChild;
   }
+
+  getChildByComponentId({componentId, children=this.children}){
+    let component = children.find((element)=>{
+      return element.componentId === componentId;
+    });
+    return component;
+  }
+
   render({hittableComponents=this.hittableComponents}={}) {
     this.renderChildren({hittableComponents});
   }
