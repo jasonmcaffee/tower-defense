@@ -11,7 +11,7 @@ const purchasableTowersConfig = [
 
 /**
  * Contains items for the player.
- * Handles orchestration of upgrade tower menu selections.
+ * Handles orchestration of upgrade tower menu selections (user clicks on tower, then is displayed menu, then clicks upgrade, etc)
  */
 export default class PlayerItems{
   coins = 0 //what player spends and earns
@@ -24,10 +24,15 @@ export default class PlayerItems{
   }
 
   signals = {
-    [ec.towerFoundation.selectedByPlayer]({towerFoundation, purchasableTowers=this.purchasableTowers}){
-      console.log(`PlayerItems towerFoundation.selectedByPlayer. displaying upgrade menu`, towerFoundation.getTowerUpgradeInfo());
-      const towerUpgradeInfo = towerFoundation.getTowerUpgradeInfo();
-      signal.trigger(ec.towerUpgradeMenu.show, {towerFoundation, purchasableTowers, towerUpgradeInfo});
+
+    /**
+     * When the player selects a TowerFoundation, we want to display the upgrade/purchase menu to the user.
+     * @param towerFoundation
+     * @param purchasableTowers
+     */
+    [ec.towerFoundation.selectedByPlayer]({towerFoundationId, towerUpgradeInfo, purchasableTowers=this.purchasableTowers}){
+      console.log(`PlayerItems towerFoundation.selectedByPlayer. displaying upgrade menu`, towerUpgradeInfo, towerFoundationId);
+      signal.trigger(ec.towerUpgradeMenu.show, {towerFoundationId, purchasableTowers, towerUpgradeInfo});
     },
     [ec.towerUpgradeMenu.upgradeTowerButtonClicked]({}){
 
@@ -35,8 +40,8 @@ export default class PlayerItems{
     [ec.towerUpgradeMenu.sellTowerButtonClicked]({}){
 
     },
-    [ec.towerUpgradeMenu.purchaseTowerClicked]({purchasableTower, towerFoundation}){
-      console.log(`PlayerItems received purchaseTowerClicked for: `, towerFoundation);
+    [ec.towerUpgradeMenu.purchaseTowerClicked]({purchasableTower, towerFoundationId}){
+      console.log(`PlayerItems received purchaseTowerClicked for: `, towerFoundationId);
     }
   }
 }

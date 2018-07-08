@@ -48,7 +48,7 @@ export default class TowerFoundation{
       if(this.componentId !== selectedComponent.componentId){return;}
       console.log(`player selected tower foundation`);
       //let PlayerItems know we've been selected
-      signal.trigger(ec.towerFoundation.selectedByPlayer, {towerFoundation:this});
+      signal.trigger(ec.towerFoundation.selectedByPlayer, {towerFoundationId:this.componentId, towerUpgradeInfo: this.getTowerUpgradeInfo() } );
     }
   }
 
@@ -56,6 +56,11 @@ export default class TowerFoundation{
 
   }
 
+  /**
+   * Called on by PlayerItems when displaying upgrade options to user.
+   * @param tower
+   * @returns {*}
+   */
   getTowerUpgradeInfo({tower=this.tower}={}){
     if(!tower){
       return {isUpgradable: false, upgradeCost: 0, level: 0, sellValue: 0, missingTower: true};
