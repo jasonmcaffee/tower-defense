@@ -46,7 +46,8 @@ export default class TowerFoundation{
     [ec.towerFoundation.createAndPlaceTower]({towerFoundationId, towerType, cost}={}){
       if(towerFoundationId !== this.componentId){return;}
       console.log(`towerFoundation placing new tower of type: ${towerType}`);
-      const towerToPlace = createTowerBasedOnPurchasableTowerConfig({towerType, x: this.threejsObject.position.x, y: this.threejsObject.position.y, z: this.threejsObject.position.z, cost});
+      const {x, y, z} = this.threejsObject.position;
+      const towerToPlace = createTowerBasedOnPurchasableTowerConfig({towerType, x, y, z, cost});
       this.switchThreeJsObject({threejsObject: towerToPlace.threejsObject});
       this.tower = towerToPlace;
       signal.trigger(ec.towerFoundation.towerUpgradeInfoChanged, {towerFoundationId:this.componentId, towerUpgradeInfo: this.getTowerUpgradeInfo(), purchasableTowers: this.purchasableTowers } );
@@ -56,7 +57,8 @@ export default class TowerFoundation{
     [ec.towerFoundation.destroyTower]({towerFoundationId}){
       if(towerFoundationId !== this.componentId){return;}
       console.log(`towerFoundation destroying tower`);
-      const {threejsObject} = createThreejsObjectAndHitbox({x: this.x, y: this.y, z: this.z, componentId: this.componentId, size: this.size});
+      const {x, y, z} = this.threejsObject.position;
+      const {threejsObject} = createThreejsObjectAndHitbox({x, y, z, componentId: this.componentId, size: this.size});
       this.switchThreeJsObject({threejsObject});
       this.enablePurchasableTowers();
       signal.trigger(ec.towerFoundation.towerUpgradeInfoChanged, {towerFoundationId:this.componentId, towerUpgradeInfo: this.getTowerUpgradeInfo(), purchasableTowers: this.purchasableTowers } );
