@@ -11,7 +11,7 @@ export default class BaseTower {
   level = 1
   maxLevel = 10
   upgradeCost = 10
-  constructor({x = 0, y = 0, z = 0, active=true, hitPoints=10, fireIntervalMs=1000, cost=1, sellPercentage= 0.8, upgradePercentage= 1.5} = {}) {
+  constructor({x = 0, y = 0, z = 0, active=true, hitPoints=10, firingRange=100, fireIntervalMs=1000, cost=1, sellPercentage= 0.8, upgradePercentage= 1.5, enemies=[], hitExclusionComponentIds=[]} = {}) {
     this.active = active; //whether we are shooting bullets.
     this.position = {x, y, z}; //so we know where bullets fire from.
     this.hitPoints = hitPoints;
@@ -21,6 +21,9 @@ export default class BaseTower {
     this.cost = cost;
     this.sellPercentage = sellPercentage;
     this.upgradePercentage = upgradePercentage;
+    this.enemies = enemies;
+    this.firingRange = firingRange;
+    this.hitExclusionComponentIds = hitExclusionComponentIds; //so we dont hit TowerFoundation
     signal.registerSignals(this);
     this.startFiring();
   }
@@ -38,6 +41,33 @@ export default class BaseTower {
         console.log(`fire tower hit something.`);
       }
     },
+
+    [ec.enemy.spawned]({componentId, x, y, z}){
+      this.enemies.push({componentId, x, y, z});
+    },
+    [ec.enemy.died]({componentId}){
+      this.removeEnemy({componentId});
+    },
+    [ec.enemy.positionChanged]({componentId, x, y, z}){
+      let enemy = this.enemies.find(e=>e.componentId === componentId);
+      if(!enemy){
+        console.log(`BaseTower couldn't find enemy, so automatically added componentId:${componentId}`);
+        enemy = {componentId, x, y, z};
+        this.enemies.push({componentId, x, y, z});
+      }
+      enemy.x = x;
+      enemy.y = y;
+      enemy.z = z;
+    },
+  }
+
+  //called on when enemy dies
+  removeEnemy({componentId}={}){
+    let index = this.enemies.findIndex(e=>e.componentId === componentId);
+    console.log(`BaseTower removeEnemy: ${componentId} index: ${index}  enemies: `, this.enemies);
+    if(index < 0){return;}
+    this.enemies.splice(index, 1);
+    console.log(`BasedTower enemies is now: `, this.enemies);
   }
 
   isUpgradable({level=this.level, maxLevel=this.maxLevel}={}){
@@ -65,16 +95,51 @@ export default class BaseTower {
     }, this.fireIntervalMs);
   }
 
-  fireBullet({startPosition=this.position, hitExclusionComponentId=this.componentId, ownerComponentId=this.componentId}={}){
-    const enemyPosition = this.getNearestEnemyPosition();
-    const direction ={};
+  fireBullet({startPosition=this.position, hitExclusionComponentIds=this.hitExclusionComponentIds, ownerComponentId=this.componentId}={}){
+    const {nearestEnemyPosition, nearestComponentId, distance, direction} = this.getNearestEnemyPositionAndDirection();
+    console.log(`fireBullet potentially at: `, direction, distance, nearestComponentId);
+    if(distance > this.firingRange){
+      console.log(`BaseTower has an enemy distance: ${distance} that is outside of the range: ${this.firingRange}`);
+      return;
+    }
 
-
-    let bullet = new Bullet({direction, startPosition, hitExclusionComponentId, ownerComponentId, playSound: false, distancePerSecond:3000});
+    let bullet = new Bullet({direction, startPosition, hitExclusionComponentIds, ownerComponentId, playSound: false, distancePerSecond:3000});
     signal.trigger(ec.stage.addComponent, {component:bullet});
   }
 
-  getNearestEnemyPosition(){
+  getNearestEnemyPositionAndDirection({targets=this.enemies, startPosition=new Vector3(this.position.x, this.position.y, this.position.z)}={}){
+    if(targets.length <= 0){
+      console.log(`BaseTower has no enemies to shoot at`);
+      return;
+    }
+
+    let nearestEnemyPosition = new Vector3(0, 0, 0);
+    let shortestDistance;
+    let nearestComponentId;
+    let shortestDirection;
+    for(let i=0, len=targets.length; i < len; ++i){
+      let target = targets[i];
+      let targetVector = new Vector3(target.x, target.y, target.z);
+      let distance = startPosition.distanceTo(targetVector);
+      let direction = new Vector3();
+      direction.subVectors(targetVector, startPosition);
+
+      if(!shortestDistance){
+        shortestDistance = distance;
+        nearestEnemyPosition = targetVector;
+        nearestComponentId = target.componentId;
+        shortestDirection = direction;
+      }
+
+      if(distance < shortestDistance){
+        shortestDistance = distance;
+        shortestDirection = direction;
+        nearestEnemyPosition = targetVector;
+        nearestComponentId = target.componentId;
+      }
+
+    }
+    return {nearestEnemyPosition, nearestComponentId, distance: shortestDistance, direction: shortestDirection};
 
   }
 

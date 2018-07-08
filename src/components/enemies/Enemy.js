@@ -22,6 +22,7 @@ export default class Enemy{
     this.pathVectors = pathVectors;
     this.towerPositions = towerPositions;
     this.currentPathVectorsIndex = 0;
+    this.isDead = false;
     signal.registerSignals(this);
   }
 
@@ -35,6 +36,7 @@ export default class Enemy{
   }
 
   render(){
+    if(this.isDead){return;}
     //todo: move along the path.
     this.travelPath();
     //todo: find closest enemy
@@ -62,7 +64,7 @@ export default class Enemy{
 
   travelPath({nearestTargetVector=this.getVectorToTravelTo(), delta=this.moveClock.getDelta(), moveDistancePerSecond=this.moveDistancePerSecond}={}){
     if(!nearestTargetVector){ return;}
-
+    console.log(`enemy.travelPath`);
     //where we are traveling from
     let startPosition = this.threejsObject.position;
     //where we are traveling to
@@ -114,11 +116,17 @@ export default class Enemy{
   startMovingTowardsNextPathVector({pathVectors=this.pathVectors, currentPathVectorsIndex=this.currentPathVectorsIndex}={}){
     if(currentPathVectorsIndex >= pathVectors.length - 1){
       console.warn(`no other path vectors for enemy to travel to`);
+      this.kill();
       signal.trigger(ec.enemy.reachedEndOfPath, {componentId: this.componentId});
-      signal.trigger(ec.stage.destroyComponent, {componentId: this.componentId});
       return;
     }
     this.currentPathVectorsIndex++;
+  }
+
+  kill(){
+    this.isDead = true;
+    signal.trigger(ec.enemy.died, {componentId: this.componentId});
+    signal.trigger(ec.stage.destroyComponent, {componentId: this.componentId});
   }
 
   //called on when ec.stage.addComponent is triggered with this as the component. (typically done by Level)

@@ -47,7 +47,7 @@ export default class TowerFoundation{
       if(towerFoundationId !== this.componentId){return;}
       console.log(`towerFoundation placing new tower of type: ${towerType}`);
       const {x, y, z} = this.threejsObject.position;
-      const towerToPlace = createTowerBasedOnPurchasableTowerConfig({towerType, x, y, z, cost});
+      const towerToPlace = createTowerBasedOnPurchasableTowerConfig({towerType, x, y, z, cost, hitExclusionComponentIds:[this.componentId]});
       this.switchThreeJsObject({threejsObject: towerToPlace.threejsObject});
       this.tower = towerToPlace;
       signal.trigger(ec.towerFoundation.towerUpgradeInfoChanged, {towerFoundationId:this.componentId, towerUpgradeInfo: this.getTowerUpgradeInfo(), purchasableTowers: this.purchasableTowers } );
@@ -119,11 +119,11 @@ export default class TowerFoundation{
 }
 
 
-function createTowerBasedOnPurchasableTowerConfig({towerType, x, y, z, cost}){
+function createTowerBasedOnPurchasableTowerConfig({towerType, x, y, z, cost, hitExclusionComponentIds}){
   let result;
   switch(towerType){
     case fireType:
-      result = new FireTower({x, y, z, cost });
+      result = new FireTower({x, y, z, cost, hitExclusionComponentIds });
       break;
     case iceType:
       break;

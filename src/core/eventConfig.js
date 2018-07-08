@@ -95,6 +95,7 @@ export const eventConfig = {
     targetPositionChanged: 'enemy.target.positionChanged', //for earth, player, etc. lets enemies know where there targets are.
     reachedEndOfPath: 'enemy.reachedEndOfPath', //let enemy wave know
     positionChanged: 'enemy.positionChanged',
+    spawned: 'enemy.spawned', //let towers know they have enemies to shoot at.
   },
   game:{
     startGame:'game.startGame',
