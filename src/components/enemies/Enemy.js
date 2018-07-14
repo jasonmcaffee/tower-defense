@@ -116,8 +116,8 @@ export default class Enemy{
   startMovingTowardsNextPathVector({pathVectors=this.pathVectors, currentPathVectorsIndex=this.currentPathVectorsIndex}={}){
     if(currentPathVectorsIndex >= pathVectors.length - 1){
       console.warn(`no other path vectors for enemy to travel to`);
-      this.kill();
       signal.trigger(ec.enemy.reachedEndOfPath, {componentId: this.componentId});
+      this.kill();
       return;
     }
     this.currentPathVectorsIndex++;

@@ -11,7 +11,7 @@ export default class BaseTower {
   level = 1
   maxLevel = 10
   upgradeCost = 10
-  constructor({x = 0, y = 0, z = 0, active=true, hitPoints=10, firingRange=100, fireIntervalMs=1000, cost=1, sellPercentage= 0.8, upgradePercentage= 1.5, enemies=[], hitExclusionComponentIds=[]} = {}) {
+  constructor({x = 0, y = 0, z = 0, active=true, hitPoints=10, firingRange=100, fireIntervalMs=1000, cost=1, sellPercentage= 0.8, upgradePercentage= 1.5, enemies=[], hitExclusionComponentIds=[], bulletDistancePerSecond=300} = {}) {
     this.active = active; //whether we are shooting bullets.
     this.position = {x, y, z}; //so we know where bullets fire from.
     this.hitPoints = hitPoints;
@@ -24,6 +24,7 @@ export default class BaseTower {
     this.enemies = enemies;
     this.firingRange = firingRange;
     this.hitExclusionComponentIds = hitExclusionComponentIds; //so we dont hit TowerFoundation
+    this.bulletDistancePerSecond = bulletDistancePerSecond;
     signal.registerSignals(this);
     this.startFiring();
   }
@@ -48,16 +49,23 @@ export default class BaseTower {
     [ec.enemy.died]({componentId}){
       this.removeEnemy({componentId});
     },
+
+    //delta is in seconds
     [ec.enemy.positionChanged]({componentId, x, y, z}){
       let enemy = this.enemies.find(e=>e.componentId === componentId);
+      const positionTime = Date.now();
       if(!enemy){
         console.log(`BaseTower couldn't find enemy, so automatically added componentId:${componentId}`);
-        enemy = {componentId, x, y, z};
+        enemy = {componentId, x, y, z, positionTime};
         this.enemies.push({componentId, x, y, z});
+      }else{
+        enemy.previousPosition = {x: enemy.x, y: enemy.y, z: enemy.z}; //so we can predict the next position.
+        enemy.previousPositionTime = enemy.positionTime;
+        enemy.positionTime = positionTime;
+        enemy.x = x;
+        enemy.y = y;
+        enemy.z = z;
       }
-      enemy.x = x;
-      enemy.y = y;
-      enemy.z = z;
     },
   }
 
@@ -95,18 +103,27 @@ export default class BaseTower {
     }, this.fireIntervalMs);
   }
 
+  //each child tower should implement this themselves
   fireBullet({startPosition=this.position, hitExclusionComponentIds=this.hitExclusionComponentIds, ownerComponentId=this.componentId}={}){
-    const {nearestEnemyPosition, nearestComponentId, distance, direction} = this.getNearestEnemyPositionAndDirection();
-    console.log(`fireBullet potentially at: `, direction, distance, nearestComponentId);
-    if(distance > this.firingRange){
-      console.log(`BaseTower has an enemy distance: ${distance} that is outside of the range: ${this.firingRange}`);
-      return;
-    }
-
-    let bullet = new Bullet({direction, startPosition, hitExclusionComponentIds, ownerComponentId, playSound: false, distancePerSecond:3000});
-    signal.trigger(ec.stage.addComponent, {component:bullet});
+    console.warn(`tower attempting to fire bullet without it's own fireBullet implementation.`);
+    // const {nearestEnemyPosition, nearestComponentId, distance, direction} = this.getNearestEnemyPositionAndDirection();
+    // console.log(`fireBullet potentially at: `, direction, distance, nearestComponentId);
+    // if(distance > this.firingRange){
+    //   console.log(`BaseTower has an enemy distance: ${distance} that is outside of the range: ${this.firingRange}`);
+    //   return;
+    // }
+    //
+    // let bullet = new Bullet({direction, startPosition, hitExclusionComponentIds, ownerComponentId, playSound: false, distancePerSecond:3000});
+    // signal.trigger(ec.stage.addComponent, {component:bullet});
   }
 
+  /**
+   * TODO: predict enemies next position so bullet hits them
+   * TODO: nearest enemy shouldn't always be the target. should be enemy with least distance to end of path.
+   * @param targets
+   * @param startPosition
+   * @returns {{nearestEnemyPosition: Vector3, nearestComponentId: *, distance: *, direction: *}}
+   */
   getNearestEnemyPositionAndDirection({targets=this.enemies, startPosition=new Vector3(this.position.x, this.position.y, this.position.z)}={}){
     if(targets.length <= 0){
       console.log(`BaseTower has no enemies to shoot at`);
@@ -117,6 +134,7 @@ export default class BaseTower {
     let shortestDistance;
     let nearestComponentId;
     let shortestDirection;
+    let nearestTarget;
     for(let i=0, len=targets.length; i < len; ++i){
       let target = targets[i];
       let targetVector = new Vector3(target.x, target.y, target.z);
@@ -129,6 +147,7 @@ export default class BaseTower {
         nearestEnemyPosition = targetVector;
         nearestComponentId = target.componentId;
         shortestDirection = direction;
+        nearestTarget = target;
       }
 
       if(distance < shortestDistance){
@@ -136,12 +155,14 @@ export default class BaseTower {
         shortestDirection = direction;
         nearestEnemyPosition = targetVector;
         nearestComponentId = target.componentId;
+        nearestTarget = target;
       }
-
     }
-    return {nearestEnemyPosition, nearestComponentId, distance: shortestDistance, direction: shortestDirection};
-
+    const nearestEnemyPreviousPosition = nearestTarget.previousPosition;
+    return {nearestEnemy: nearestTarget, nearestEnemyPosition, nearestEnemyPreviousPosition, nearestComponentId, distance: shortestDistance, direction: shortestDirection};
   }
+
+
 
   createThreejsObject({componentId, x, y, z, size=7, displayWireframe=true}){
     const material = new MeshNormalMaterial();
@@ -172,3 +193,41 @@ export default class BaseTower {
     clearInterval(this.fireBulletIntervalId);
   }
 }
+
+
+
+
+// USE TRACKING MISSLES INSTEAD FOR NOW
+// //need to figure out how to factor in bullet speed. secondsFromNow probably not right...
+// determinePositionEnemyWillBeInNTime({bulletDistancePerSecond, secondsFromNow, enemy, startPosition=new Vector3(this.position.x, this.position.y, this.position.z)}){
+//   const {previousPosition, previousPositionTime, positionTime, x, y, z} = enemy;
+//   if(!previousPosition || !previousPositionTime){
+//     console.log(`enemy doesn't have a previous position, so cant determine where it will be`);
+//     return;
+//   }
+//
+//
+//   const previousPositionVector = new Vector3(previousPosition.x, previousPosition.y, previousPosition.z);
+//   const positionVector = new Vector3(x, y, z);
+//
+//   //determine the direction the enemy is travelling.
+//   const direction = new Vector3();
+//   direction.subVectors(positionVector, previousPositionVector);
+//
+//   //determine the distance the enemy will have travelled in secondsFromNow
+//   const deltaMilliseconds = positionTime - previousPositionTime;
+//   const deltaSeconds = deltaMilliseconds / 1000;
+//   const distanceEnemyTravelled = previousPositionVector.distanceTo(positionVector);
+//   const distanceEnemyWillTravelInTime = distanceEnemyTravelled * secondsFromNow / deltaSeconds;
+//
+//   //determine position enemy will be at in secondsFromNow
+//   const p = new Vector3().copy(direction).normalize().multiplyScalar(distanceEnemyWillTravelInTime);
+//   positionVector.add(p);
+//
+//   const directionToEnemyInNSeconds = new Vector3();
+//   directionToEnemyInNSeconds.subVectors(positionVector, startPosition);
+//
+//   const distance = startPosition.distanceTo(positionVector);
+//
+//   return {positionVector, directionVector: directionToEnemyInNSeconds, distance};
+// }
