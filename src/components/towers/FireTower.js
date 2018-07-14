@@ -15,13 +15,13 @@ export default class FireTower extends  BaseTower{
     const startPosition = new Vector3(this.position.x, this.position.y, this.position.z);
     const {nearestEnemy, nearestEnemyPosition, nearestEnemyPreviousPosition, nearestComponentId, distance, direction} = this.getNearestEnemyPositionAndDirection();
 
-    console.log(`FireTower.fireBullet potentially at: `, direction, distance, nearestComponentId);
+    // console.log(`FireTower.fireBullet potentially at: `, direction, distance, nearestComponentId);
     if(distance > this.firingRange){
       console.log(`FireTower has an enemy distance: ${distance} that is outside of the range: ${this.firingRange}`);
       return;
     }
 
-    let bullet = new Bullet({direction, startPosition, hitExclusionComponentIds, ownerComponentId, playSound: false, distancePerSecond});
+    let bullet = new Bullet({trackEnemyComponentId: nearestComponentId, direction, startPosition, hitExclusionComponentIds, ownerComponentId, playSound: false, distancePerSecond});
     signal.trigger(ec.stage.addComponent, {component:bullet});
   }
 }

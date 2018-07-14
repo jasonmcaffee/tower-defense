@@ -37,7 +37,7 @@ export default class Bullet{
   playSound = true //whether sound should be played for the bullet.
   constructor({direction, distance=500, distancePerSecond=300 , startPosition, damage=1,sphereGeometry=style.geometry.sphere,
                 sphereMaterial=style.material.sphereMaterial, hitExclusionComponentId, bulletSound=laserSound, explosionSound=bulletExplosionSound,
-                hitResolution=10, ownerComponentId, playSound=true, hitExclusionComponentIds=[]}={}){
+                hitResolution=10, ownerComponentId, playSound=true, hitExclusionComponentIds=[], trackEnemyComponentId}={}){
     this.distancePerSecond = distancePerSecond;
     this.direction = direction;
     this.distance = distance;
@@ -45,6 +45,7 @@ export default class Bullet{
     this.hitResolution = hitResolution;
     this.ownerComponentId = ownerComponentId;
     this.playSound = playSound;
+    this.trackEnemyComponentId = trackEnemyComponentId;
 
     // this.hitExclusionComponentId = hitExclusionComponentId;
     if(hitExclusionComponentId){
@@ -80,6 +81,17 @@ export default class Bullet{
       signal.trigger(ec.stage.destroyComponent, {componentId:this.componentId});
       this.stopTravelling = true;
       this.createAndRegisterPositionalSound({src:bulletExplosionSound, playWhenReady:true});
+    },
+
+    //track/follow enemies
+    [ec.enemy.positionChanged]({componentId, x, y, z}){
+      if(this.trackEnemyComponentId !== componentId){return;}
+      console.log(`bullet tracking componentId: ${componentId}`);
+      const targetVector = new Vector3(x, y, z);
+      const startPosition = this.sphere.position;
+      let direction = new Vector3();
+      direction.subVectors(targetVector, startPosition);
+      this.direction = direction; //next render will reference this
     }
   }
 
