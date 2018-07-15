@@ -11,7 +11,7 @@ export default class BaseTower {
   level = 1
   maxLevel = 10
   upgradeCost = 10
-  constructor({x = 0, y = 0, z = 0, active=true, hitPoints=10, firingRange=100, fireIntervalMs=1000, cost=1, sellPercentage= 0.8, upgradePercentage= 1.5, enemies=[], hitExclusionComponentIds=[], bulletDistancePerSecond=300} = {}) {
+  constructor({x = 0, y = 0, z = 0, active=true, hitPoints=10, damage=1, firingRange=100, fireIntervalMs=1000, cost=1, sellPercentage= 0.8, upgradePercentage= 1.5, enemies=[], hitExclusionComponentIds=[], bulletDistancePerSecond=300} = {}) {
     this.active = active; //whether we are shooting bullets.
     this.position = {x, y, z}; //so we know where bullets fire from.
     this.hitPoints = hitPoints;
@@ -25,6 +25,7 @@ export default class BaseTower {
     this.firingRange = firingRange;
     this.hitExclusionComponentIds = hitExclusionComponentIds; //so we dont hit TowerFoundation
     this.bulletDistancePerSecond = bulletDistancePerSecond;
+    this.damage = 1;
     signal.registerSignals(this);
     this.startFiring();
   }
@@ -36,17 +37,18 @@ export default class BaseTower {
       const componentId = hitComponent.componentId;
       //detect if we hit something
       if (this.componentId === componentId) {
-        console.log(`fire tower was hit ${damage}!!`);
+        console.log(`BaseTower was hit ${damage}!!`);
         this.hitPoints -= damage;
       }else if(ownerComponentId === this.componentId){
-        console.log(`fire tower hit something.`);
+        console.log(`BaseTower hit something.`);
       }
     },
 
-    [ec.enemy.spawned]({componentId, x, y, z}){
-      this.enemies.push({componentId, x, y, z});
-    },
-    [ec.enemy.died]({componentId}){
+    // [ec.enemy.spawned]({componentId, x, y, z}){
+    //   this.enemies.push({componentId, x, y, z});
+    // },
+    [ec.enemy.died]({componentId}={}){
+      console.log(`BaseTower ENEMY DIED ========================`);
       this.removeEnemy({componentId});
     },
 
@@ -58,6 +60,7 @@ export default class BaseTower {
         console.log(`BaseTower couldn't find enemy, so automatically added componentId:${componentId}`);
         enemy = {componentId, x, y, z, positionTime};
         this.enemies.push({componentId, x, y, z});
+        console.log(`BaseTower enemies is now: `, this.enemies);
       }else{
         enemy.previousPosition = {x: enemy.x, y: enemy.y, z: enemy.z}; //so we can predict the next position.
         enemy.previousPositionTime = enemy.positionTime;
@@ -71,9 +74,11 @@ export default class BaseTower {
 
   //called on when enemy dies
   removeEnemy({componentId}={}){
+    console.log(`BaseTower attempting to remove componentId: ${componentId}`);
     let index = this.enemies.findIndex(e=>e.componentId === componentId);
-    console.log(`BaseTower removeEnemy: ${componentId} index: ${index}  enemies: `, this.enemies);
+    console.log(`BaseTower enemy index is ${index}`);
     if(index < 0){return;}
+    console.log(`BaseTower removeEnemy: ${componentId} index: ${index}  enemies: `, this.enemies);
     this.enemies.splice(index, 1);
     console.log(`BasedTower enemies is now: `, this.enemies);
   }

@@ -11,17 +11,22 @@ export default class FireTower extends  BaseTower{
     super({x, y, z, active, hitPoints, fireIntervalMs, cost, sellPercentage, upgradePercentage, hitExclusionComponentIds, bulletDistancePerSecond});
   }
 
-  fireBullet({hitExclusionComponentIds=this.hitExclusionComponentIds, ownerComponentId=this.componentId, distancePerSecond=this.bulletDistancePerSecond}={}={}){
+  fireBullet({hitExclusionComponentIds=this.hitExclusionComponentIds, ownerComponentId=this.componentId, distancePerSecond=this.bulletDistancePerSecond, damage=this.damage}={}={}){
     const startPosition = new Vector3(this.position.x, this.position.y, this.position.z);
-    const {nearestEnemy, nearestEnemyPosition, nearestEnemyPreviousPosition, nearestComponentId, distance, direction} = this.getNearestEnemyPositionAndDirection();
-
+    const nearestEnemyData = this.getNearestEnemyPositionAndDirection();
+    if(!nearestEnemyData){
+      console.log(`FireTower has no enemies to fire at`);
+      return;
+    }
+    const {nearestEnemy, nearestEnemyPosition, nearestEnemyPreviousPosition, nearestComponentId, distance, direction} = nearestEnemyData;
     // console.log(`FireTower.fireBullet potentially at: `, direction, distance, nearestComponentId);
     if(distance > this.firingRange){
       console.log(`FireTower has an enemy distance: ${distance} that is outside of the range: ${this.firingRange}`);
       return;
     }
 
-    let bullet = new Bullet({trackEnemyComponentId: nearestComponentId, direction, startPosition, hitExclusionComponentIds, ownerComponentId, playSound: false, distancePerSecond});
+    console.log(`FireTower is firing at componentID: ${nearestComponentId} and has enemies: `, this.enemies);
+    let bullet = new Bullet({damage, trackEnemyComponentId: nearestComponentId, direction, startPosition, hitExclusionComponentIds, ownerComponentId, playSound: false, distancePerSecond});
     signal.trigger(ec.stage.addComponent, {component:bullet});
   }
 }

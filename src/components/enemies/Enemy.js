@@ -9,7 +9,7 @@ export default class Enemy{
   threejsObject
   hitBox
   moveClock = new Clock()
-  constructor({x=0, y=0, z=0, hitPoints=10, moveDistancePerSecond=9, fireIntervalMs=1000, firingRange=10, damage=1, pathVectors=[], towerPositions=[], size=2}={}){
+  constructor({x=0, y=0, z=0, hitPoints=1, moveDistancePerSecond=9, fireIntervalMs=1000, firingRange=10, damage=1, pathVectors=[], towerPositions=[], size=2}={}){
     const {threejsObject, hitBox} = createThreejsObjectAndHitbox({x, y, z, componentId: this.componentId});
     this.threejsObject = threejsObject;
     this.hitBox = hitBox;
@@ -31,6 +31,11 @@ export default class Enemy{
       const componentId = hitComponent.componentId;
       if(this.componentId !== componentId){return;}
       console.log(`enemy hit. ${damage}`);
+      this.hitPoints -= damage;
+      if(this.hitPoints <= 0){
+        console.log(`enemy took too much damage and is about to be killed.`);
+        this.kill();
+      }
 
     }
   }
@@ -64,7 +69,7 @@ export default class Enemy{
 
   travelPath({nearestTargetVector=this.getVectorToTravelTo(), delta=this.moveClock.getDelta(), moveDistancePerSecond=this.moveDistancePerSecond}={}){
     if(!nearestTargetVector){ return;}
-    console.log(`enemy.travelPath`);
+    // console.log(`enemy.travelPath`);
     //where we are traveling from
     let startPosition = this.threejsObject.position;
     //where we are traveling to
@@ -84,33 +89,21 @@ export default class Enemy{
     this.hitBox = new Box3().setFromObject(this.threejsObject);
     signal.trigger(ec.hitTest.updateComponentHitBox, {component:this});
 
+    //let others know the position changed.
+    const {x, y, z} = this.threejsObject.position;
+    signal.trigger(ec.enemy.positionChanged, {componentId: this.componentId, x, y, z });//let towers know where we are.
+
+
     //if we've hit the path vector, increase the index so we start traveling towards the next.
     let oppositeDirection = new Vector3();
     oppositeDirection.subVectors(startPosition, pathPointVector);
     const raycaster = new Raycaster(pathPointVector, oppositeDirection);
     const intersects = raycaster.intersectObject(this.threejsObject);
-    // if(intersects.length > 0){
-    //   console.log(`- intersects: ${intersects[0].distance}`);
-    // }
     if(intersects.length > 0 ){ //&& intersects[0].distance < .1
       console.log(`intersects: `, intersects);
       console.log(`enemy position: x: ${this.threejsObject.position.x}    y: ${this.threejsObject.position.y}   z: ${this.threejsObject.position.z}`);
       this.startMovingTowardsNextPathVector();
     }
-
-    const {x, y, z} = this.threejsObject.position;
-    signal.trigger(ec.enemy.positionChanged, {componentId: this.componentId, x, y, z });//let towers know where we are.
-
-    // const raycaster = new Raycaster(pathPointVector, direction);
-    // const intersects = raycaster.intersectObject(this.threejsObject);
-    // if(intersects.length > 0){
-    //   const intersect = intersects[0];
-    //   console.log(`intersect : `, intersect);
-    //   if(intersect.distance < 1){
-    //     this.startMovingTowardsNextPathVector();
-    //   }
-    //
-    // }
   }
 
   startMovingTowardsNextPathVector({pathVectors=this.pathVectors, currentPathVectorsIndex=this.currentPathVectorsIndex}={}){
@@ -124,8 +117,6 @@ export default class Enemy{
   }
 
   kill(){
-    this.isDead = true;
-    signal.trigger(ec.enemy.died, {componentId: this.componentId});
     signal.trigger(ec.stage.destroyComponent, {componentId: this.componentId});
   }
 
@@ -136,6 +127,9 @@ export default class Enemy{
   }
   //called on when ec.stage.destroyComponent is triggered.
   destroy({scene, name=this.threejsObject.name, componentId=this.componentId}){
+    console.log(`Enemy destroy called`);
+    this.isDead = true;
+    signal.trigger(ec.enemy.died, {componentId});
     let object3d = scene.getObjectByName(name);
     scene.remove(object3d);
     signal.trigger(ec.hitTest.unregisterHittableComponent, {componentId});

@@ -31,12 +31,12 @@ const towerPositions = [
 const enemyWavesConfig = [
   {
     name: 'Wave 1', x: 0, y: 0, z: 0, enemyCount: 1, startEnemyIntervalMs: 500, towerPositions, pathVectors,
-    enemyConfig: {moveDistancePerSecond: 58, fireIntervalMs: 1000, firingRange: 10, hitPoints: 10, damage: 1,},
+    enemyConfig: {moveDistancePerSecond: 58, fireIntervalMs: 1000, firingRange: 10, hitPoints: 1, damage: 1,},
   },
-  {
-    name: 'Wave 2', x: 0, y: 0, z: 0, enemyCount: 15, startEnemyIntervalMs: 500, towerPositions, pathVectors,
-    enemyConfig: {moveDistancePerSecond: 9, fireIntervalMs: 1000, firingRange: 10, hitPoints: 10, damage: 1, },
-  },
+  // {
+  //   name: 'Wave 2', x: 0, y: 0, z: 0, enemyCount: 15, startEnemyIntervalMs: 500, towerPositions, pathVectors,
+  //   enemyConfig: {moveDistancePerSecond: 9, fireIntervalMs: 1000, firingRange: 10, hitPoints: 2, damage: 1, },
+  // },
 ];
 
 /**
@@ -66,11 +66,12 @@ export default class LevelOne{
   }
 
   startNextWave(){
-    if(this.currentWaveIndex + 1 >= enemyWavesConfig.length){
+    if(this.currentWaveIndex >= enemyWavesConfig.length){
       console.log(`no more waves for level`);
       this.completeLevel();
       return;
     }
+    console.log(`starting next wave`);
     const enemyWaveConfig = enemyWavesConfig[this.currentWaveIndex]; //todo: track waves ending.
     const enemyWave = new EnemyWave(enemyWaveConfig);
     signal.trigger(ec.enemyWave.beginWave, {waveName: enemyWaveConfig.name});
