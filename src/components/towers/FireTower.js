@@ -15,7 +15,7 @@ export default class FireTower extends  BaseTower{
     const startPosition = new Vector3(this.position.x, this.position.y, this.position.z);
     const nearestEnemyData = this.getNearestEnemyPositionAndDirection();
     if(!nearestEnemyData){
-      console.log(`FireTower has no enemies to fire at`);
+      // console.log(`FireTower has no enemies to fire at`);
       return;
     }
     const {nearestEnemy, nearestEnemyPosition, nearestEnemyPreviousPosition, nearestComponentId, distance, direction} = nearestEnemyData;
@@ -25,7 +25,7 @@ export default class FireTower extends  BaseTower{
       return;
     }
 
-    console.log(`FireTower is firing at componentID: ${nearestComponentId} and has enemies: `, this.enemies);
+    // console.log(`FireTower is firing at componentID: ${nearestComponentId} and has enemies: `, this.enemies);
     let bullet = new Bullet({damage, trackEnemyComponentId: nearestComponentId, direction, startPosition, hitExclusionComponentIds, ownerComponentId, playSound: false, distancePerSecond});
     signal.trigger(ec.stage.addComponent, {component:bullet});
   }

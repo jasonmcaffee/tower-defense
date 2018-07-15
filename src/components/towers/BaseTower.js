@@ -74,13 +74,13 @@ export default class BaseTower {
 
   //called on when enemy dies
   removeEnemy({componentId}={}){
-    console.log(`BaseTower attempting to remove componentId: ${componentId}`);
+    // console.log(`BaseTower attempting to remove componentId: ${componentId}`);
     let index = this.enemies.findIndex(e=>e.componentId === componentId);
-    console.log(`BaseTower enemy index is ${index}`);
+    // console.log(`BaseTower enemy index is ${index}`);
     if(index < 0){return;}
     console.log(`BaseTower removeEnemy: ${componentId} index: ${index}  enemies: `, this.enemies);
     this.enemies.splice(index, 1);
-    console.log(`BasedTower enemies is now: `, this.enemies);
+    // console.log(`BasedTower enemies is now: `, this.enemies);
   }
 
   isUpgradable({level=this.level, maxLevel=this.maxLevel}={}){
