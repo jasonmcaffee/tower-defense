@@ -1,5 +1,6 @@
 import {Raycaster, Clock, CubeGeometry, BoxGeometry, SphereGeometry, MeshNormalMaterial, MeshLambertMaterial, Mesh, Box3, Vector3, Texture, Object3D,  Sphere} from 'three';
 import {signal, eventConfig as ec, generateUniqueId, generateRandomNumber as grn} from "core/core";
+import Bullet from 'components/Bullet';
 
 /**
  * Enemy - 
@@ -9,8 +10,11 @@ export default class Enemy{
   threejsObject
   hitBox
   moveClock = new Clock()
-  constructor({x=0, y=0, z=0, hitPoints=1, moveDistancePerSecond=9, fireIntervalMs=1000, firingRange=10, damage=1, pathVectors=[], towerPositions=[], size=2}={}){
-    const {threejsObject, hitBox} = createThreejsObjectAndHitbox({x, y, z, componentId: this.componentId});
+  constructor({x=0, y=0, z=0, hitPoints=1, moveDistancePerSecond=9, fireIntervalMs=1000, firingRange=10, damage=1, pathVectors=[], towerPositions=[], size=10,
+                hitExclusionComponentIds=[], bulletDistancePerSecond=10}={}){
+    this.size = size;
+    this.damage = damage;
+    const {threejsObject, hitBox} = createThreejsObjectAndHitbox({x, y, z, componentId: this.componentId, size});
     this.threejsObject = threejsObject;
     this.hitBox = hitBox;
     this.hitPoints = hitPoints;
@@ -23,6 +27,10 @@ export default class Enemy{
     this.towerPositions = towerPositions;
     this.currentPathVectorsIndex = 0;
     this.isDead = false;
+    this.hitExclusionComponentIds = hitExclusionComponentIds;
+    this.hitExclusionComponentIds.push(this.componentId);
+    this.bulletDistancePerSecond = bulletDistancePerSecond;
+
     signal.registerSignals(this);
   }
 
@@ -49,16 +57,19 @@ export default class Enemy{
 
   startFiring(){
     const self = this;
-    this.fireInterval = setInterval(()=>{
-      self.fireBulletAtNearestTower();
-    }, this.fireIntervalMs);
+    // this.fireInterval = setInterval(()=>{
+    //   self.fireBulletAtNearestTower();
+    // }, this.fireIntervalMs);
   }
 
   fireBulletAtNearestTower(){
 
   }
-  fireBullet({direction}={}){
+  fireBullet({direction, damage=this.damage, startPosition=this.threejsObject.position, hitExclusionComponentIds=this.hitExclusionComponentIds,
+               ownerComponentId=this.componentId, distancePerSecond=this.bulletDistancePerSecond}={}){
     console.log(`Enemy firing bullet in direction: `, direction);
+    let bullet = new Bullet({damage, direction, startPosition, hitExclusionComponentIds, ownerComponentId, playSound: false, distancePerSecond});
+    signal.trigger(ec.stage.addComponent, {component:bullet});
   }
 
   getVectorToTravelTo({pathVectors=this.pathVectors, currentPathVectorsIndex=this.currentPathVectorsIndex}={}){
@@ -82,6 +93,22 @@ export default class Enemy{
     //how far we've traveled
     let distance = (moveDistancePerSecond * delta);
 
+
+    //if we've hit the path vector, increase the index so we start traveling towards the next.
+    let oppositeDirection = new Vector3();
+    oppositeDirection.subVectors(startPosition, pathPointVector);
+
+    // this.fireBullet({direction: oppositeDirection, startPosition: pathPointVector});
+
+    const raycaster = new Raycaster(pathPointVector, oppositeDirection);
+    const intersects = raycaster.intersectObject(this.threejsObject);
+    if(intersects.length > 0 ){ //&& intersects[0].distance < .1
+      console.log(`intersects: `, intersects);
+      console.log(`enemy position: x: ${this.threejsObject.position.x}    y: ${this.threejsObject.position.y}   z: ${this.threejsObject.position.z}`);
+      this.startMovingTowardsNextPathVector();
+    }
+
+
     //update position
     let newPosition = new Vector3().copy(direction).normalize().multiplyScalar(distance);
     this.threejsObject.position.add(newPosition);
@@ -94,16 +121,7 @@ export default class Enemy{
     signal.trigger(ec.enemy.positionChanged, {componentId: this.componentId, x, y, z });//let towers know where we are.
 
 
-    //if we've hit the path vector, increase the index so we start traveling towards the next.
-    let oppositeDirection = new Vector3();
-    oppositeDirection.subVectors(startPosition, pathPointVector);
-    const raycaster = new Raycaster(pathPointVector, oppositeDirection);
-    const intersects = raycaster.intersectObject(this.threejsObject);
-    if(intersects.length > 0 ){ //&& intersects[0].distance < .1
-      console.log(`intersects: `, intersects);
-      console.log(`enemy position: x: ${this.threejsObject.position.x}    y: ${this.threejsObject.position.y}   z: ${this.threejsObject.position.z}`);
-      this.startMovingTowardsNextPathVector();
-    }
+
   }
 
   startMovingTowardsNextPathVector({pathVectors=this.pathVectors, currentPathVectorsIndex=this.currentPathVectorsIndex}={}){

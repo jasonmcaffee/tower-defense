@@ -24,7 +24,7 @@ const style ={
 style.geometry.sphere.computeBoundingSphere();
 
 export default class Bullet{
-  componentId = generateUniqueId({name:'BulletC'})
+  componentId = generateUniqueId({name:'Bullet'})
   distancePerSecond //NOTE: if you go to fast, hit test is incorrect. may need other approach.
   totalDistanceTraveled = 0
   distance = 0

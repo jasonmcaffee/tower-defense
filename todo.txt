@@ -1,15 +1,12 @@
-bigger world
-- more floor lines. spread out.
-- more boxes
+- global speed modifier
+- player base at end of path
+- same sizes for tower foundation, tower, enemy, etc.
+- bullet size.
+- multiple waves at same time? i.e. use an interval for starting waves
+- early wave call?
+- award coins for killing enemy.
+- path points
 
 
-scores
 
-google analytics
-
-
-auto fire gun
-
-pointer api
-
-mesh material for mines
+completed ##############################################################################################
