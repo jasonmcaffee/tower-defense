@@ -10,7 +10,7 @@ export default class Enemy{
   threejsObject
   hitBox
   moveClock = new Clock()
-  constructor({x=0, y=0, z=0, hitPoints=1, moveDistancePerSecond=9, fireIntervalMs=1000, firingRange=10, damage=1, pathVectors=[], towerPositions=[], size=10,
+  constructor({x=0, y=0, z=0, hitPoints=1, moveDistancePerSecond=9, fireIntervalMs=1000, firingRange=10, damage=1, pathVectors=[], towerPositions=[], size=5,
                 hitExclusionComponentIds=[], bulletDistancePerSecond=10}={}){
     this.size = size;
     this.damage = damage;
@@ -30,6 +30,7 @@ export default class Enemy{
     this.hitExclusionComponentIds = hitExclusionComponentIds;
     this.hitExclusionComponentIds.push(this.componentId);
     this.bulletDistancePerSecond = bulletDistancePerSecond;
+    this.pathPointsWeveAlreadyHit = []; //we only want to change directions once when we hit a given path point (multiple hits can occur)
 
     signal.registerSignals(this);
   }
@@ -44,8 +45,20 @@ export default class Enemy{
         console.log(`enemy took too much damage and is about to be killed.`);
         this.kill();
       }
+    },
 
-    }
+    //test if we hit path points
+    [ec.hitTest.hitTestResult]({doesIntersect, hitteeComponentId, hitComponentId, damage=this.damage, ownerComponentId=this.ownerComponentId, hitExclusionComponentIds=this.hitExclusionComponentIds}){
+      if(this.componentId !== hitteeComponentId || hitComponentId.indexOf(`PathPoint`) < 0 ){return;}
+      if(this.pathPointsWeveAlreadyHit.includes(hitComponentId)){
+        return console.log(`Enemy has already hit path point: ${hitComponentId}`);
+      }else{
+        this.pathPointsWeveAlreadyHit.push(hitComponentId);
+      }
+      console.log(`Enemy has hit path point: ${hitComponentId}`);
+      //move to next position
+      this.startMovingTowardsNextPathVector();
+    },
   }
 
   render(){
@@ -81,6 +94,10 @@ export default class Enemy{
   travelPath({nearestTargetVector=this.getVectorToTravelTo(), delta=this.moveClock.getDelta(), moveDistancePerSecond=this.moveDistancePerSecond}={}){
     if(!nearestTargetVector){ return;}
     // console.log(`enemy.travelPath`);
+
+    //perform a hit test to see if we hit a path point.
+    signal.trigger(ec.hitTest.performHitTest, {hitteeComponent: this});
+
     //where we are traveling from
     let startPosition = this.threejsObject.position;
     //where we are traveling to
@@ -93,22 +110,6 @@ export default class Enemy{
     //how far we've traveled
     let distance = (moveDistancePerSecond * delta);
 
-
-    //if we've hit the path vector, increase the index so we start traveling towards the next.
-    let oppositeDirection = new Vector3();
-    oppositeDirection.subVectors(startPosition, pathPointVector);
-
-    // this.fireBullet({direction: oppositeDirection, startPosition: pathPointVector});
-
-    const raycaster = new Raycaster(pathPointVector, oppositeDirection);
-    const intersects = raycaster.intersectObject(this.threejsObject);
-    if(intersects.length > 0 ){ //&& intersects[0].distance < .1
-      console.log(`intersects: `, intersects);
-      console.log(`enemy position: x: ${this.threejsObject.position.x}    y: ${this.threejsObject.position.y}   z: ${this.threejsObject.position.z}`);
-      this.startMovingTowardsNextPathVector();
-    }
-
-
     //update position
     let newPosition = new Vector3().copy(direction).normalize().multiplyScalar(distance);
     this.threejsObject.position.add(newPosition);
@@ -119,8 +120,6 @@ export default class Enemy{
     //let others know the position changed.
     const {x, y, z} = this.threejsObject.position;
     signal.trigger(ec.enemy.positionChanged, {componentId: this.componentId, x, y, z });//let towers know where we are.
-
-
 
   }
 
