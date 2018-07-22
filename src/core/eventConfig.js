@@ -99,6 +99,8 @@ export const eventConfig = {
   },
   game:{
     startGame:'game.startGame',
+    pauseGame: 'game.pauseGame',
+    unpauseGame: 'game.unpauseGame',
     stopGame:'game.stopGame',
     gameEnded:'game.gameEnded',
   }

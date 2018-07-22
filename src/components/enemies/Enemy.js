@@ -1,7 +1,7 @@
-import {Raycaster, Clock, CubeGeometry, BoxGeometry, SphereGeometry, MeshNormalMaterial, MeshLambertMaterial, Mesh, Box3, Vector3, Texture, Object3D,  Sphere} from 'three';
+import {Raycaster, CubeGeometry, BoxGeometry, SphereGeometry, MeshNormalMaterial, MeshLambertMaterial, Mesh, Box3, Vector3, Texture, Object3D,  Sphere} from 'three';
 import {signal, eventConfig as ec, generateUniqueId, generateRandomNumber as grn} from "core/core";
 import Bullet from 'components/Bullet';
-
+import GameClock from 'services/GameClock';
 /**
  * Enemy - 
  */
@@ -9,7 +9,7 @@ export default class Enemy{
   componentId = generateUniqueId({name:'Enemy'})
   threejsObject
   hitBox
-  moveClock = new Clock()
+  moveClock = new GameClock()
   constructor({x=0, y=0, z=0, hitPoints=1, moveDistancePerSecond=9, fireIntervalMs=1000, firingRange=10, damage=1, pathVectors=[], towerPositions=[], size=5,
                 hitExclusionComponentIds=[], bulletDistancePerSecond=10}={}){
     this.size = size;
@@ -31,14 +31,20 @@ export default class Enemy{
     this.hitExclusionComponentIds.push(this.componentId);
     this.bulletDistancePerSecond = bulletDistancePerSecond;
     this.pathPointsWeveAlreadyHit = []; //we only want to change directions once when we hit a given path point (multiple hits can occur)
-
+    this.isGamePaused = false; //don't render/fire/etc when game is paused.
     signal.registerSignals(this);
   }
 
   signals = {
+    [ec.game.pauseGame](){
+      this.isGamePaused = true;
+    },
+    [ec.game.unpauseGame](){
+      this.isGamePaused = false;
+    },
     [ec.hitTest.hitComponent]({hitComponent, damage}){
       const componentId = hitComponent.componentId;
-      if(this.componentId !== componentId){return;}
+      if(this.componentId !== componentId){ return; }
       console.log(`enemy hit. ${damage}`);
       this.hitPoints -= damage;
       if(this.hitPoints <= 0){
@@ -62,7 +68,7 @@ export default class Enemy{
   }
 
   render(){
-    if(this.isDead){return;}
+    if(this.isDead || this.isGamePaused){return;}
     //todo: move along the path.
     this.travelPath();
     //todo: find closest enemy
