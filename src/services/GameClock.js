@@ -9,7 +9,6 @@ export default class GameClock{
   constructor(){
     this.clock = new Clock();
     this.isGamePaused = false;
-
     signal.registerSignals(this);
   }
 
@@ -23,7 +22,6 @@ export default class GameClock{
       this.clock.start();
     }
   }
-
   getDelta(){
     return this.clock.getDelta();
   }
