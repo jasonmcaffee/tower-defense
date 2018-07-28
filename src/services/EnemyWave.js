@@ -1,5 +1,7 @@
 import {signal, eventConfig as ec, generateRandomNumber as grn} from "core/core";
 import Enemy from 'components/enemies/Enemy';
+import GameInterval from 'services/GameInterval';
+import Game from "../Game";
 
 export default class EnemyWave{
   constructor({x=0, y=0, z=0, pathVectors=[], towerPositions=[], enemyCount=5, startEnemyIntervalMs=500, name='', enemyConfig={}}){
@@ -64,16 +66,29 @@ export default class EnemyWave{
     //create the first enemy immediately so enemy dieing on previous wave doesn't end us.
     this.createdEnemyCount = 1;
 
-    this.startEnemyIntervalId = setInterval(()=>{
+    // this.startEnemyIntervalId = setInterval(()=>{
+    //   if(this.createdEnemyCount++ > enemyCount){
+    //     clearInterval(this.startEnemyIntervalId);
+    //     return;
+    //   }
+    //   console.log(`EnemyWave ${this.name} creating enemy ${this.createdEnemyCount}`);
+    //   const enemy = new Enemy(enemyConfig);
+    //   this.enemies.push(enemy);
+    //   signal.trigger(ec.stage.addComponent, {component: enemy});
+    // }, startEnemyIntervalMs);
+
+    this.gameInterval = new GameInterval({intervalFunction:()=>{
       if(this.createdEnemyCount++ > enemyCount){
-        clearInterval(this.startEnemyIntervalId);
+        this.gameInterval.destroy();
         return;
       }
       console.log(`EnemyWave ${this.name} creating enemy ${this.createdEnemyCount}`);
       const enemy = new Enemy(enemyConfig);
       this.enemies.push(enemy);
       signal.trigger(ec.stage.addComponent, {component: enemy});
-    }, startEnemyIntervalMs);
+    }, intervalMs: startEnemyIntervalMs});
+
+
   }
 
   //called on when enemy dies
@@ -84,7 +99,9 @@ export default class EnemyWave{
   }
 
   destroy({enemies=this.enemies}={}){
-    clearInterval(this.startEnemyIntervalId);
+    if(this.gameInterval){
+      this.gameInterval.destroy();
+    }
     signal.unregisterSignals(this);
     enemies.forEach(e=>{
       signal.trigger(ec.stage.destroyComponent, {componentId: e.componentId});

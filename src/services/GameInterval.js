@@ -33,6 +33,7 @@ export default class GameInterval{
       console.log(`GameInterval paused. remainingIntervalMs: ${this.remainingIntervalMs}`)
     },
     [ec.game.unpauseGame](){
+      console.log(`GameInterval unpaused.`);
       this.runInterval({intervalMs: this.remainingIntervalMs});
     }
   }
