@@ -30,13 +30,13 @@ const towerPositions = [
 
 const enemyWavesConfig = [
   {
-    name: 'Wave 1', x: 0, y: 0, z: 0, enemyCount: 10, startEnemyIntervalMs: 500, towerPositions, pathVectors,
-    enemyConfig: {moveDistancePerSecond: 58, fireIntervalMs: 1000, firingRange: 10, hitPoints: 1, damage: 1,},
+    name: 'Wave 1', x: 0, y: 0, z: 0, enemyCount: 20, startEnemyIntervalMs: 2000, towerPositions, pathVectors,
+    enemyConfig: {moveDistancePerSecond: 8, fireIntervalMs: 1000, firingRange: 10, hitPoints: 1, damage: 1,},
   },
-  {
-    name: 'Wave 2', x: 0, y: 0, z: 0, enemyCount: 15, startEnemyIntervalMs: 1500, towerPositions, pathVectors,
-    enemyConfig: {moveDistancePerSecond: 9, fireIntervalMs: 1000, firingRange: 10, hitPoints: 2, damage: 1, },
-  },
+  // {
+  //   name: 'Wave 2', x: 0, y: 0, z: 0, enemyCount: 15, startEnemyIntervalMs: 1500, towerPositions, pathVectors,
+  //   enemyConfig: {moveDistancePerSecond: 9, fireIntervalMs: 1000, firingRange: 10, hitPoints: 2, damage: 1, },
+  // },
 ];
 
 /**

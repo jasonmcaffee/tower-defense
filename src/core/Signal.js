@@ -50,10 +50,11 @@ export default class Signal{
 
 //https://stackoverflow.com/questions/9882284/looping-through-array-and-removing-items-without-breaking-for-loop
     const callbacksWithContext = this._signals[id];
-    let i = callbacksWithContext.length;
+    const callbacksWithContextClone = [...callbacksWithContext];
+    let i = callbacksWithContextClone.length;
     while(i--){
         // var callbackWithContext = this._signals[id][i];
-        var callbackWithContext = callbacksWithContext[i];
+        var callbackWithContext = callbacksWithContextClone[i];
         if(!callbackWithContext){
           console.warn(`Signal callbackWithContext is null for id: ${id} index: ${i}`, this._signals[id]);
           continue;

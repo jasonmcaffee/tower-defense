@@ -79,6 +79,7 @@ export default class EnemyWave{
 
     this.gameInterval = new GameInterval({intervalFunction:()=>{
       if(this.createdEnemyCount++ > enemyCount){
+        console.log(`EnemyWave all enemies have been created. Destroying gameInterval`);
         this.gameInterval.destroy();
         return;
       }

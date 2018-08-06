@@ -57,11 +57,12 @@ export default class Enemy{
     [ec.hitTest.hitTestResult]({doesIntersect, hitteeComponentId, hitComponentId, damage=this.damage, ownerComponentId=this.ownerComponentId, hitExclusionComponentIds=this.hitExclusionComponentIds}){
       if(this.componentId !== hitteeComponentId || hitComponentId.indexOf(`PathPoint`) < 0 ){return;}
       if(this.pathPointsWeveAlreadyHit.includes(hitComponentId)){
-        return console.log(`Enemy has already hit path point: ${hitComponentId}`);
+        return;
+        // return console.log(`Enemy has already hit path point: ${hitComponentId}`);
       }else{
         this.pathPointsWeveAlreadyHit.push(hitComponentId);
       }
-      console.log(`Enemy has hit path point: ${hitComponentId}`);
+      // console.log(`Enemy has hit path point: ${hitComponentId}`);
       //move to next position
       this.startMovingTowardsNextPathVector();
     },

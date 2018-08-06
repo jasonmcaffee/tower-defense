@@ -99,7 +99,7 @@ export default class Player {
     console.log('player hit animation');
   }
   fireSelectItemBullet(){
-    console.log(`player fire bullet. `, this.mouseDirection);
+    // console.log(`player fire bullet. `, this.mouseDirection);
     if(!this.mouseDirection){return;}
     let direction = this.mouseDirection;
     let startPosition = this.mouseVector;
